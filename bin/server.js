@@ -5,12 +5,15 @@ const http = require('http')
 const middlewaresAppConfig = require('./config/middlewares')
 const routes = require('../src/routes')
 const app = express()
-
+const cors = require('cors')
+const helmet = require('helmet')
 // Middlewares are imported here.
 middlewaresAppConfig(app)
 
 app.use(express.static(__dirname,{dotfiles:'allow'}))
 
+app.use(cors())
+app.use(helmet())
 // Add app routes.
 routes(app)
 
