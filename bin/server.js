@@ -4,7 +4,6 @@ const express = require('express')
 const http = require('http')
 const middlewaresAppConfig = require('./config/middlewares')
 const routes = require('../src/routes')
-
 const app = express()
 
 
