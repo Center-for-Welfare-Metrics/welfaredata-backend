@@ -6,15 +6,21 @@ const AuthControllerr = {
         const {email,password} = request.body
         try {
             const user = await UserModel.findOne({email}).exec()
-            user.validatePassword(password)
-            .then((result) => {
-                signIn(result,user.toJSON(),response)
-            })
-            .catch(()=>{
+            if(user){
+                user.validatePassword(password)
+                .then((result) => {
+                    signIn(result,user.toJSON(),response)
+                })
+                .catch(()=>{
+                    response.status(404).json({
+                        email:['Credenciais não encontradas.']
+                    })
+                })
+            }else{
                 response.status(404).json({
                     email:['Credenciais não encontradas.']
                 })
-            })
+            }
 
         } catch (error) {
             response.status(500).json(error)
