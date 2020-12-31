@@ -7,7 +7,7 @@ const signIn = (should_singin,user,response) => {
         let options = {
             httpOnly:true
         }
-        if(process.env.NODE_EV === 'prod'){
+        if(process.env.NODE_ENV === 'prod'){
             options.sameSite = 'none'
             options.secure = true
         }
@@ -24,7 +24,7 @@ const logOut = (response) => {
     let options = {
         httpOnly:true
     }
-    if(process.env.NODE_EV === 'prod'){
+    if(process.env.NODE_ENV === 'prod'){
         options.sameSite = 'none'
         options.secure = true
     }
