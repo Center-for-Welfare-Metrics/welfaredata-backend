@@ -14,7 +14,7 @@ const UserValidator = {
             response.status(412)
             .json({
                 success:false,
-                message:'Validation Failed',
+                message:'Operação Rejeitada',
                 data:errors
             })
         })
@@ -32,7 +32,7 @@ const UserValidator = {
             response.status(412)
             .json({
                 success:false,
-                message:'Validation Failed',
+                message:'Operação Rejeitada',
                 data:errors
             })
         })

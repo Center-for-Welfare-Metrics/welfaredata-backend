@@ -24,7 +24,17 @@ UserSchema.pre('save', function(next){
 })
 
 UserSchema.methods.validatePassword = function(password){
-    return bcrypt.compare(password,this.password)
+    let user = this
+    return new Promise((resolve,reject) => {
+        bcrypt.compare(password,user.password)
+        .then((result) => {
+            resolve(result)
+        })
+        .catch((error)=>{
+            reject(error)
+        })
+    })
+    
 }
 
 module.exports = mongoose.model('User',UserSchema)

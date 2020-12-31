@@ -2,13 +2,13 @@ const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
+const helmet = require('helmet')
 
 module.exports = (app) => {
   app.use(bodyParser.json())
   app.use(bodyParser.urlencoded({ extended: false }))
   app.use(cookieParser())
-  app.use(cors())
-
-  // Log requests
+  app.use(cors({credentials: true, origin: process.env.CLIENT_DOMAIN}))
+  app.use(helmet())
   app.use(morgan("tiny"))
 }

@@ -1,16 +1,23 @@
 const jwt = require('jsonwebtoken')
 
-const signIn = (should_singin,email,response) => {
+const signIn = (should_singin,user,response) => {
     if(should_singin){
-        const token = jwt.sign({email},process.env.SECRET,{expiresIn:'2h'})
-        response.cookie('token',token,{httpOnly:true}).sendStatus(200)
+        delete user.password
+        const token = jwt.sign(user,process.env.SECRET,{expiresIn:'2h'})
+        response.cookie('token',token,{httpOnly:true}).status(200).json(user)
     }else{
         response.status(412).json({
-            email:['Credentials not found']
+            email:['Credenciais não encontradas.']
         })
     }
 }
 
+
+const logOut = (response) => {
+    response.clearCookie('token').sendStatus(200)
+}
+
 module.exports = {
-    signIn
+    signIn,
+    logOut
 }
