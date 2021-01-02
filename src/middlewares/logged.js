@@ -18,7 +18,9 @@ const AuthProtected = (request,response,next) => {
             if(error){
                 response.sendStatus(401) 
             }else{
-                request._id = decoded._id
+                delete decoded.exp
+                delete decoded.iat
+                request.auth_user = decoded
                 next()
             }
         })

@@ -1,7 +1,7 @@
 const UserController = {
     get: (request,response)=>{
-        let {_id} = request
-        response.status(200).json(_id)
+        let {auth_user} = request
+        response.status(200).json(auth_user)
     }
 }
 
