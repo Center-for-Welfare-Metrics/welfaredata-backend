@@ -5,9 +5,10 @@ module.exports = () => {
   mongoose.connect(process.env.MONGO_CONNECTION_URL,
     {
       useNewUrlParser: true,
-      useUnifiedTopology: true
+      useUnifiedTopology: true,
+      useCreateIndex:true
       // useUnifiedTopology:true
-    }, err => {
+    }, (err:any) => {
       if (err) {
         // Log the error
         console.error(err)

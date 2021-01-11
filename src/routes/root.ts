@@ -1,8 +1,8 @@
 const router = require('express').Router()
-const AuthController = require('../controllers/AuthController')
-const UserController = require('../controllers/UserController')
-const UserValidator = require('../../helpers/validators/user-validator')
-const {OnlyGuest,AuthProtected} = require('../middlewares/logged')
+const AuthController = require('@/controllers/AuthController')
+const UserController = require('@/controllers/UserController')
+const UserValidator = require('@/helpers/validators/user-validator')
+const {OnlyGuest,AuthProtected} = require('@/middlewares/logged')
 
 router.post('/login',OnlyGuest,UserValidator.login,AuthController.login)
 

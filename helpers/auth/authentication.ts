@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken')
 
-const options = {
+const options:any = {
     httpOnly:true
 }
 
@@ -9,7 +9,7 @@ if(process.env.NODE_ENV === 'prod'){
     options.secure = true
 }
 
-const signIn = (should_singin,user,response) => {
+const signIn = (should_singin:boolean,user:any,response:any) => {
     if(should_singin){
         delete user.password
         const token = jwt.sign(user,process.env.SECRET,{expiresIn:'6h'})
@@ -22,7 +22,7 @@ const signIn = (should_singin,user,response) => {
 }
 
 
-const logOut = (response) => {
+const logOut = (response:any) => {
     response.clearCookie('token',options).sendStatus(200)
 }
 

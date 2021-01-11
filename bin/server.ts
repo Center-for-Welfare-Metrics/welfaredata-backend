@@ -1,5 +1,6 @@
 require('dotenv').config()
 require('./config/database')()
+// require('./config/amazons3')
 const express = require('express')
 const http = require('http')
 const middlewaresAppConfig = require('./config/middlewares')

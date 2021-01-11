@@ -1,7 +1,7 @@
 const validator = require('./validate')
 
-const UserValidator = {
-    login: ({body},response,next) => {
+module.exports = {
+    login: ({body}:any,response:any,next:any) => {
         let rules = {
             email:'email|required',
             password:'min:6'
@@ -10,7 +10,7 @@ const UserValidator = {
         .then(()=>{
             next()
         })
-        .catch((errors) => {
+        .catch((errors:any) => {
             response.status(412)
             .json({
                 success:false,
@@ -19,7 +19,7 @@ const UserValidator = {
             })
         })
     },
-    register: ({body},response,next) => {
+    register: ({body}:any,response:any,next:any) => {
         let rules = {
             email:'email|required',
             password:'min:6|confirmed'
@@ -28,7 +28,7 @@ const UserValidator = {
         .then(()=>{
             next()
         })
-        .catch((errors) => {
+        .catch((errors:any) => {
             response.status(412)
             .json({
                 success:false,
@@ -38,6 +38,3 @@ const UserValidator = {
         })
     }
 }
-
-
-module.exports = UserValidator
