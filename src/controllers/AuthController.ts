@@ -1,5 +1,5 @@
-const UserModel = require('@/models/User')
 export {}
+const UserModel = require('@/models/User')
 const { signIn,logOut } = require('@/helpers/auth/authentication')
 
 const AuthControllerr = {

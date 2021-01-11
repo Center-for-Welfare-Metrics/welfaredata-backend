@@ -9,7 +9,7 @@ if(process.env.NODE_ENV === 'prod'){
     options.secure = true
 }
 
-const signIn = (should_singin:boolean,user:any,response:any) => {
+const signIn = (should_singin:boolean,user,response) => {
     if(should_singin){
         delete user.password
         const token = jwt.sign(user,process.env.SECRET,{expiresIn:'6h'})
@@ -22,7 +22,7 @@ const signIn = (should_singin:boolean,user:any,response:any) => {
 }
 
 
-const logOut = (response:any) => {
+const logOut = (response) => {
     response.clearCookie('token',options).sendStatus(200)
 }
 
