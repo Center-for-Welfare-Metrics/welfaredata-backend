@@ -1,5 +1,6 @@
-const UserModel = require('../models/User')
-const { signIn,logOut } = require('../../helpers/auth/authentication')
+const UserModel = require('@/models/User')
+export {}
+const { signIn,logOut } = require('@/helpers/auth/authentication')
 
 const AuthControllerr = {
     login: async (request,response) => {
