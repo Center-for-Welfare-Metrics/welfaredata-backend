@@ -14,7 +14,7 @@ router.post('/login',OnlyGuest,UserValidator.login,AuthController.login)
 
 router.post('/register',OnlyGuest,UserValidator.register,AuthController.register)
 
-router.post('/logout', AuthController.logout)
+router.post('/logout', AuthProtected ,AuthController.logout)
 
 router.get('/user',AuthProtected,UserController.get)
 

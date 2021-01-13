@@ -10,7 +10,9 @@ import routes from '../src/routes'
 
 const app = express()
 
-import './config/custom'
+import express_custom from './config/express-customizer'
+
+express_custom(app)
 
 middlewaresAppConfig(app)
 

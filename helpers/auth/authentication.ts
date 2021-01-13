@@ -18,12 +18,11 @@ export const signIn = (should_singin:boolean,user:IUser,response:Response) => {
         const token = jwt.sign(user.secureJsonfy(),process.env.SECRET!,{expiresIn:'6h'})
         response.cookie('token',token,options).status(200).json(user)
     }else{
-        response.status(412).json({
-            email:['Credenciais não encontradas.']
+        response.notFound({
+            email:['Credentials not found']
         })
     }
 }
-
 
 export const logOut = (response:Response) => {
     response.clearCookie('token',options).sendStatus(200)

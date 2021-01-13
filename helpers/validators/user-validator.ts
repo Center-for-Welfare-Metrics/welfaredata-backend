@@ -12,8 +12,7 @@ export default {
             next()
         })
         .catch((errors) => {
-            response.status(412)
-            .json({
+            response.preconditionFailed({
                 success:false,
                 message:'Operação Rejeitada',
                 data:errors
@@ -30,8 +29,7 @@ export default {
             next()
         })
         .catch((errors) => {
-            response.status(412)
-            .json({
+            response.preconditionFailed({
                 success:false,
                 message:'Operação Rejeitada',
                 data:errors

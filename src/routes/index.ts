@@ -1,8 +1,8 @@
-import {Application} from 'express'
+import {Express} from 'express'
 import root from './root'
 
 
-export default (app:Application) => {
+export default (app:Express) => {
     app.use('/',root)
 }
   

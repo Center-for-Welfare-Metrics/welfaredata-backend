@@ -6,7 +6,7 @@ import {NextFunction,Response,Request} from 'express'
 export const OnlyGuest = (request:Request,response:Response,next:NextFunction) => {
     let {token} = request.cookies
     if(token){
-        response.sendStatus(412)
+        response.preconditionFailed()
     }else{
         next()
     }
@@ -18,7 +18,7 @@ export const AuthProtected = (request:Request,response:Response,next:NextFunctio
     if(token){
         jwt.verify(token,process.env.SECRET!,(error:any,decoded:any) => {
             if(error){
-                response.sendStatus(401) 
+                response.unauthorized()
             }else{
                 delete decoded.exp
                 delete decoded.iat
@@ -27,6 +27,6 @@ export const AuthProtected = (request:Request,response:Response,next:NextFunctio
             }
         })
     }else{
-        response.sendStatus(401)
+        response.unauthorized()
     }
 }

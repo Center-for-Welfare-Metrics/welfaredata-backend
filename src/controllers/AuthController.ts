@@ -13,18 +13,18 @@ const AuthControllerr = {
                     signIn(result,user,response)
                 })
                 .catch(()=>{
-                    response.status(404).json({
-                        email:['Credenciais não encontradas.']
+                    response.notFound({
+                        email:['Credentials not found.']
                     })
                 })
             }else{
-                response.status(404).json({
-                    email:['Credenciais não encontradas.']
+                response.notFound({
+                    email:['Credentials not found.']
                 })
             }
 
         } catch (error) {
-            response.status(500).json(error)
+            response.internalServerError(error)
         }
     },
     register: async (request:Request,response:Response) => {
@@ -34,7 +34,7 @@ const AuthControllerr = {
             await user.save()
             signIn(true,user,response)
         } catch (error) {
-            response.status(500).json(error)
+            response.internalServerError(error)
         }
     },
     logout: (request:Request,response:Response) => {

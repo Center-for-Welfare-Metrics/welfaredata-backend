@@ -1,10 +1,12 @@
+import {Express} from 'express'
+
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
 const helmet = require('helmet')
 
-export default (app:any) => {
+export default (app:Express) => {
   app.use(bodyParser.json())
   app.use(bodyParser.urlencoded({ extended: false }))
   app.use(cookieParser())
