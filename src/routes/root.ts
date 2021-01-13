@@ -10,12 +10,26 @@ import UserValidator from '@/helpers/validators/user-validator'
 
 import {OnlyGuest,AuthProtected} from '@/middlewares/logged'
 
-router.post('/login',OnlyGuest,UserValidator.login,AuthController.login)
+router.post('/login', 
+    OnlyGuest, 
+    UserValidator.login, 
+    AuthController.login
+)
 
-router.post('/register',OnlyGuest,UserValidator.register,AuthController.register)
+router.post('/register',
+    OnlyGuest, 
+    UserValidator.register, 
+    AuthController.register
+)
 
-router.post('/logout', AuthProtected ,AuthController.logout)
+router.post('/logout', 
+    AuthProtected, 
+    AuthController.logout
+)
 
-router.get('/user',AuthProtected,UserController.get)
+router.get('/user', 
+    AuthProtected, 
+    UserController.get
+)
 
 export default router

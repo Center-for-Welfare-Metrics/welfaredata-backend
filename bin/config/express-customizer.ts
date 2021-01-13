@@ -1,4 +1,4 @@
-import {Express,ErrorRequestHandler} from 'express'
+import {Express} from 'express'
 
 
 
