@@ -1,7 +1,8 @@
-const validator = require('./validate')
+import validator from './validate'
+import {Response,NextFunction,Request} from 'express'
 
-module.exports = {
-    login: ({body},response,next) => {
+export default {
+    login: ({body}:Request,response:Response,next:NextFunction) => {
         let rules = {
             email:'email|required',
             password:'min:6'
@@ -19,7 +20,7 @@ module.exports = {
             })
         })
     },
-    register: ({body},response,next) => {
+    register: ({body}:Request,response:Response,next:NextFunction) => {
         let rules = {
             email:'email|required',
             password:'min:6|confirmed'

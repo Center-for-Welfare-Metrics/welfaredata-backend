@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-module.exports = () => {
+export default () => {
   // Database connection
   mongoose.connect(process.env.MONGO_CONNECTION_URL,
     {

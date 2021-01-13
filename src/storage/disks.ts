@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     icons:{
         education:'icons/education/',
         avatars:'icons/avatars/',

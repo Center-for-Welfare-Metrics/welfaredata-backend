@@ -1,4 +1,8 @@
-const jwt = require('jsonwebtoken')
+import jwt from 'jsonwebtoken'
+
+import {IUser} from '@/models/User'
+
+import {Response} from 'express'
 
 const options:any = {
     httpOnly:true
@@ -9,10 +13,9 @@ if(process.env.NODE_ENV === 'prod'){
     options.secure = true
 }
 
-const signIn = (should_singin:boolean,user,response) => {
+export const signIn = (should_singin:boolean,user:IUser,response:Response) => {
     if(should_singin){
-        delete user.password
-        const token = jwt.sign(user,process.env.SECRET,{expiresIn:'6h'})
+        const token = jwt.sign(user.secureJsonfy(),process.env.SECRET!,{expiresIn:'6h'})
         response.cookie('token',token,options).status(200).json(user)
     }else{
         response.status(412).json({
@@ -22,11 +25,6 @@ const signIn = (should_singin:boolean,user,response) => {
 }
 
 
-const logOut = (response) => {
+export const logOut = (response:Response) => {
     response.clearCookie('token',options).sendStatus(200)
-}
-
-module.exports = {
-    signIn,
-    logOut
 }

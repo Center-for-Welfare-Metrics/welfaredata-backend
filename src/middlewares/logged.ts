@@ -1,8 +1,9 @@
-export {}
-const jwt = require('jsonwebtoken')
+import jwt from 'jsonwebtoken'
+import {NextFunction,Response,Request} from 'express'
 
 
-const OnlyGuest = (request,response,next) => {
+
+export const OnlyGuest = (request:Request,response:Response,next:NextFunction) => {
     let {token} = request.cookies
     if(token){
         response.sendStatus(412)
@@ -12,10 +13,10 @@ const OnlyGuest = (request,response,next) => {
 }
 
 
-const AuthProtected = (request,response,next) => {
+export const AuthProtected = (request:Request,response:Response,next:NextFunction) => {
     let {token} = request.cookies
     if(token){
-        jwt.verify(token,process.env.SECRET,(error,decoded) => {
+        jwt.verify(token,process.env.SECRET!,(error:any,decoded:any) => {
             if(error){
                 response.sendStatus(401) 
             }else{
@@ -28,9 +29,4 @@ const AuthProtected = (request,response,next) => {
     }else{
         response.sendStatus(401)
     }
-}
-
-module.exports = {
-    OnlyGuest,
-    AuthProtected
 }

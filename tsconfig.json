@@ -13,8 +13,8 @@
         "@/middlewares/*":["src/middlewares/*"],
         "@/models/*":["src/models/*"],
         "@/routes/*":["src/routes/*"],
-        "@/storage/*":["src/storage/*"]
-      },
-      "noImplicitAny": false
-    },
+        "@/storage/*":["src/storage/*"],
+        "@/interfaces/*":["src/interfaces/*"]
+      }
+    }
 }

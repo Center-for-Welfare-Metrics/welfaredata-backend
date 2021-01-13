@@ -1,5 +1,8 @@
+import {Request,Response} from 'express'
+
+
 const UserController = {
-    get: (request,response)=>{
+    get: (request:Request,response:Response)=>{
         let {auth_user} = request
         response.status(200).json(auth_user)
     }
@@ -7,4 +10,4 @@ const UserController = {
 
 
 
-module.exports = UserController
+export default UserController

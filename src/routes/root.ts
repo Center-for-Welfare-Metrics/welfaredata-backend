@@ -1,9 +1,14 @@
-export {}
-const router = require('express').Router()
-const AuthController = require('@/controllers/AuthController')
-const UserController = require('@/controllers/UserController')
-const UserValidator = require('@/helpers/validators/user-validator')
-const {OnlyGuest,AuthProtected} = require('@/middlewares/logged')
+import express from 'express'
+
+const router = express.Router()
+
+import AuthController from '@/controllers/AuthController'
+
+import UserController from '@/controllers/UserController'
+
+import UserValidator from '@/helpers/validators/user-validator'
+
+import {OnlyGuest,AuthProtected} from '@/middlewares/logged'
 
 router.post('/login',OnlyGuest,UserValidator.login,AuthController.login)
 
@@ -13,4 +18,4 @@ router.post('/logout', AuthController.logout)
 
 router.get('/user',AuthProtected,UserController.get)
 
-module.exports = router
+export default router
