@@ -29,8 +29,8 @@ const AuthControllerr = {
     },
     register: async (request:Request,response:Response) => {
         try {
-            const {email,password} = request.body
-            const user = new UserModel({email,password})
+            const {name,email,password} = request.body
+            const user = new UserModel({name,email,password})
             await user.save()
             signIn(true,user,response)
         } catch (error) {

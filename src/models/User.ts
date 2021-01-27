@@ -3,6 +3,7 @@ import mongoose,{HookNextFunction} from 'mongoose'
 import bcrypt from 'bcrypt'
 
 export interface IUser extends mongoose.Document {
+    name:string
     email:string
     password:string
     validatePassword(password:string):Promise<boolean>
@@ -12,6 +13,7 @@ export interface IUser extends mongoose.Document {
 const saltRounds = 10
 
 const UserSchema = new mongoose.Schema({
+    name: {type:String, required:true},
     email: {type:String, required:true, unique:true },
     password: {type:String, required:true }
 })
