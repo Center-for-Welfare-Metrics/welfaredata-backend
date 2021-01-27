@@ -7,6 +7,7 @@
       "esModuleInterop": true,
       "strict": true,
       "baseUrl": ".",
+      "allowJs": true,
       "paths":{
         "@/helpers/*":["helpers/*"],
         "@/controllers/*":["src/controllers/*"],

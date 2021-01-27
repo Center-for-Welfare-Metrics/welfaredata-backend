@@ -1,9 +1,17 @@
-FROM node:10
+FROM node:12
 WORKDIR /usr/src/app
-COPY package.json ./
+COPY package*.json ./
+COPY . .
 RUN npm install
-RUN npm install pm2 -g
 RUN npm run build
-COPY ./dist .
+
+## this is stage two , where the app actually runs
+
+FROM node:12
+
+WORKDIR /usr/src/app
+COPY package*.json ./
+RUN npm install --only=production
+COPY --from=0 /usr/src/app/dist ./dist
 EXPOSE 8080
-CMD ["pm2-runtime","app.js"]
+CMD npm start
