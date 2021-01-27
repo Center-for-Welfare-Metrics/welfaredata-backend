@@ -29,7 +29,8 @@
   },
   "scripts": {
     "dev": "ts-node -r tsconfig-paths/register bin/server.ts",
-    "start": "node dist/app.js",
+    "start": "node dist/bin/server.js",
+    "build": "tsc -p .",
     "gcp-build": "tsc -p ."
   },
   "keywords": [],
