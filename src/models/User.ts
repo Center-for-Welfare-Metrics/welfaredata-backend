@@ -3,11 +3,11 @@ import mongoose,{HookNextFunction,Schema} from 'mongoose'
 import bcrypt from 'bcrypt'
 
 export interface IUser extends mongoose.Document {
-    name?:string
-    email?:string
+    name:string
+    email:string
     password?:string
-    validatePassword?(password:string):Promise<boolean>;
-    secureJsonfy?():any;
+    validatePassword(password:string):Promise<boolean>;
+    secureJsonfy():any;
 }
 
 const saltRounds = 10
@@ -18,7 +18,7 @@ const UserSchema : Schema = new mongoose.Schema({
     password: {type:String, required:true }
 })
 
-UserSchema.pre<IUser>('save', function(next:HookNextFunction){
+UserSchema.pre<any>('save', function(next:HookNextFunction){
     let user = this
     if(user.isNew || user.isModified('password')){
         bcrypt.hash(user.password,saltRounds,(error,hashedPassword:string) => {
@@ -34,7 +34,7 @@ UserSchema.pre<IUser>('save', function(next:HookNextFunction){
     }
 })
 
-UserSchema.methods.validatePassword = function(this:IUser,password:string){
+UserSchema.methods.validatePassword = function(this:any,password:string){
     let user = this
     return new Promise((resolve,reject) => {
         bcrypt.compare(password,user.password || '')
@@ -47,7 +47,7 @@ UserSchema.methods.validatePassword = function(this:IUser,password:string){
     })
 }
 
-UserSchema.methods.secureJsonfy = function(this:IUser){
+UserSchema.methods.secureJsonfy = function(this:any){
     let user_to_json = this.toJSON()
     delete user_to_json.password
     return user_to_json

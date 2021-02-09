@@ -2,9 +2,13 @@ import jwt from 'jsonwebtoken'
 
 import {IUser} from '@/models/User'
 
-import {Response} from 'express'
+import {CookieOptions, Response} from 'express'
 
-const options:any = {
+const hours = (value:number) => {
+    return value * 60 * 60 * 1000
+}
+
+const options:CookieOptions = {
     httpOnly:true
 }
 
@@ -14,11 +18,9 @@ if(process.env.NODE_ENV === 'prod'){
 }
 
 export const signIn = (should_singin:boolean,user:IUser,response:Response) => {
-    if(should_singin){
-        if(user.secureJsonfy){
-            const token = jwt.sign(user.secureJsonfy(),process.env.SECRET!,{expiresIn:'6h'})
-            response.cookie('token',token,options).status(200).json(user)
-        }
+    if(should_singin){        
+        const token = jwt.sign(user.secureJsonfy(),process.env.SECRET!,{expiresIn:'12h'})
+        response.cookie('token',token,{...options,maxAge: hours(12)}).status(200).json(user)
     }else{
         response.notFound({
             email:['Credentials not found']

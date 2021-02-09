@@ -8,17 +8,15 @@ const AuthControllerr = {
         try {
             const user = await UserModel.findOne({email}).exec()
             if(user){
-                if(user.validatePassword){
-                    user.validatePassword(password)
-                    .then((result) => {
-                        signIn(result,user,response)
+                user.validatePassword(password)
+                .then((result) => {
+                    signIn(result,user,response)
+                })
+                .catch(()=>{
+                    response.notFound({
+                        email:['Credentials not found.']
                     })
-                    .catch(()=>{
-                        response.notFound({
-                            email:['Credentials not found.']
-                        })
-                    })
-                }
+                })
             }else{
                 response.notFound({
                     email:['Credentials not found.']
