@@ -73,6 +73,9 @@ typings/
 # vuepress build output
 .vuepress/dist
 
+# api requests test
+*.rest
+
 # Serverless directories
 .serverless
 

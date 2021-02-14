@@ -5,8 +5,9 @@ import bcrypt from 'bcrypt'
 export interface IUser extends mongoose.Document {
     name:string
     email:string
-    password?:string
-    validatePassword(password:string):Promise<boolean>;
+    password:string
+    createdBy?:string
+    validatePassword(password:string):Promise<boolean>
     secureJsonfy():any;
 }
 
@@ -15,7 +16,11 @@ const saltRounds = 10
 const UserSchema : Schema = new mongoose.Schema({
     name: {type:String, required:true},
     email: {type:String, required:true, unique:true },
-    password: {type:String, required:true }
+    password: {type:String, required:true },
+    createdBy: {type:mongoose.Types.ObjectId, required:false}
+},
+{
+    timestamps:true
 })
 
 UserSchema.pre<any>('save', function(next:HookNextFunction){

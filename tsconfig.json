@@ -15,7 +15,8 @@
         "@/models/*":["src/models/*"],
         "@/routes/*":["src/routes/*"],
         "@/storage/*":["src/storage/*"],
-        "@/interfaces/*":["src/interfaces/*"]
+        "@/interfaces/*":["src/interfaces/*"],
+        "@/useCases/*":["src/useCases/*"]
       }
     }
 }

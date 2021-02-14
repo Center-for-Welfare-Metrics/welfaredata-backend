@@ -1,8 +1,16 @@
 import UserModel from '@/models/User'
 import {signIn,logOut} from '@/helpers/auth/authentication'
 import {Request,Response} from 'express'
+import { createUser } from '@/useCases/User'
+
 
 const AuthControllerr = {
+    /**
+     * REQUEST BODY PARAMS
+     * @param email string
+     * @param password string
+     * @returns User Object -> {_id, email, name,createdBy? }
+     */
     login: async (request:Request,response:Response) => {
         const {email,password} = request.body
         try {
@@ -27,11 +35,17 @@ const AuthControllerr = {
             response.internalServerError(error)
         }
     },
+    /**
+     * REQUEST BODY PARAMS
+     * @param name string
+     * @param email string
+     * @param password string
+     * @returns User Object -> {_id, email, name,createdBy? }
+     */
     register: async (request:Request,response:Response) => {
         try {
             const {name,email,password} = request.body
-            const user = new UserModel({name,email,password})
-            await user.save()
+            const user = await createUser({name,email,password})
             signIn(true,user,response)
         } catch (error) {
             response.internalServerError(error)

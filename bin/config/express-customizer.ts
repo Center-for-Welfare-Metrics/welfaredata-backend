@@ -1,11 +1,17 @@
 import {Express} from 'express'
+import mongoose from 'mongoose'
 
-
+export interface IUser extends mongoose.Document {
+    name:string
+    email:string
+    password:string
+    createdBy?:string
+}
 
 declare global{
     namespace Express {
         interface Request {
-            auth_user?:string
+            auth_user?:IUser
         }
         interface Response {
             success(data?:any):void

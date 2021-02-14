@@ -6,19 +6,19 @@ import AuthController from '@/controllers/AuthController'
 
 import UserController from '@/controllers/UserController'
 
-import UserValidator from '@/helpers/validators/user-validator'
+import AuthValidator from '@/helpers/validators/auth-validator'
 
 import {OnlyGuest,AuthProtected} from '@/middlewares/logged'
 
 router.post('/login', 
     OnlyGuest, 
-    UserValidator.login, 
+    AuthValidator.login, 
     AuthController.login
 )
 
 router.post('/register',
     OnlyGuest, 
-    UserValidator.register, 
+    AuthValidator.register, 
     AuthController.register
 )
 
