@@ -28,7 +28,7 @@ const ManageUsersController = {
     },
     /** 
         REQUEST BODY PARAMS
-        @param name? string
+        @param name string
         @param email string
         @param password string
     */
