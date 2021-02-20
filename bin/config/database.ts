@@ -6,7 +6,8 @@ export default () => {
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      useCreateIndex:true
+      useCreateIndex:true,
+      useFindAndModify:false
     }, (err:any) => {
       if (err) {
         console.error(err)

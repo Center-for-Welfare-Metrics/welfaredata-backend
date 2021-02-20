@@ -1,14 +1,16 @@
 import mongoose,{HookNextFunction,Schema} from 'mongoose'
 
 import bcrypt from 'bcrypt'
+import { String } from 'aws-sdk/clients/acm'
 
 export interface IUser extends mongoose.Document {
     name:string
     email:string
     password:string
     createdBy?:string
+    role?:String
     validatePassword(password:string):Promise<boolean>
-    secureJsonfy():any;
+    secureJsonfy():any
 }
 
 const saltRounds = 10
@@ -17,7 +19,8 @@ const UserSchema : Schema = new mongoose.Schema({
     name: {type:String, required:true},
     email: {type:String, required:true, unique:true },
     password: {type:String, required:true },
-    createdBy: {type:mongoose.Types.ObjectId, required:false}
+    createdBy: {type:mongoose.Types.ObjectId, required:false, ref:'User'},
+    role: {type:mongoose.Types.ObjectId,required:false,ref:'Role'}
 },
 {
     timestamps:true

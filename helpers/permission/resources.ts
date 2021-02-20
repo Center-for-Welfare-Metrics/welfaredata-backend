@@ -1,0 +1,1 @@
+export default ['users','privileges','processograms']

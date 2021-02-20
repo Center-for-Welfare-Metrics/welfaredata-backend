@@ -1,7 +1,6 @@
-import { assignFindQuery, assignValues } from '@/helpers/object'
-import { createUser, getUsers } from '@/useCases/User'
 import { Request,Response } from 'express'
-
+import UserModel from '@/models/User'
+import { READ,CREATE, UPDATE } from '@/useCases/CRUD'
 
 const ManageUsersController = {
      /**
@@ -16,9 +15,15 @@ const ManageUsersController = {
      */
     get: (request:Request,response:Response) => {
         let { skip,limit,name,email,createdBy } = request.query
-        let query_params = assignValues({name,email,createdBy})
-        let find_query = assignFindQuery(query_params,['createdBy'])
-        getUsers(skip,limit,find_query)
+        READ({
+            skip,
+            limit,
+            query:{name,email,createdBy},
+            AnyModel:UserModel,
+            isId:['createdBy'],
+            exclude:{password:0},
+            populate:['role']
+        })
         .then((documents) => {
             response.success(documents)
         })
@@ -31,19 +36,42 @@ const ManageUsersController = {
         @param name string
         @param email string
         @param password string
+        @param role objectId
     */
     create: (request:Request,response:Response) => {
-        let { name,email,password } = request.body
-        createUser({
-            name,
-            email,
-            password,
-            createdBy:request.auth_user?._id
+        let { name,email,password,role } = request.body
+        CREATE({
+            values:{
+                name,
+                email,
+                password,
+                role,
+                createdBy:request.auth_user?._id
+            },
+            AnyModel:UserModel
         })
         .then(() => {
             response.success()
         })
-    }
+    },
+    /** 
+        REQUEST BODY PARAMS
+        @param role objectId
+    */
+   update: (request:Request,response:Response) => {
+    let { _id } = request.params
+    let { role } = request.body
+    UPDATE({
+        _id,
+        values:{
+            role
+        },
+        AnyModel:UserModel
+    })
+    .then(() => {
+        response.success()
+    })
+},
 }
 
 

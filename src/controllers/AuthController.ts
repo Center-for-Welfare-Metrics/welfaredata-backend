@@ -1,8 +1,7 @@
 import UserModel from '@/models/User'
 import {signIn,logOut} from '@/helpers/auth/authentication'
 import {Request,Response} from 'express'
-import { createUser } from '@/useCases/User'
-
+import { CREATE } from '@/useCases/CRUD'
 
 const AuthControllerr = {
     /**
@@ -45,7 +44,10 @@ const AuthControllerr = {
     register: async (request:Request,response:Response) => {
         try {
             const {name,email,password} = request.body
-            const user = await createUser({name,email,password})
+            const user = await CREATE({
+                values:{name,email,password},
+                AnyModel:UserModel
+            })
             signIn(true,user,response)
         } catch (error) {
             response.internalServerError(error)

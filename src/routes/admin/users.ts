@@ -14,4 +14,8 @@ router.post('',
     ManageUsersController.create
 )
 
+router.put('/:_id',
+    ManageUsersController.update
+)
+
 export default router
