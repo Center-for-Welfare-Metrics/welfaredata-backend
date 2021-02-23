@@ -1,6 +1,6 @@
-import { Request,Response } from 'express'
+import { request, Request,Response } from 'express'
 import UserModel from '@/models/User'
-import { READ,CREATE, UPDATE } from '@/useCases/CRUD'
+import { READ,CREATE, UPDATE, DELETE_BY_ID } from '@/useCases/CRUD'
 
 const ManageUsersController = {
      /**
@@ -59,19 +59,26 @@ const ManageUsersController = {
         @param role objectId
     */
    update: (request:Request,response:Response) => {
-    let { _id } = request.params
-    let { role } = request.body
-    UPDATE({
-        _id,
-        values:{
-            role
-        },
-        AnyModel:UserModel
-    })
-    .then(() => {
-        response.success()
-    })
-},
+        let { _id } = request.params
+        let { role } = request.body
+        UPDATE({
+            _id,
+            values:{
+                role
+            },
+            AnyModel:UserModel
+        }).then(() => {
+            response.success()
+        })
+    },
+    delete:(request:Request,response:Response) => {
+        let { _id } = request.params
+
+        DELETE_BY_ID({_id,AnyModel:UserModel})
+        .then(() => {
+            response.success()
+        })
+    }
 }
 
 

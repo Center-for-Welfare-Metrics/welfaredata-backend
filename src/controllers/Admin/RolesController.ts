@@ -1,5 +1,5 @@
 import { Request,Response } from "express"
-import { READ,CREATE, UPDATE } from '@/useCases/CRUD'
+import { READ,CREATE, UPDATE, DELETE_BY_ID, READ_ONE_BY_ID } from '@/useCases/CRUD'
 import RoleModel from '@/models/Role'
 
 const RolesController = {
@@ -76,6 +76,24 @@ const RolesController = {
                     response.success(created)
                 })
             }
+        })
+    },
+    delete:(request:Request,response:Response) => {
+        let { _id } = request.params
+
+        READ_ONE_BY_ID({_id,AnyModel:RoleModel})
+        .then((role) => {
+            if(role.name === 'Admin'){
+                response.preconditionFailed()
+            }else{
+                return DELETE_BY_ID({_id,AnyModel:RoleModel})
+            }
+        })
+        .then(()=>{
+            response.success()
+        })
+        .catch((error) => {
+            response.internalServerError(error)
         })
     }
 }

@@ -1,4 +1,4 @@
-import mongoose,{Schema} from 'mongoose'
+import mongoose,{Document, Query, Schema} from 'mongoose'
 import { assignValues,assignFindQuery } from '@/helpers/object'
 
 interface ICreate {
@@ -39,6 +39,15 @@ export const READ = ({
     return AnyModel.find(query,exclude,{skip:skipToNumber,limit:limitToNumber}).populate(populate?.join(''))
 }
 
+interface IReadById{
+    _id:string
+    AnyModel:mongoose.Model<any>
+}
+
+export const READ_ONE_BY_ID = ({_id,AnyModel}:IReadById) => {
+    return AnyModel.findById(_id)
+}
+
 interface IUpdate extends ICreate {
     _id:string
 }
@@ -47,4 +56,13 @@ export const UPDATE = ({values,AnyModel,_id}:IUpdate) => {
     console.log(_id)
     values = assignValues(values)
     return AnyModel.findByIdAndUpdate(_id,{$set:values},{new:true})
+}
+
+interface IDeleteById{
+    _id:string
+    AnyModel:mongoose.Model<any>
+}
+
+export const DELETE_BY_ID = ({_id,AnyModel}:IDeleteById) => {
+    return AnyModel.findByIdAndRemove(_id)
 }

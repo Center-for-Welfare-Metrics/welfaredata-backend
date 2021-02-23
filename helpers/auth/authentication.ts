@@ -20,7 +20,7 @@ if(process.env.NODE_ENV === 'prod'){
 export const signIn = (should_singin:boolean,user:IUser,response:Response) => {
     if(should_singin){        
         const token = jwt.sign(user.secureJsonfy(),process.env.SECRET!,{expiresIn:'12h'})
-        response.cookie('token',token,{...options,maxAge: hours(12)}).status(200).json(user)
+        response.cookie('token',token,{...options,maxAge: hours(12)}).status(200).json(user.secureJsonfy())
     }else{
         response.notFound({
             email:['Credentials not found']

@@ -18,4 +18,17 @@ router.put('/:_id',
     ManageUsersController.update
 )
 
+router.delete('/:_id',
+    ManageUsersController.delete
+)
+
 export default router
+
+
+
+
+
+
+
+
+

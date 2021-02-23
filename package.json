@@ -32,8 +32,7 @@
   "scripts": {
     "dev": "ts-node-dev -r tsconfig-paths/register bin/server.ts",
     "start": "node -r tsconfig-paths/register dist/bin/server.js",
-    "build": "tsc --project tsconfig.json && tscpaths -p tsconfig.json -s . -o ./dist",
-    "seed": "ts-node bin/mongo_seed/seed.ts"
+    "build": "tsc --project tsconfig.json && tscpaths -p tsconfig.json -s . -o ./dist"
   },
   "keywords": [],
   "author": "",
