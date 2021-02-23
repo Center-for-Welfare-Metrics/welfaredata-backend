@@ -25,7 +25,7 @@ const UserSchema : Schema = new mongoose.Schema({
 {
     timestamps:true
 })
-
+// 
 UserSchema.pre<any>('save', function(next:HookNextFunction){
     let user = this
     if(user.isNew || user.isModified('password')){
