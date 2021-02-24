@@ -7,7 +7,7 @@ import ProcessogramController from '@/controllers/ProcessogramController'
 import {AuthProtected} from '@/middlewares/logged'
 
 router.get('/all', 
-    AuthProtected, 
+    // AuthProtected, 
     ProcessogramController.all
 )
 
