@@ -86,11 +86,11 @@ const RolesController = {
             if(role.name === 'Admin'){
                 response.preconditionFailed()
             }else{
-                return DELETE_BY_ID({_id,AnyModel:RoleModel})
+                DELETE_BY_ID({_id,AnyModel:RoleModel})
+                .then(() => {
+                    response.success()
+                })
             }
-        })
-        .then(()=>{
-            response.success()
         })
         .catch((error) => {
             response.internalServerError(error)

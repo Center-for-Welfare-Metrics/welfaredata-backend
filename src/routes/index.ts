@@ -6,5 +6,5 @@ import admin from './admin'
 export default (app:Express) => {
     app.use('/',root)
     app.use('/processogram',processogram)
-    // app.use('/admin',admin)
+    app.use('/admin',admin)
 }
