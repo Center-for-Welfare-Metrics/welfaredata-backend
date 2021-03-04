@@ -8,6 +8,7 @@ export interface IUser extends mongoose.Document {
     email:string
     password:string
     createdBy?:string
+    lastUpdatedBy?:string
     role?:String
     validatePassword(password:string):Promise<boolean>
     secureJsonfy():any
@@ -15,17 +16,21 @@ export interface IUser extends mongoose.Document {
 
 const saltRounds = 10
 
-const UserSchema : Schema = new mongoose.Schema({
-    name: {type:String, required:true},
-    email: {type:String, required:true, unique:true },
-    password: {type:String, required:true },
-    createdBy: {type:mongoose.Types.ObjectId, required:false, ref:'User'},
-    role: {type:mongoose.Types.ObjectId,required:false,ref:'Role'}
-},
-{
-    timestamps:true
-})
-// 
+const UserSchema : Schema = new mongoose.Schema(
+    {
+        name: {type:String, required:true},
+        email: {type:String, required:true, unique:true },
+        password: {type:String, required:true },
+        createdBy: {type:mongoose.Types.ObjectId, required:false, ref:'User'},
+        lastUpdatedBy:{type:mongoose.Types.ObjectId, required:false, ref:'User'},
+        role: {type:mongoose.Types.ObjectId,required:false,ref:'Role'}
+    },
+    {
+        timestamps:true
+    }
+)
+
+
 UserSchema.pre<any>('save', function(next:HookNextFunction){
     let user = this
     if(user.isNew || user.isModified('password')){

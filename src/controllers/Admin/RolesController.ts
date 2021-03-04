@@ -18,7 +18,7 @@ const RolesController = {
             skip,
             limit,
             query:{name,createdBy},
-            AnyModel:RoleModel,
+            Model:RoleModel,
             isId:['createdBy']
         })
         .then((documents) => {
@@ -43,7 +43,7 @@ const RolesController = {
                 can,
                 createdBy:request.auth_user?._id
             },
-            AnyModel:RoleModel
+            Model:RoleModel
         })
         .then((created:any) => {
             response.success(created)
@@ -70,7 +70,7 @@ const RolesController = {
                         description,
                         can
                     },
-                    AnyModel:RoleModel
+                    Model:RoleModel
                 })
                 .then((created) => {
                     response.success(created)
@@ -81,12 +81,12 @@ const RolesController = {
     delete:(request:Request,response:Response) => {
         let { _id } = request.params
 
-        READ_ONE_BY_ID({_id,AnyModel:RoleModel})
+        READ_ONE_BY_ID({_id,Model:RoleModel})
         .then((role) => {
             if(role.name === 'Admin'){
                 response.preconditionFailed()
             }else{
-                DELETE_BY_ID({_id,AnyModel:RoleModel})
+                DELETE_BY_ID({_id,Model:RoleModel})
                 .then(() => {
                     response.success()
                 })

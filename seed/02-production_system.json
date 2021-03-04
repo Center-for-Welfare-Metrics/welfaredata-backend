@@ -1,0 +1,100 @@
+[
+    {
+        "specie":"pig",
+        "name" : "conventional intensive",
+        "description" : "Typical intensive system outside the European Union. Animals are raised indoors, in factory-style environments devoid of opportunities to express most natural behaviors. Animals are bred for high productivity and high prolificity (larger litters, early sexual maturity and short farrowing periods). The system typically relies on the use of concentrated feeds, growth promoters, the maintenance of animals at high densities, and confinement. Floor surfaces are of solid concrete, or fully or partially slatted (to allow excrements and other waste to fall into a pit below).",
+        "global_population" : "the majority of pig producing system worlwide"
+    },
+    {
+        "specie":"pig",
+        "name" : "european intensive",
+        "description" : "Intensive system in the European Union. Conditions are similar to those typical of other intensive systems, with the main differences being those established in the European legislation (Directive 2008/120/EC), which determines, among others, minimum floor space available, floor surfaces, noise and light conditions, prohibits tethers and the continuous use of gestation crates (except for 4 weeks after mating/insemination and 1 week before farrowing), recommends access to manipulable material, bans routine tail docking, teeth reduction, and surgical castration after the 7th day of life, and recommends routine weaning after 28 days. However, poor enforcement and derogations have made implementation of the Directive problematic in many Member States.",
+        "global_population" : "a relatively low proportion"
+    },
+    {
+        "specie":"pig",
+        "name" : "enhanced intensive"
+    },
+    {
+        "specie":"pig",
+        "name" : "outdoor semi-intensive"
+    },
+    {
+        "name" : "conventional cage",
+        "specie":"chicken",
+        "name_synonyms" : [ 
+            "battery cage", 
+            "A-frame"
+        ],
+        "description" : "Most commonly used housing system, where five to ten hens are housed in wire cage, with a space allowance typically of 400 to 500 cm2 per hen (approximately the area of half a letter size sheet of paper). A water nipple and a feed trough are provided in front of the cage. Cage floors are often wire meshed, slightly sloped, to allow eggs to roll onto an egg belt. Manure is collected at a belt, or tray, underneath the cage. No nesting area or perch are provided. "
+    },
+    {
+        "name" : "multi-tier aviary",
+        "specie":"chicken",
+        "name_synonyms" : [ 
+            "aviary"
+        ],
+        "description" : "Indoor cage-free housing system where the birds have access to vertical levels, or tiers. Tiers are wire or slatted floors with a manure belt underneath. Ramps and platforms may be provided to help hens navigate across tier levels. The floor has a litter substrate where hens can forage and dustbathe. Manure often stays in the litter until the end of the production cycle. Feed troughs, drinkers, perches and nests are placed on one or more tiers.,"
+    },
+    {
+        "name" : "furnished cage",
+        "specie":"chicken",
+        "name_synonyms" : [ 
+            "enriched cage", 
+            "colony cage"
+        ],
+        "description" : "Cages larger than conventional (battery) cages, containing one or more perches, a litter area for scratching and pecking and a nesting area (often consisting of a plastic curtain). Floors are slightly sloped so eggs roll onto an egg belt. Furnished cages can often house up to 100 birds. Under the European Directive 1999/74/EC, there must be an area of 750 cm2 (120 sq in) per hen (an area slightly larger than a sheet of paper) ,"
+    },
+    {
+        "name" : "single-tier aviary",
+        "specie":"chicken",
+        "name_synonyms" : [ 
+            "barn"
+        ],
+        "description" : "Indoor cage-free housing system (also called barn) developed on a single floor  above the littered floor, without access to outdoor areas. Birds have a litter substrate at the ground level and nest areas, drinkers and feed on a raised (slatted or wired) area. Manure at the litter area is not removed until the end of the production cycle. "
+    },
+    {
+        "name" : "free-range aviary",
+        "specie":"chicken",
+        "name_synonyms" : [],
+        "description" : "Indoor housing system where hens with access to the outside (or to a covered veranda area) via small holes in walls of the building (pop-holes). In the EU free-range systems often require at lest 4 m2 per hen"
+    },
+    {
+        "name" : "non-cage (unspecified)",
+        "specie":"chicken",
+        "name_synonyms" : [ 
+            "cage-free"
+        ],
+        "description" : "Indoor cage-free (non-cage) system where the structure (multi-tier or single-tier) is unspecified, or the data for different non-cage systems is reported in aggregated form"
+    },
+    {
+        "name" : "enrichable cage",
+        "specie":"chicken",
+        "name_synonyms" : [],
+        "description" : "Cages with the size required in EU directive 1999/74 but not fully equipped with nests, perches and other furnishings. They can be converted to enriched cages."
+    },
+    {
+        "name" : "cage (unspecified)",
+        "specie":"chicken",
+        "name_synonyms" : [],
+        "description" : "hens are housed in cages (either conventional cages and/or furnished cages)"
+    },
+    {
+        "name" : "unspecified",
+        "specie":"chicken",
+        "name_synonyms" : [],
+        "description" : "production systems is not specified"
+    },
+    {
+        "name" : "free-range",
+        "specie":"chicken",
+        "name_synonyms" : [],
+        "description" : "farming husbandry where laying hens, for at least part of the day, can roam outdoors"
+    },
+    {
+        "name" : "mixed (cage and non-cage)",
+        "specie":"chicken",
+        "name_synonyms" : [],
+        "description" : "production system where a fraction of the hens are reared in cages, and another fraction is reared in non-caged systems"
+    }
+]

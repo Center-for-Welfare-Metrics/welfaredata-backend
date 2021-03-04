@@ -1,0 +1,100 @@
+[
+    {
+        "specie":"pig",
+        "name" : "suckling",
+        "description" : "From birth until the time suckers are separated from their mothers. In high prolific lines, increasingly more common, litter size may outnumber the number of functional teats, requiring the use of nurse sows."
+    },
+    {
+        "specie":"pig",
+        "name" : "postweaning",
+        "description" : "Transition phase needed due to the premature separation of piglets from their mother (so that sows are available for insemination and the next gestation cycle)"
+    },
+    {
+        "specie":"pig",
+        "name" : "growing",
+        "description" : "Young pigs are often transferred to another physical facility, where they will reach pre-puberty (in the case of market pigs, this is their last life stage before being transported to the slaughterhouse)"
+    },
+    {
+        "specie":"pig",
+        "name" : "prepuberty",
+        "description" : "Females selected for breeding (gilts) are often transferred to another facility, where they are prepared for insemination or mating. If brought from other farms, they may undergo a quarantine period. Females are exposed to males to promote puberty (first estrus), and inseminated at their second or third estrus cycle. "
+    },
+    {
+        "specie":"pig",
+        "name" : "conception",
+        "description" : "Period from estrus until insemination and confirmed gestation"
+    },
+    {
+        "specie":"pig",
+        "name" : "gestation",
+        "description" : "From successful insemination until farrowing (birth)"
+    },
+    {
+        "specie":"pig",
+        "name" : "farrowing",
+        "description" : "From parturition until weaning of the litter"
+    },
+    {
+        "specie":"pig",
+        "name" : "withdraw",
+        "description" : "Separation of casualties (or non-productive breeders) before slaughter or euthanasia"
+    },
+    {
+        "specie":"pig",
+        "name" : "transport",
+        "description" : "Transport to another facility,  including the loading of animals into trucks, transport and unloading into the other facilities"
+    },
+    {
+        "specie":"pig",
+        "name" : "slaugter",
+        "description" : "Waiting period at lairage, stunning and slaughter"
+    },
+    {
+        "specie":"chicken",
+        "name" : "incubation",
+        "description" : "the period over which eggs are incubated. It takes approximately 21 days for an egg to hatch once incubation begins. At approximately day 18, eggs are moved from the incubator to hatching trays for the last days of incubation",
+        "order" : 1
+    },
+    {
+        "specie":"chicken",
+        "name" : "hatchery",
+        "description" : "period of usually one day, after the egg hatches in incubators. After newly hatched chicks are sex sorted, females are vaccinated and transported to the rearing farms and males discarded",
+        "order" : 2
+    },
+    {
+        "specie":"chicken",
+        "name" : "rearing",
+        "description" : "growth period of female chicks (pullets) that have not laid an egg yet. It lasts approximately 16-18 weeks of age at which point egg production begins",
+        "order" : 3
+    },
+    {
+        "specie":"chicken",
+        "name" : "laying",
+        "description" : "the laying cycle starts when a young flock about 16-18 weeks is placed in the laying bird house and ends when the flock is slaughtered (Welfare Quality).",
+        "order" : 4
+    },
+    {
+        "specie":"chicken",
+        "name" : "forced molting",
+        "description" : "artificially provoking a flock to molt simultaneously, typically by withdrawing food for 7–14 days and sometimes also withdrawing water for an extended period",
+        "order" : 5
+    },
+    {
+        "specie":"chicken",
+        "name" : "post-molting production",
+        "description" : "???",
+        "order" : 6
+    },
+    {
+        "specie":"chicken",
+        "name" : "transport",
+        "description" : "???",
+        "order" : 7
+    },
+    {
+        "specie":"chicken",
+        "name" : "slaughter",
+        "description" : "???",
+        "order" : 8
+    }
+]

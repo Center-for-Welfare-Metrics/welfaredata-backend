@@ -11,4 +11,18 @@ router.get('/all',
     ProcessogramController.all
 )
 
+router.post('',
+    AuthProtected,
+    ProcessogramController.create
+)
+
+router.patch('/:_id',
+    AuthProtected,
+    ProcessogramController.update
+)
+
+router.post('/:_id/new_layer',
+    AuthProtected,
+    ProcessogramController.createNewLayer
+)
 export default router

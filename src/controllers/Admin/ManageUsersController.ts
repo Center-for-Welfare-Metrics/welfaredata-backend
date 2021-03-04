@@ -1,4 +1,4 @@
-import { request, Request,Response } from 'express'
+import { Request,Response } from 'express'
 import UserModel from '@/models/User'
 import { READ,CREATE, UPDATE, DELETE_BY_ID } from '@/useCases/CRUD'
 
@@ -19,7 +19,7 @@ const ManageUsersController = {
             skip,
             limit,
             query:{name,email,createdBy},
-            AnyModel:UserModel,
+            Model:UserModel,
             isId:['createdBy'],
             exclude:{password:0},
             populate:['role']
@@ -48,7 +48,7 @@ const ManageUsersController = {
                 role,
                 createdBy:request.auth_user?._id
             },
-            AnyModel:UserModel
+            Model:UserModel
         })
         .then(() => {
             response.success()
@@ -66,7 +66,7 @@ const ManageUsersController = {
             values:{
                 role
             },
-            AnyModel:UserModel
+            Model:UserModel
         }).then(() => {
             response.success()
         })
@@ -74,7 +74,7 @@ const ManageUsersController = {
     delete:(request:Request,response:Response) => {
         let { _id } = request.params
 
-        DELETE_BY_ID({_id,AnyModel:UserModel})
+        DELETE_BY_ID({_id,Model:UserModel})
         .then(() => {
             response.success()
         })

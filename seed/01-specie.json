@@ -1,0 +1,22 @@
+[
+    {
+        "_id" : "pig",
+        "genus_name" : "sus",
+        "specific_name" : "scrofa",
+        "subspecies_name" : "domesticus",
+        "description" : "The domestic pig (Sus scrofa domesticus or only Sus domesticus), often called swine, hog, or simply pig when there is no need to distinguish it from other pigs, is a domesticated large, even-toed ungulate. It is variously considered a subspecies of the wild boar or a distinct species. The domestic pig`s head-plus-body-length ranges from 0.9 to 1.8 m (35 to 71 in), and adult pigs typically weigh between 50 and 350 kg (110 and 770 lb), with well-fed individuals often exceeding this weight range. The size and weight of a hog largely depends on its breed. Compared to other artiodactyls, its head is relatively long, pointed, and free of warts. Even-toed ungulates are generally herbivorous, but the domestic pig is an omnivore, like its wild relative. When used as livestock, domestic pigs are farmed primarily for the consumption of their flesh, called pork. The animal`s bones, hide, and bristles are also used in commercial products. Domestic pigs, especially miniature breeds, are kept as pets. (https://en.wikipedia.org/wiki/Domestic_pig)",
+        "global_population" : "There were nearly 800 million pigs worldwide in 2018",
+        "name_synonyms" : [ 
+            "pig", 
+            "pork"
+        ]
+    },
+    {
+        "_id" : "chicken",
+        "genus_name" : "Gallus",
+        "specific_name" : "domesticus",
+        "name_synonyms" : [ 
+            "hen"
+        ]
+    }
+]

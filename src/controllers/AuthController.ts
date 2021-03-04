@@ -46,7 +46,7 @@ const AuthControllerr = {
             const {name,email,password} = request.body
             const user = await CREATE({
                 values:{name,email,password},
-                AnyModel:UserModel
+                Model:UserModel
             })
             signIn(true,user,response)
         } catch (error) {

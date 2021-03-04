@@ -1,6 +1,3 @@
-
-
-
 export const assignValues = (object:any) => {
     let new_object:any = {}
     Object.keys(object).forEach((key) => {
@@ -10,8 +7,6 @@ export const assignValues = (object:any) => {
     })
     return new_object
 }
-
-
 
 export const assignFindQuery = (object:any,isiD:string[]=[]) => {
     let new_object:any = {}
@@ -27,4 +22,17 @@ export const assignFindQuery = (object:any,isiD:string[]=[]) => {
         }
     })
     return new_object
+}
+
+
+export const filterObject = (object:any,filter_fields:string[]) => {
+    let object_filtered : any = {}
+
+    filter_fields.forEach((field) => {
+        if(object[field]){
+            object_filtered[field] = object[field]
+        }
+    })
+
+    return object_filtered
 }

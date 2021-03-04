@@ -15,7 +15,7 @@ declare global{
         }
         interface Response {
             success(data?:any):void
-            notFound(data:any):void
+            notFound(data?:any):void
             internalServerError(data:any):void
             preconditionFailed(data?:any):void
             unauthorized(data?:any):void
@@ -33,7 +33,12 @@ export default (app:Express) => {
     }
 
     app.response.notFound = function(data){
-        this.status(404).json(data)
+        if(data){
+            this.status(404).json(data)
+        }else{
+            this.sendStatus(404)
+        }
+        
     }
 
     app.response.internalServerError = function(error){

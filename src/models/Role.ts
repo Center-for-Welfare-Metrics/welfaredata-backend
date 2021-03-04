@@ -12,6 +12,7 @@ export interface IRoles extends mongoose.Document {
     description:string
     can:Ican
     createdBy?:string
+    lastUpdatedBy?:string
 }
 
 const fixedEnum = {
@@ -28,7 +29,8 @@ const RoleSchema : Schema = new mongoose.Schema({
         update:fixedEnum,
         delete:fixedEnum
     },
-    createdBy: {type:mongoose.Types.ObjectId, required:false,ref:'User'}
+    createdBy: {type:mongoose.Types.ObjectId, required:false,ref:'User'},
+    lastUpdatedBy:{type:mongoose.Types.ObjectId, required:false,ref:'User'}
 },{
     timestamps:true,
 })
