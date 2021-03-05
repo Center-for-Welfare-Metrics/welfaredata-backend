@@ -1,4 +1,4 @@
-import mongoose,{Schema,SchemaTypeOptions} from 'mongoose'
+import mongoose,{HookNextFunction, Schema,SchemaTypeOptions} from 'mongoose'
 import { MediaSchema } from './Processogram'
 
 export interface IProductionSystem extends mongoose.Document {
@@ -14,7 +14,7 @@ export interface IProductionSystem extends mongoose.Document {
 
 const ProductionSystemSchema : Schema = new mongoose.Schema({
     specie:{ type:String, required:true, ref:'Specie' },
-    name: {type:String, required:true },
+    name: {type:String, required:true,immutable:true },
     description: {type:String},
     global_population: {type:String},
     name_synonyms:[String],
