@@ -19,10 +19,10 @@ interface ISeeds {
 }
 
 let seeds : ISeeds[] = [
-    {
-        model:Specie,
-        file:'01-specie.json'
-    },
+    // {
+    //     model:Specie,
+    //     file:'01-specie.json'
+    // },
     {
         model:ProductionSystem,
         file:'02-production_system.json'
@@ -47,7 +47,7 @@ seeds.forEach(async ({model,file},seed_index) => {
         await model.insertMany(documents)    
         console.log(`Inserted on '${file}'`)
     } catch (error) {
-        // console.error(error)
+        console.error(error)
     }
 })
 

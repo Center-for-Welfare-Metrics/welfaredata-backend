@@ -1,14 +1,17 @@
 import express from 'express'
 
-const router = express.Router()
-
 import CrudController from '@/controllers/CrudController'
 
 import LifeFateModel from '@/models/LifeFate'
 
-
 import {AuthProtected} from '@/middlewares/logged'
 
+const multer = require('multer')
+
+const upload = multer()
+
+
+const router = express.Router()
 
 const Controller = new CrudController(LifeFateModel)
 
@@ -24,6 +27,11 @@ router.post('',
 
 router.patch('/:_id',
     Controller.update
+)
+
+router.patch('/:_id/upload',
+    upload.single('file'),
+    Controller.upload
 )
 
 router.delete('/:_id',

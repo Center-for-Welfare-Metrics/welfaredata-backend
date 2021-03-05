@@ -2,7 +2,10 @@ import mongoose from "mongoose";
 
 import { Request,Response } from 'express'
 
-import { CREATE, DELETE_BY_ID, READ, READ_ONE, UPDATE } from "@/useCases/CRUD";
+import { CREATE, DELETE_BY_ID, READ, READ_ONE, READ_ONE_BY_ID, UPDATE } from "@/useCases/CRUD";
+
+import { upload } from '@/storage/storage'
+import { IMedia } from "@/models/Processogram";
 
 class RegularCrudController {
     model:mongoose.Model<any>;
@@ -13,6 +16,30 @@ class RegularCrudController {
         this.populate = populate
     }
     
+    get_one_by_id = (request:Request,response:Response) => {
+        let {_id} = request.params
+        READ_ONE_BY_ID({
+            _id,
+            Model:this.model,
+        }).then((document) => {
+            if(document){
+                if(this.populate){
+                    document.populate(this.populate).execPopulate()
+                    .then((populated:any) => {
+                        response.success(populated)
+                    })
+                }else{
+                    response.success(document)
+                }
+            }else{
+                response.notFound()
+            }
+            
+        }).catch((error)=>{
+            response.internalServerError(error)
+        })
+    }
+
     read_one = (request:Request,response:Response) => {
         let query = request.body
 
@@ -83,6 +110,31 @@ class RegularCrudController {
         })
     }
 
+    upload = (request:Request,response:Response) => {
+        let {_id} = request.params
+
+        let { originalname,buffer,mimetype,size } = request.file
+
+        upload(originalname,buffer,mimetype)
+        .then((value) => {
+            let source = value.Location
+            let new_media : IMedia = {
+                originalName:originalname,
+                url:source,
+                size:size,
+                type:mimetype
+            }
+            this.model.findById(_id)
+            .then((document_finded) => {
+                document_finded.medias.push(new_media)
+                
+                document_finded.save()
+
+                response.success(document_finded)
+            })
+        })
+        .catch(console.log)
+    }
 
     deleteById = (request:Request,response:Response) => {
         let {_id} = request.params

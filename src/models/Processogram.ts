@@ -1,19 +1,33 @@
 import mongoose,{Schema, SchemaTypeOptions} from 'mongoose'
 
+export interface IMedia {
+    originalName:SchemaTypeOptions<any> | Schema | string
+    url:SchemaTypeOptions<any> | Schema | string
+    size:SchemaTypeOptions<any> | Schema | number
+    type:SchemaTypeOptions<any> | Schema | string
+    name?:SchemaTypeOptions<any> | Schema | string
+    descripition?:SchemaTypeOptions<any> | Schema | string
+}
+
+export const MediaSchema : IMedia = {
+    originalName:{type:String, required:true },
+    url:{type:String, required:true },
+    size:{ type:Number, required:true },
+    type:{ type:String, required:true },
+    name:{ type:String },
+    descripition:{ type:String },
+}
+
 export interface ICommonInformations {
-    name: SchemaTypeOptions<any> | Schema
-    description: SchemaTypeOptions<any> | Schema
-    medias: SchemaTypeOptions<any> | Schema
+    name: SchemaTypeOptions<any> | Schema | string
+    description: SchemaTypeOptions<any> | Schema | string
+    medias: SchemaTypeOptions<any> | Schema | IMedia[]
 }
 
 const CommonInformations : ICommonInformations = {
     name: {type:String, required:false },
     description: { type:String, required:false },
-    medias: [{
-        name:{ type:String, required:false },
-        description:{ type:String, required:false },
-        url:{type:String, required:true }
-    }]
+    medias: [MediaSchema]
 }
 
 export interface IProcessogram extends mongoose.Document {
@@ -24,6 +38,7 @@ export interface IProcessogram extends mongoose.Document {
     lifefates?:any[]
     phases?:any[]
     circumstances?:any[]
+    medias:IMedia[]
 }
 
 const ProcessogramSchema : Schema = new mongoose.Schema({

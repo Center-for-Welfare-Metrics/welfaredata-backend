@@ -1,14 +1,17 @@
 import express from 'express'
 
-const router = express.Router()
 
 import CrudController from '@/controllers/CrudController'
 
 import ProductionSystemModel from '@/models/ProductionSystem'
 
-
 import {AuthProtected} from '@/middlewares/logged'
 
+const router = express.Router()
+
+const multer = require('multer')
+
+const upload = multer()
 
 const Controller = new CrudController(ProductionSystemModel)
 
@@ -24,6 +27,11 @@ router.post('',
 
 router.patch('/:_id',
     Controller.update
+)
+
+router.patch('/:_id/upload',
+    upload.single('file'),
+    Controller.upload
 )
 
 router.delete('/:_id',
