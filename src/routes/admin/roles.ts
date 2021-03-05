@@ -16,8 +16,8 @@ router.put('/:_id',
     RolesController.update
 )
 
-// router.delete('/:_id',
-//     RolesController.delete
-// )
+router.delete('/:_id',
+    RolesController.delete
+)
 
 export default router

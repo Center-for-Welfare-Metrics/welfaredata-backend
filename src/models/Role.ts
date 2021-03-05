@@ -17,7 +17,7 @@ export interface IRoles extends mongoose.Document {
 
 const fixedEnum = {
     type:[String],
-    enum:['processograms','privileges','users']
+    enum:['processograms','privileges','users','all']
 }
 
 const RoleSchema : Schema = new mongoose.Schema({
