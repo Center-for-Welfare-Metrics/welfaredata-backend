@@ -1,6 +1,7 @@
 import { Request,Response } from "express"
-import { READ,CREATE, UPDATE, DELETE_BY_ID, READ_ONE_BY_ID } from '@/useCases/CRUD'
+import { READ,CREATE, UPDATE, DELETE_BY_ID, READ_ONE_BY_ID, READ_ONE } from '@/useCases/CRUD'
 import RoleModel from '@/models/Role'
+import { capitalize, lowerCase } from 'voca'
 
 const RolesController = {
     /**
@@ -36,6 +37,7 @@ const RolesController = {
      */
     create:(request:Request,response:Response) => {
         let { name,description,can } = request.body
+        name = capitalize(lowerCase(name))
         CREATE({
             values:{
                 name,
@@ -48,6 +50,7 @@ const RolesController = {
         .then((created:any) => {
             response.success(created)
         })
+        .catch((error:any)=>response.internalServerError(error))
     },
     /**
      * REQUEST QUERY PARAMS
@@ -58,10 +61,10 @@ const RolesController = {
     update:(request:Request,response:Response) => {
         let { _id } = request.params
         let { name,description,can } = request.body
-        RoleModel.findById(_id)
+        READ_ONE_BY_ID({_id,Model:RoleModel})
         .then((role) => {
             if(role?.name === 'Admin'){
-                response.success()
+                response.preconditionFailed()
             }else{
                 UPDATE({
                     _id,
@@ -74,13 +77,12 @@ const RolesController = {
                 })
                 .then((created) => {
                     response.success(created)
-                })
+                }).catch((error)=>response.internalServerError(error))
             }
-        })
+        }).catch((error)=>response.internalServerError(error))
     },
     delete:(request:Request,response:Response) => {
         let { _id } = request.params
-
         READ_ONE_BY_ID({_id,Model:RoleModel})
         .then((role) => {
             if(role.name === 'Admin'){
@@ -92,9 +94,7 @@ const RolesController = {
                 })
             }
         })
-        .catch((error) => {
-            response.internalServerError(error)
-        })
+        .catch((error)=>response.internalServerError(error))
     }
 }
 
