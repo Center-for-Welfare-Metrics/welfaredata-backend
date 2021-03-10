@@ -22,7 +22,7 @@ const ProcessogramController = {
         let { id_tree,values } = request.body
         let { _id } = request.params        
         
-        ProcessogramModel.findById(_id)
+        ProcessogramModel.findById(_id).populate('productionSystem lifefates.lifeFate lifefates.phases.phase lifefates.phases.circumstances.circumstance')
         .then((processogram:any) => {
             let updated_document = processogram
 
