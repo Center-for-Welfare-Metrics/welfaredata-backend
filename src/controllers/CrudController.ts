@@ -133,7 +133,9 @@ class RegularCrudController {
                 response.success(document_finded)
             })
         })
-        .catch(console.log)
+        .catch((error) => {
+            response.internalServerError(error)
+        })
     }
 
     deleteById = (request:Request,response:Response) => {

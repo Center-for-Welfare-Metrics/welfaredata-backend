@@ -1,7 +1,8 @@
 import {Request,Response} from 'express'
 
-import ProcessogramModel from '@/models/Processogram'
+import ProcessogramModel, { IMedia } from '@/models/Processogram'
 import CrudController from '@/controllers/CrudController'
+import { upload } from '@/storage/storage'
 
 const Controller = new CrudController(ProcessogramModel,'productionSystem')
 
@@ -13,6 +14,51 @@ const ProcessogramController = {
         })
     },
     create:Controller.create,
+    /**
+     * REQUEST BODY PARAMS
+     * @param id_tree string
+     * @param file file
+     */
+    upload:(request:Request,response:Response) => {
+        let { originalname,buffer,mimetype,size } = request.file      
+        
+        let { id_tree } = request.body        
+
+        id_tree = JSON.parse(id_tree)
+
+        let { _id } = request.params
+
+        upload(originalname,buffer,mimetype)
+        .then((value) => {
+            let source = value.Location
+            let new_media : IMedia = {
+                originalName:originalname,
+                url:source,
+                size:size,
+                type:mimetype
+            }
+            ProcessogramModel.findById(_id).populate('productionSystem lifefates.lifeFate lifefates.phases.phase lifefates.phases.circumstances.circumstance')
+            .then((processogram:any) => {
+                let updated_document = processogram                
+                Object.keys(id_tree).forEach((key)=>{                                         
+                    updated_document = updated_document?.[key].id(id_tree[key])
+                })
+                
+                updated_document.medias.push(new_media)
+
+                processogram.save()
+
+                response.success(updated_document)
+            }).catch((error)=>{
+                response.internalServerError(error)
+            })
+        })
+        .catch((error) => {
+            response.internalServerError(error)
+        })
+
+                
+    },
     /**
      * REQUEST BODY PARAMS
      * @param id_tree string
