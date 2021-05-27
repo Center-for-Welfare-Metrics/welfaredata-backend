@@ -81,8 +81,10 @@ const ProcessogramController = {
             })
 
             processogram.save()
-
-            response.success(processogram)
+            .then((saved:any) => {
+                response.success(saved)
+            })
+            
         }).catch((error)=>{
             console.error(error)
         })        
@@ -107,17 +109,30 @@ const ProcessogramController = {
 
             if(!updated_document[pushTo]){
                 updated_document[pushTo] = []
+            }            
+
+            let key = Object.keys(object)[0]
+            let value = object[key]
+            
+            let indexFinded = updated_document[pushTo].findIndex((item:any) => item[key] === value)
+
+            if(indexFinded < 0){
+                updated_document[pushTo].push(object)
+                processogram.save()
+                .then((saved:any)=>{
+                    saved.populate('productionSystem lifefates.lifeFate lifefates.phases.phase lifefates.phases.circumstances.circumstance')
+                    .execPopulate()
+                    .then((populated:any) => {                
+                        response.success(populated)
+                    })
+                })
+            }else{
+                processogram.populate('productionSystem lifefates.lifeFate lifefates.phases.phase lifefates.phases.circumstances.circumstance')
+                .execPopulate()
+                .then((populated:any) => {                
+                    response.success(populated)
+                })
             }
-
-            updated_document[pushTo].push(object)
-
-            processogram.save()
-
-            processogram.populate('productionSystem lifefates.lifeFate lifefates.phases.phase lifefates.phases.circumstances.circumstance')
-            .execPopulate()
-            .then((populated:any) => {                
-                response.success(populated)
-            })
         })
     }
 }
