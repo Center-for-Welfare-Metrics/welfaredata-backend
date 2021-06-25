@@ -10,7 +10,7 @@ export default (app:Express) => {
   app.use(bodyParser.json())
   app.use(bodyParser.urlencoded({ extended: false }))
   app.use(cookieParser())
-  app.use(cors({credentials: true, origin: process.env.CLIENT_DOMAIN}))
+  app.use(cors({credentials: true, origin: [process.env.CLIENT_DOMAIN,process.env.CLIENT_DOMAIN_2]}))
   app.use(helmet())
   app.use(morgan("tiny"))
 }

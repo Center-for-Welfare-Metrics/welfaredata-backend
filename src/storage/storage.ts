@@ -21,7 +21,6 @@ export const upload = async (originalName:string,fileContent:any,contentType:str
         ContentType:contentType,
         ACL:'public-read'
     }
-
     return s3.upload(params).promise()
 }
 
