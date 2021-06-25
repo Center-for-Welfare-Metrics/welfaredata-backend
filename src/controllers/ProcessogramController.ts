@@ -20,7 +20,7 @@ const ProcessogramController = {
      * @param file file
      */
     upload:(request:Request,response:Response) => {
-        let { originalname,buffer,mimetype,size } = request.file      
+        let { originalname,buffer,mimetype,size } = request.file as any   
         
         let { id_tree } = request.body        
 

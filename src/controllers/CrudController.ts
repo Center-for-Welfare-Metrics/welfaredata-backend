@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+    import mongoose from "mongoose";
 
 import { Request,Response } from 'express'
 
@@ -113,7 +113,7 @@ class RegularCrudController {
     upload = (request:Request,response:Response) => {
         let {_id} = request.params
 
-        let { originalname,buffer,mimetype,size } = request.file
+        let { originalname,buffer,mimetype,size } = request.file as any
 
         upload(originalname,buffer,mimetype)
         .then((value) => {
