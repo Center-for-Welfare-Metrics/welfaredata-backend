@@ -110,7 +110,7 @@ class RegularCrudController {
         })
     }
 
-    upload = (request:Request,response:Response) => {
+    upload = (request:any,response:Response) => {
         let {_id} = request.params
 
         let { originalname,buffer,mimetype,size } = request.file as any
