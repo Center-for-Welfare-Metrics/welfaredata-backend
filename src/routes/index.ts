@@ -7,6 +7,7 @@ import production_system from './production_system'
 import life_fate from './life_fate'
 import phase from './phase'
 import circumstance from './circumstance'
+import issue from './issue'
 
 export default (app:Express) => {
     app.use('/',root)
@@ -17,4 +18,5 @@ export default (app:Express) => {
     app.use('/lifeFate',life_fate)
     app.use('/phase',phase)
     app.use('/circumstance',circumstance)
+    app.use('/issue',issue)
 }

@@ -1,7 +1,7 @@
-const axios = require('axios')
+import axios from 'axios'
 
 const GITLAB_BASE_URL = 'https://gitlab.com/api/v4'
-const querystring = require('querystring')
+import querystring from 'querystring'
 
 
 interface IIssueData {
@@ -10,11 +10,9 @@ interface IIssueData {
 }
 
 
-export const addIssue = (issueData:IIssueData) => {
-    
+export const addIssue = (issueData:any) => {    
     const { title,description } = issueData
-
-    const fullUrl = `${GITLAB_BASE_URL}/projects/${process.env.GITLAB_PROJECT_ID}/issues?${querystring.stringify({ title, description, labels: 'user-reported' })}`
+    const fullUrl = `${GITLAB_BASE_URL}/projects/${process.env.GITLAB_PROJECT_ID}/issues?${querystring.stringify({ title, description, labels: 'user-feedback' })}`
     return axios.post(fullUrl, {},
         {
             headers: {
@@ -22,6 +20,5 @@ export const addIssue = (issueData:IIssueData) => {
             }
         }
     )
-
 }
 

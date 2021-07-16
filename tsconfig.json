@@ -16,7 +16,8 @@
         "@/routes/*":["src/routes/*"],
         "@/storage/*":["src/storage/*"],
         "@/interfaces/*":["src/interfaces/*"],
-        "@/useCases/*":["src/useCases/*"]
+        "@/useCases/*":["src/useCases/*"],
+        "@/api/*":["src/api/*"]
       }
     }
 }
