@@ -17,7 +17,7 @@ class RegularCrudController {
     }
     
     get_one_by_id = (request:Request,response:Response) => {
-        let {_id} = request.params
+        let { _id } = request.params
         READ_ONE_BY_ID({
             _id,
             Model:this.model,

@@ -7,7 +7,6 @@ const router = express.Router()
 
 router.post('',(request,response)=>{
     let { title,description } = request.body
-    console.log(title,description)
     addIssue({title,description})    
     .then(() => {
         response.success()

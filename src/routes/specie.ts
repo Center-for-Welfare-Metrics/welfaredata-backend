@@ -12,6 +12,10 @@ import {AuthProtected} from '@/middlewares/logged'
 
 const Controller = new CrudController(SpecieModel)
 
+router.get('/:_id',
+    Controller.get_one_by_id
+)
+
 router.all('/*',AuthProtected)
 
 router.get('',
