@@ -6,6 +6,8 @@ import LifeFateModel from '@/models/LifeFate'
 
 import {AuthProtected} from '@/middlewares/logged'
 
+import PC from '@/controllers/ProcessogramController'
+
 const multer = require('multer')
 
 const upload = multer()
@@ -26,7 +28,8 @@ router.post('',
 )
 
 router.patch('/:_id',
-    Controller.update
+    Controller.update_next,
+    PC.all
 )
 
 router.patch('/:_id/upload',

@@ -1,6 +1,6 @@
     import mongoose from "mongoose";
 
-import { Request,Response } from 'express'
+import { NextFunction, Request,Response } from 'express'
 
 import { CREATE, DELETE_BY_ID, READ, READ_ONE, READ_ONE_BY_ID, UPDATE } from "@/useCases/CRUD";
 
@@ -97,7 +97,7 @@ class RegularCrudController {
     update = (request:Request,response:Response) => {
         let values = request.body
         let { auth_user } = request
-        let {_id} = request.params
+        let { _id } = request.params
         UPDATE({
             _id,
             Model:this.model,
@@ -105,6 +105,22 @@ class RegularCrudController {
         })
         .then((updated_document) => {
             response.success(updated_document)
+        }).catch((error) => {
+            response.internalServerError(error)
+        })
+    }
+
+    update_next = (request:Request,response:Response,next:NextFunction) => {
+        let values = request.body
+        let { auth_user } = request
+        let { _id } = request.params
+        UPDATE({
+            _id,
+            Model:this.model,
+            values:{...values,lastUpdatedBy:auth_user?._id},
+        })
+        .then(() => {
+            next()
         }).catch((error) => {
             response.internalServerError(error)
         })

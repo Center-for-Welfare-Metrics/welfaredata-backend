@@ -7,6 +7,8 @@ import ProductionSystemModel from '@/models/ProductionSystem'
 
 import {AuthProtected} from '@/middlewares/logged'
 
+import PC from '@/controllers/ProcessogramController'
+
 const router = express.Router()
 
 const multer = require('multer')
@@ -14,6 +16,7 @@ const multer = require('multer')
 const upload = multer()
 
 const Controller = new CrudController(ProductionSystemModel)
+
 
 router.all('/*',AuthProtected)
 
@@ -26,7 +29,8 @@ router.post('',
 )
 
 router.patch('/:_id',
-    Controller.update
+    Controller.update_next,
+    PC.all
 )
 
 router.patch('/:_id/upload',

@@ -5,7 +5,7 @@ import CrudController from '@/controllers/CrudController'
 
 import Phase from '@/models/Phase'
 
-
+import PC from '@/controllers/ProcessogramController'
 import {AuthProtected} from '@/middlewares/logged'
 
 const router = express.Router()
@@ -27,7 +27,8 @@ router.post('',
 )
 
 router.patch('/:_id',
-    Controller.update
+    Controller.update_next,
+    PC.all
 )
 
 router.patch('/:_id/upload',

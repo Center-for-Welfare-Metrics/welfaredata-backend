@@ -32,6 +32,7 @@ router.post('',
 )
 
 router.patch('/:_id/upload',
+    AuthProtected,
     upload.single('file'),
     ProcessogramController.upload
 )
