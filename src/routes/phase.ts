@@ -26,7 +26,7 @@ router.post('',
     Controller.create
 )
 
-router.patch('/:_id',
+router.patch('/:_id/:specie',
     Controller.update_next,
     PC.all
 )

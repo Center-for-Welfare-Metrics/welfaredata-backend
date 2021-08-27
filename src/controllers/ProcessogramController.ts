@@ -8,7 +8,8 @@ const Controller = new CrudController(ProcessogramModel,'productionSystem')
 
 const ProcessogramController = {
     all:(request:Request,response:Response)=>{
-        ProcessogramModel.find({},{user_id:0}).populate('productionSystem lifefates.lifeFate lifefates.phases.phase lifefates.phases.circumstances.circumstance')
+        let { specie } = request.params        
+        ProcessogramModel.find({specie:specie},{user_id:0}).populate('productionSystem lifefates.lifeFate lifefates.phases.phase lifefates.phases.circumstances.circumstance')
         .then((documents) => {
             response.success(documents)
         })

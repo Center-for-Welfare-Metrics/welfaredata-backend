@@ -16,7 +16,7 @@ const multer = require('multer')
 
 const upload = multer()
 
-router.get('/all', 
+router.get('/all/:specie', 
     // AuthProtected,
     ProcessogramController.all
 )

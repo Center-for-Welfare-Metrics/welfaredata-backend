@@ -1,7 +1,7 @@
 export const assignValues = (object:any) => {
     let new_object:any = {}
     Object.keys(object).forEach((key) => {
-        if(object[key]){
+        if(object[key] || object[key]===''){
             new_object[key] = object[key]
         }
     })

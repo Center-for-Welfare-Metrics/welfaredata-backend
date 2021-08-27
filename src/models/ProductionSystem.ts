@@ -15,6 +15,7 @@ export interface IProductionSystem extends mongoose.Document {
 const ProductionSystemSchema : Schema = new mongoose.Schema({
     specie:{ type:String, required:true, ref:'Specie' },
     name: {type:String, required:true,immutable:true },
+    alternative_name:{type:String,required:false},
     description: {type:String},
     global_population: {type:String},
     name_synonyms:[String],
