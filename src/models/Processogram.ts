@@ -1,65 +1,93 @@
-import mongoose,{Schema, SchemaTypeOptions} from 'mongoose'
+import mongoose, { Schema, SchemaTypeOptions } from "mongoose";
 
 export interface IMedia {
-    originalName:SchemaTypeOptions<any> | Schema | string
-    url:SchemaTypeOptions<any> | Schema | string
-    size:SchemaTypeOptions<any> | Schema | number
-    type:SchemaTypeOptions<any> | Schema | string
-    name?:SchemaTypeOptions<any> | Schema | string
-    descripition?:SchemaTypeOptions<any> | Schema | string
+  originalName: SchemaTypeOptions<any> | Schema | string;
+  url: SchemaTypeOptions<any> | Schema | string;
+  size: SchemaTypeOptions<any> | Schema | number;
+  type: SchemaTypeOptions<any> | Schema | string;
+  name?: SchemaTypeOptions<any> | Schema | string;
+  descripition?: SchemaTypeOptions<any> | Schema | string;
 }
 
-export const MediaSchema : IMedia = {
-    originalName:{type:String, required:true },
-    url:{type:String, required:true },
-    size:{ type:Number, required:true },
-    type:{ type:String, required:true },
-    name:{ type:String },
-    descripition:{ type:String },
-}
+export const MediaSchema: IMedia = {
+  originalName: { type: String, required: true },
+  url: { type: String, required: true },
+  size: { type: Number, required: true },
+  type: { type: String, required: true },
+  name: { type: String },
+  descripition: { type: String },
+};
 
 export interface ICommonInformations {
-    name: SchemaTypeOptions<any> | Schema | string
-    description: SchemaTypeOptions<any> | Schema | string
-    medias: SchemaTypeOptions<any> | Schema | IMedia[]
+  name: SchemaTypeOptions<any> | Schema | string;
+  description: SchemaTypeOptions<any> | Schema | string;
+  medias: SchemaTypeOptions<any> | Schema | IMedia[];
 }
 
-const CommonInformations : ICommonInformations = {
-    name: {type:String, required:false },
-    description: { type:String, required:false },
-    medias: [MediaSchema]
-}
+const CommonInformations: ICommonInformations = {
+  name: { type: String, required: false },
+  description: { type: String, required: false },
+  medias: [MediaSchema],
+};
 
 export interface IProcessogram extends mongoose.Document {
-    name?:string
-    description:string
-    specie:string
-    productionSystem:string
-    lifefates?:any[]
-    phases?:any[]
-    circumstances?:any[]
-    medias:IMedia[]
+  name?: string;
+  description: string;
+  specie: string;
+  productionSystem: string;
+  lifefates?: any[];
+  phases?: any[];
+  circumstances?: any[];
+  medias: IMedia[];
 }
 
-const ProcessogramSchema : Schema = new mongoose.Schema({
-    specie:{ type:String, required:true, ref:'Specie' },
-    productionSystem:{ type:mongoose.Types.ObjectId, required:true,ref:'ProductionSystem' },
+const ProcessogramSchema: Schema = new mongoose.Schema(
+  {
+    specie: { type: String, required: true, ref: "Specie" },
+    productionSystem: {
+      type: mongoose.Types.ObjectId,
+      required: true,
+      ref: "ProductionSystem",
+    },
     ...CommonInformations,
-    lifefates:[{
-        lifeFate: { type:mongoose.Types.ObjectId, required:true,ref:'LifeFate' },
+    lifefates: [
+      {
+        lifeFate: {
+          type: mongoose.Types.ObjectId,
+          required: true,
+          ref: "LifeFate",
+        },
         ...CommonInformations,
-        phases:[{
-            phase: { type:mongoose.Types.ObjectId, required:true,ref:'Phase' },
+        phases: [
+          {
+            phase: {
+              type: mongoose.Types.ObjectId,
+              required: true,
+              ref: "Phase",
+            },
             ...CommonInformations,
-            circumstances:[{
-                circumstance: { type:mongoose.Types.ObjectId, required:true,ref:'Circumstance' },
+            circumstances: [
+              {
+                circumstance: {
+                  type: mongoose.Types.ObjectId,
+                  required: true,
+                  ref: "Circumstance",
+                },
                 ...CommonInformations,
-            }]
-        }]
-    }]
-},{
-    timestamps:true,
-    strict:false
-})
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    timestamps: true,
+    strict: false,
+  }
+);
 
-export default mongoose.model<IProcessogram>('Processogram',ProcessogramSchema)
+export default mongoose.model<IProcessogram>(
+  "Processogram",
+  ProcessogramSchema
+);

@@ -1,69 +1,73 @@
-import mongoose,{HookNextFunction,Schema} from 'mongoose'
+import mongoose, { Schema } from "mongoose";
 
-import bcrypt from 'bcrypt'
-import { String } from 'aws-sdk/clients/acm'
+import bcrypt from "bcrypt";
+import { String } from "aws-sdk/clients/acm";
 
 export interface IUser extends mongoose.Document {
-    name:string
-    email:string
-    password:string
-    createdBy?:string
-    lastUpdatedBy?:string
-    role?:String
-    validatePassword(password:string):Promise<boolean>
-    secureJsonfy():any
+  name: string;
+  email: string;
+  password: string;
+  createdBy?: string;
+  lastUpdatedBy?: string;
+  role?: String;
+  validatePassword(password: string): Promise<boolean>;
+  secureJsonfy(): any;
 }
 
-const saltRounds = 10
+const saltRounds = 10;
 
-const UserSchema : Schema = new mongoose.Schema(
-    {
-        name: {type:String, required:true},
-        email: {type:String, required:true, unique:true },
-        password: {type:String, required:true },
-        createdBy: {type:mongoose.Types.ObjectId, required:false, ref:'User'},
-        lastUpdatedBy:{type:mongoose.Types.ObjectId, required:false, ref:'User'},
-        role: {type:mongoose.Types.ObjectId,required:false,ref:'Role'}
+const UserSchema: Schema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    createdBy: { type: mongoose.Types.ObjectId, required: false, ref: "User" },
+    lastUpdatedBy: {
+      type: mongoose.Types.ObjectId,
+      required: false,
+      ref: "User",
     },
-    {
-        timestamps:true
-    }
-)
+    role: { type: mongoose.Types.ObjectId, required: false, ref: "Role" },
+  },
+  {
+    timestamps: true,
+  }
+);
 
+UserSchema.pre<any>("save", function (next: any) {
+  let user = this;
+  if (user.isNew || user.isModified("password")) {
+    bcrypt.hash(user.password, saltRounds, (error, hashedPassword: string) => {
+      if (error) {
+        next(error);
+      } else {
+        user.password = hashedPassword;
+        next();
+      }
+    });
+  } else {
+    next();
+  }
+});
 
-UserSchema.pre<any>('save', function(next:HookNextFunction){
-    let user = this
-    if(user.isNew || user.isModified('password')){
-        bcrypt.hash(user.password,saltRounds,(error,hashedPassword:string) => {
-            if(error){
-                next(error)
-            }else{
-                user.password = hashedPassword
-                next()
-            }
-        })
-    }else{
-        next()
-    }
-})
+UserSchema.methods.validatePassword = function (this: any, password: string) {
+  let user = this;
+  return new Promise((resolve, reject) => {
+    bcrypt
+      .compare(password, user.password || "")
+      .then((result) => {
+        resolve(result);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
 
-UserSchema.methods.validatePassword = function(this:any,password:string){
-    let user = this
-    return new Promise((resolve,reject) => {
-        bcrypt.compare(password,user.password || '')
-        .then((result) => {
-            resolve(result)
-        })
-        .catch((error)=>{
-            reject(error)
-        })
-    })
-}
+UserSchema.methods.secureJsonfy = function (this: any) {
+  let user_to_json = this.toJSON();
+  delete user_to_json.password;
+  return user_to_json;
+};
 
-UserSchema.methods.secureJsonfy = function(this:any){
-    let user_to_json = this.toJSON()
-    delete user_to_json.password
-    return user_to_json
-}
-
-export default mongoose.model<IUser>('User',UserSchema)
+export default mongoose.model<IUser>("User", UserSchema);
