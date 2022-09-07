@@ -1,49 +1,33 @@
-import express from 'express'
+import express from "express";
 
+import CrudController from "@/controllers/CrudController";
 
-import CrudController from '@/controllers/CrudController'
+import ProductionSystemModel from "@/models/ProductionSystem";
 
-import ProductionSystemModel from '@/models/ProductionSystem'
+import { AuthProtected } from "@/middlewares/logged";
 
-import {AuthProtected} from '@/middlewares/logged'
+import PC from "@/controllers/ProcessogramController";
 
-import PC from '@/controllers/ProcessogramController'
+const router = express.Router();
 
-const router = express.Router()
+const multer = require("multer");
 
-const multer = require('multer')
+const upload = multer();
 
-const upload = multer()
+const Controller = new CrudController(ProductionSystemModel);
 
-const Controller = new CrudController(ProductionSystemModel)
+router.all("/*", AuthProtected);
 
+router.get("", Controller.read);
 
-router.all('/*',AuthProtected)
+router.post("", Controller.create);
 
-router.get('',
-    Controller.read
-)
+router.patch("/:_id/upload", upload.single("file"), Controller.upload);
 
-router.post('',
-    Controller.create
-)
+router.patch("/:_id/:specie", Controller.update_next);
 
-router.patch('/:_id/:specie',
-    Controller.update_next,
-    PC.all
-)
+router.delete("/:_id", Controller.deleteById);
 
-router.patch('/:_id/upload',
-    upload.single('file'),
-    Controller.upload
-)
+router.post("/getOneReference", Controller.read_one);
 
-router.delete('/:_id',
-    Controller.deleteById
-)
-
-router.post('/getOneReference', 
-    Controller.read_one
-)
-
-export default router
+export default router;

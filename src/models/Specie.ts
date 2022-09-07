@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-
+import { MediaSchema } from "./Processogram";
 export interface ISpecie extends mongoose.Document {
   _id: string;
   description?: string;
@@ -27,6 +27,7 @@ const SpecieSchema: Schema = new mongoose.Schema(
       required: false,
       ref: "User",
     },
+    medias: [MediaSchema],
   },
   {
     timestamps: true,

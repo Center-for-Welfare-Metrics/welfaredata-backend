@@ -136,7 +136,7 @@ class RegularCrudController {
       values: { ...values, lastUpdatedBy: auth_user?._id },
     })
       .then(() => {
-        next();
+        return response.success();
       })
       .catch((error) => {
         response.internalServerError(error);
@@ -152,18 +152,18 @@ class RegularCrudController {
       .then((value) => {
         let source = value.Location;
         let new_media: IMedia = {
+          _id: new mongoose.Types.ObjectId(),
           originalName: originalname,
           url: source,
           size: size,
           type: mimetype,
         };
         this.model.findById(_id).then((document_finded) => {
-          console.log(document_finded);
           document_finded.medias.push(new_media);
 
           document_finded.save();
 
-          response.success(document_finded);
+          response.success(new_media);
         });
       })
       .catch((error) => {

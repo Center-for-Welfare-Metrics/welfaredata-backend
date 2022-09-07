@@ -1,6 +1,7 @@
 import mongoose, { Schema, SchemaTypeOptions } from "mongoose";
 
 export interface IMedia {
+  _id?: mongoose.Types.ObjectId;
   originalName: SchemaTypeOptions<any> | Schema | string;
   url: SchemaTypeOptions<any> | Schema | string;
   size: SchemaTypeOptions<any> | Schema | number;

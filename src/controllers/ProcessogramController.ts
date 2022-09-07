@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import ProcessogramModel, { IMedia } from "@/models/Processogram";
 import CrudController from "@/controllers/CrudController";
 import { upload } from "@/storage/storage";
+import mongoose from "mongoose";
 
 const Controller = new CrudController(ProcessogramModel, "productionSystem");
 
@@ -40,15 +41,13 @@ const ProcessogramController = {
       .then((value) => {
         let source = value.Location;
         let new_media: IMedia = {
+          _id: new mongoose.Types.ObjectId(),
           originalName: originalname,
           url: source,
           size: size,
           type: mimetype,
         };
         ProcessogramModel.findById(_id)
-          .populate(
-            "productionSystem lifefates.lifeFate lifefates.phases.phase lifefates.phases.circumstances.circumstance"
-          )
           .then((processogram: any) => {
             let updated_document = processogram;
             Object.keys(id_tree)?.forEach((key) => {
@@ -59,7 +58,7 @@ const ProcessogramController = {
 
             processogram.save();
 
-            response.success(updated_document);
+            response.success(new_media);
           })
           .catch((error) => {
             response.internalServerError(error);
