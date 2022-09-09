@@ -135,7 +135,6 @@ const ProcessogramController = {
             .populate(
               "productionSystem lifefates.lifeFate lifefates.phases.phase lifefates.phases.circumstances.circumstance"
             )
-            .execPopulate()
             .then((populated: any) => {
               response.success(populated);
             });
@@ -145,7 +144,6 @@ const ProcessogramController = {
           .populate(
             "productionSystem lifefates.lifeFate lifefates.phases.phase lifefates.phases.circumstances.circumstance"
           )
-          .execPopulate()
           .then((populated: any) => {
             response.success(populated);
           });
