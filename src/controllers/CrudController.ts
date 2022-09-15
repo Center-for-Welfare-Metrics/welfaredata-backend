@@ -171,6 +171,24 @@ class RegularCrudController {
       });
   };
 
+  addMedia = (request: Request, response: Response) => {
+    let { _id } = request.params;
+    let { url, type } = request.body;
+
+    this.model.findById(_id).then((document_finded) => {
+      let new_media: IMedia = {
+        _id: new mongoose.Types.ObjectId(),
+        url,
+        type,
+      };
+      document_finded.medias.push(new_media);
+
+      document_finded.save();
+
+      response.success(new_media);
+    });
+  };
+
   deleteById = (request: Request, response: Response) => {
     let { _id } = request.params;
     DELETE_BY_ID({

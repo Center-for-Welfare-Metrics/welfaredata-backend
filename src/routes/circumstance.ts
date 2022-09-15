@@ -22,9 +22,11 @@ router.get("", Controller.read);
 
 router.post("", Controller.create);
 
-router.patch("/:_id/:specie", Controller.update_next);
-
 router.patch("/:_id/upload", upload.single("file"), Controller.upload);
+
+router.patch("/:_id/newmedia", Controller.addMedia);
+
+router.patch("/:_id/:specie", Controller.update_next);
 
 router.delete("/:_id", Controller.deleteById);
 

@@ -26,6 +26,8 @@ router.patch("/:_id", Controller.update);
 
 router.patch("/:_id/upload", upload.single("file"), Controller.upload);
 
+router.patch("/:_id/newmedia", Controller.addMedia);
+
 router.delete("/:_id", Controller.deleteById);
 
 export default router;
