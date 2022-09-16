@@ -68,6 +68,40 @@ const ProcessogramController = {
         response.internalServerError(error);
       });
   },
+  addMedia: (request: any, response: Response) => {
+    let { id_tree, url, type } = request.body;
+
+    if (id_tree) {
+      id_tree = JSON.parse(id_tree);
+    } else {
+      id_tree = {};
+    }
+
+    let { _id } = request.params;
+
+    let new_media: IMedia = {
+      _id: new mongoose.Types.ObjectId(),
+      url,
+      type,
+    };
+
+    ProcessogramModel.findById(_id)
+      .then((processogram: any) => {
+        let updated_document = processogram;
+        Object.keys(id_tree)?.forEach((key) => {
+          updated_document = updated_document?.[key].id(id_tree[key]);
+        });
+
+        updated_document.medias.push(new_media);
+
+        processogram.save();
+
+        response.success(new_media);
+      })
+      .catch((error) => {
+        response.internalServerError(error);
+      });
+  },
   /**
    * REQUEST BODY PARAMS
    * @param id_tree string
