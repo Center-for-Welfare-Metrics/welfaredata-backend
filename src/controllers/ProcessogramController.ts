@@ -71,12 +71,6 @@ const ProcessogramController = {
   addMedia: (request: any, response: Response) => {
     let { id_tree, url, type } = request.body;
 
-    if (id_tree) {
-      id_tree = JSON.parse(id_tree);
-    } else {
-      id_tree = {};
-    }
-
     let { _id } = request.params;
 
     let new_media: IMedia = {
