@@ -2,7 +2,7 @@ import express from "express";
 
 import CrudController from "@/controllers/CrudController";
 
-import ProductionSystemModel from "@/models/ProductionSystem";
+import ProductionSystemModel from "@/models/old/ProductionSystem";
 
 import { AuthProtected } from "@/middlewares/logged";
 

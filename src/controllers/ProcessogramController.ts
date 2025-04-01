@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import ProcessogramModel, { IMedia } from "@/models/Processogram";
+import ProcessogramModel, { IMedia } from "@/models/old/Processogram";
 import CrudController from "@/controllers/CrudController";
 import { upload } from "@/storage/storage";
 import mongoose from "mongoose";

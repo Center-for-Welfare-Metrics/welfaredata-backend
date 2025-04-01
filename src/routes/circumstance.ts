@@ -2,7 +2,7 @@ import express from "express";
 
 import CrudController from "@/controllers/CrudController";
 
-import CircumstanceModel from "@/models/Circumstance";
+import CircumstanceModel from "@/models/old/Circumstance";
 
 import PC from "@/controllers/ProcessogramController";
 

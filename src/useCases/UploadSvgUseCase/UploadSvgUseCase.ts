@@ -1,8 +1,11 @@
 import { optimize } from "svgo";
 import fs from "fs";
-import { removeUnusedIdsPlugin } from "src/svgo/plugins/removeUnusedIds";
-import { rasterizeSvg, sortSvgChildren } from "./utils/sortSvgChildren";
+import { removeUnusedIdsPlugin } from "src/svgo/plugins/removeUnusedIdsPlugin";
+import { sortSvgChildren } from "./utils/sortSvgChildren";
+import { SvgElementService } from "src/services/SvgElementService";
+import SvgElement from "src/models/SvgElement";
 import path from "path";
+import { rasterizeSvg } from "./utils/rasterizeSvg";
 
 interface File {
   buffer: Buffer;
@@ -11,8 +14,18 @@ interface File {
   size: number;
 }
 
+interface Params {
+  specie: string;
+}
+
 export class UploadSvgUseCase {
-  async execute(file: File) {
+  private svgElementService: SvgElementService;
+
+  constructor() {
+    this.svgElementService = new SvgElementService();
+  }
+
+  async execute(file: File, params: Params) {
     // Validate if the file is a valid SVG
     if (file.mimetype !== "image/svg+xml") {
       throw new Error("File must be an SVG");
@@ -40,30 +53,54 @@ export class UploadSvgUseCase {
 
     const sortedSvgContent = await sortSvgChildren(optimizedSvgContent);
 
-    const allElements = await rasterizeSvg(sortedSvgContent, '[id*="--"]');
-    if (allElements.length > 0) {
-      const folderPath = path.resolve("images");
-      if (!fs.existsSync(folderPath)) {
-        fs.mkdirSync(folderPath);
-      }
+    // Extract elements with IDs containing "--"
+    const { elements, svgData } = await rasterizeSvg(
+      sortedSvgContent,
+      '[id*="--"]'
+    );
 
-      for (const element of allElements) {
-        const fileName = `${element.id}.png`;
-        const filePath = path.join(folderPath, fileName);
-
-        const base64Data = element.dataUrl.replace(
-          /^data:image\/png;base64,/,
-          ""
-        );
-        fs.writeFileSync(filePath, base64Data, "base64");
-
-        console.log(`Image saved as ${filePath}`);
-      }
+    if (elements.length === 0) {
+      console.log("No elements with IDs found in the SVG");
+      return {
+        message:
+          "SVG file uploaded successfully, but no elements were found to process",
+      };
     }
-    fs.writeFileSync("optimized.svg", sortedSvgContent);
+
+    // Prepare raster images map for the root element
+    const rasterDataUrls = new Map<string, string>();
+    for (const element of elements) {
+      rasterDataUrls.set(element.id, element.dataUrl);
+    }
+
+    // Create a root SVG element in MongoDB with the SVG URL and all raster images
+    const rootElement = await this.svgElementService.createRootElement({
+      id: svgData?.svgId ?? "root",
+      rasterImages: rasterDataUrls,
+      svgString: sortedSvgContent,
+      name: svgData?.svgName ?? "default",
+      levelName: svgData?.svgLevelName ?? "default",
+      specie: params.specie,
+    });
+
+    if (!rootElement) {
+      throw new Error("Failed to create root SVG element");
+    }
+
+    for (const element of elements) {
+      await this.svgElementService.createElement({
+        rootId: rootElement._id,
+        id: element.id,
+        name: element.name ?? "default",
+        levelName: element.levelName ?? "default",
+        specie: params.specie,
+      });
+    }
 
     return {
       message: "SVG file uploaded successfully",
+      rootElementId: rootElement._id,
+      elementsProcessed: elements.length,
     };
   }
 }

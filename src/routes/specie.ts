@@ -4,7 +4,7 @@ const router = express.Router();
 
 import CrudController from "@/controllers/CrudController";
 
-import SpecieModel from "@/models/Specie";
+import SpecieModel from "@/models/old/Specie";
 
 import { AuthProtected } from "@/middlewares/logged";
 

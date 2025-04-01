@@ -2,7 +2,7 @@ import express from "express";
 
 import CrudController from "@/controllers/CrudController";
 
-import LifeFateModel from "@/models/LifeFate";
+import LifeFateModel from "@/models/old/LifeFate";
 
 import { AuthProtected } from "@/middlewares/logged";
 

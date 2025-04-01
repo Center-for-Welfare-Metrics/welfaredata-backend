@@ -12,7 +12,7 @@ import {
 } from "@/useCases/CRUD";
 
 import { upload } from "@/storage/storage";
-import { IMedia } from "@/models/Processogram";
+import { IMedia } from "@/models/old/Processogram";
 
 class RegularCrudController {
   model: mongoose.Model<any>;

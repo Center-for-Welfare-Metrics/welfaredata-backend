@@ -6,7 +6,7 @@ import CrudController from "@/controllers/CrudController";
 
 import ProcessogramController from "@/controllers/ProcessogramController";
 
-import ProcessogramModel from "@/models/Processogram";
+import ProcessogramModel from "@/models/old/Processogram";
 
 import { AuthProtected } from "@/middlewares/logged";
 

@@ -2,7 +2,7 @@ import express from "express";
 
 import CrudController from "@/controllers/CrudController";
 
-import Phase from "@/models/Phase";
+import Phase from "@/models/old/Phase";
 
 import PC from "@/controllers/ProcessogramController";
 import { AuthProtected } from "@/middlewares/logged";

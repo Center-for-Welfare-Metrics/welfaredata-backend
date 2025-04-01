@@ -11,7 +11,9 @@ class UploadSvgController {
       }
 
       const uploadSvgUseCase = new UploadSvgUseCase();
-      const result = await uploadSvgUseCase.execute(file);
+      const result = await uploadSvgUseCase.execute(file, {
+        specie: "pig",
+      });
 
       return res.status(200).json(result);
     } catch (error: any) {
