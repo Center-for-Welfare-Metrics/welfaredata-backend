@@ -1,11 +1,9 @@
 import { optimize } from "svgo";
-import fs from "fs";
 import { removeUnusedIdsPlugin } from "src/svgo/plugins/removeUnusedIdsPlugin";
 import { sortSvgChildren } from "./utils/sortSvgChildren";
 import { SvgElementService } from "src/services/SvgElementService";
-import SvgElement from "src/models/SvgElement";
-import path from "path";
 import { rasterizeSvg } from "./utils/rasterizeSvg";
+import { removeBxAttributesPlugin } from "src/svgo/plugins/removeBxAttributesPlugin";
 
 interface File {
   buffer: Buffer;
@@ -46,6 +44,7 @@ export class UploadSvgUseCase {
           },
         },
         removeUnusedIdsPlugin,
+        removeBxAttributesPlugin,
       ],
     });
 

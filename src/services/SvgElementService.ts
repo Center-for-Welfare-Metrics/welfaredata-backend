@@ -46,6 +46,8 @@ export class SvgElementService {
 
       const uploadResult = await upload(fileName, buffer, contentType);
 
+      console.log(`Uploaded ${fileName} to S3:`);
+
       const source = uploadResult.Location;
 
       rasterUrls.set(key, source);
@@ -73,7 +75,7 @@ export class SvgElementService {
       levelName,
       specie,
       identifier: "root",
-      rasterImages: rasterImagesObject,
+      raster_images: rasterImagesObject,
       svg_url: svgSource,
       root_id: null,
     });
