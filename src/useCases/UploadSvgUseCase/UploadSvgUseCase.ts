@@ -58,6 +58,10 @@ export class UploadSvgUseCase {
       '[id*="--"]'
     );
 
+    if (!svgData) {
+      throw new Error("Failed to extract SVG data");
+    }
+
     if (elements.length === 0) {
       console.log("No elements with IDs found in the SVG");
       return {
@@ -72,14 +76,16 @@ export class UploadSvgUseCase {
       rasterDataUrls.set(element.id, element.dataUrl);
     }
 
+    const specie = params.specie.toLowerCase();
+
     // Create a root SVG element in MongoDB with the SVG URL and all raster images
     const rootElement = await this.svgElementService.createRootElement({
-      id: svgData?.svgId ?? "root",
+      id: svgData.svgId,
       rasterImages: rasterDataUrls,
       svgString: sortedSvgContent,
-      name: svgData?.svgName ?? "default",
-      levelName: svgData?.svgLevelName ?? "default",
-      specie: params.specie,
+      name: svgData.svgName,
+      levelName: svgData.svgLevelName,
+      specie: specie,
     });
 
     if (!rootElement) {
@@ -90,9 +96,9 @@ export class UploadSvgUseCase {
       await this.svgElementService.createElement({
         rootId: rootElement._id,
         id: element.id,
-        name: element.name ?? "default",
-        levelName: element.levelName ?? "default",
-        specie: params.specie,
+        name: element.name,
+        levelName: element.levelName,
+        specie: specie,
       });
     }
 

@@ -37,7 +37,7 @@ export class SvgElementService {
     const rasterUrls = new Map<string, string>();
 
     for (const [key, value] of rasterImages.entries()) {
-      const fileName = `${key}.png`;
+      const fileName = `welfare_${key}.png`;
       const base64Data = value.split(",")[1];
 
       const buffer = Buffer.from(base64Data, "base64");

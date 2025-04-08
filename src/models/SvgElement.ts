@@ -48,7 +48,6 @@ const SvgElementSchema: Schema = new mongoose.Schema(
   }
 );
 
-// Compound index to ensure name + levelName is unique
-SvgElementSchema.index({ name: 1, levelName: 1, specie: 1 });
+SvgElementSchema.index({ specie: 1, element_type: 1, root_id: 1 });
 
 export default mongoose.model<ISvgElement>("SvgElement", SvgElementSchema);

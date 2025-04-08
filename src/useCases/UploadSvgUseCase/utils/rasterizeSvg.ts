@@ -22,8 +22,8 @@ const DIMENSIONS = {
 type ElementData = {
   dataUrl: string;
   id: string;
-  name?: string; // From data-name attribute
-  levelName?: string; // From data-level-name attribute
+  name: string; // From data-name attribute
+  levelName: string; // From data-level-name attribute
 };
 
 type SvgData = {
@@ -303,5 +303,5 @@ export async function rasterizeSvg(
     (element) => element !== null
   ) as ElementData[];
 
-  return { elements: filteredElementsData, svgData: svgData || null };
+  return { elements: filteredElementsData, svgData: svgData };
 }

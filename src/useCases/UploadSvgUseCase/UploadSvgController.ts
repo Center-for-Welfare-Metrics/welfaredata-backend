@@ -1,8 +1,12 @@
 import { Request, Response } from "express";
 import { UploadSvgUseCase } from "./UploadSvgUseCase";
 
+type ReqBody = {
+  specie: string;
+};
+
 class UploadSvgController {
-  async upload(req: Request, res: Response) {
+  async upload(req: Request<{}, {}, ReqBody>, res: Response) {
     try {
       const file = req.file;
 
@@ -12,7 +16,7 @@ class UploadSvgController {
 
       const uploadSvgUseCase = new UploadSvgUseCase();
       const result = await uploadSvgUseCase.execute(file, {
-        specie: "pig",
+        specie: req.body.specie,
       });
 
       return res.status(200).json(result);
