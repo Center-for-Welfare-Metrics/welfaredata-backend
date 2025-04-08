@@ -33,18 +33,24 @@ export class SvgElementService {
     name,
     levelName,
     specie,
+    id,
   }: CreateRootElementParams) {
     const rasterUrls = new Map<string, string>();
 
     for (const [key, value] of rasterImages.entries()) {
-      const fileName = `welfare_${key}.png`;
+      const fileName = `${key}.png`;
       const base64Data = value.split(",")[1];
 
       const buffer = Buffer.from(base64Data, "base64");
 
       const contentType = "image/png";
 
-      const uploadResult = await upload(fileName, buffer, contentType);
+      const uploadResult = await upload(
+        fileName,
+        buffer,
+        contentType,
+        "welfare"
+      );
 
       console.log(`Uploaded ${fileName} to S3:`);
 
@@ -74,7 +80,7 @@ export class SvgElementService {
       name,
       levelName,
       specie,
-      identifier: "root",
+      identifier: id,
       raster_images: rasterImagesObject,
       svg_url: svgSource,
       root_id: null,

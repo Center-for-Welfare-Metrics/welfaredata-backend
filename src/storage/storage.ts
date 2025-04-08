@@ -15,12 +15,16 @@ const encode = (data: any) => {
 export const upload = async (
   originalName: string,
   fileContent: AWS.S3.Body,
-  contentType: string
+  contentType: string,
+  prefix: string = ""
 ): Promise<AWS.S3.ManagedUpload.SendData> => {
   let ext = path.extname(originalName);
+
+  let fileName = `${prefix}${uid.sync(18)}${ext}`;
+
   const params: AWS.S3.PutObjectRequest = {
     Bucket: process.env.AWS_BUCKET_NAME || "danger-zone",
-    Key: uid.sync(18) + ext,
+    Key: fileName,
     Body: fileContent,
     ContentType: contentType,
     ACL: "public-read",

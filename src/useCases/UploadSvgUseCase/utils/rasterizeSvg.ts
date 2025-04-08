@@ -282,6 +282,7 @@ export async function rasterizeSvg(
 
   const svgData = await page.evaluate(() => {
     const svgElement = document.querySelector("svg");
+    console.log("SVG Element:", svgElement);
     if (!svgElement) return null;
 
     const svgName = svgElement.getAttribute("data-name") || svgElement.id;
