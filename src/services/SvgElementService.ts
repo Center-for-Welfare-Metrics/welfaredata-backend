@@ -9,9 +9,25 @@ export interface SvgElementData {
   levelName?: string;
 }
 
+export type RasterizedData = {
+  dataUrl: string;
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+};
+
+export type RasterizedElement = {
+  src: string;
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+};
+
 type CreateRootElementParams = {
   id: string;
-  rasterImages: Map<string, string>;
+  rasterImages: Map<string, RasterizedData>;
   svgString: string;
   name: string;
   levelName: string;
@@ -35,11 +51,11 @@ export class SvgElementService {
     specie,
     id,
   }: CreateRootElementParams) {
-    const rasterUrls = new Map<string, string>();
+    const rasterUrls = new Map<string, RasterizedElement>();
 
     for (const [key, value] of rasterImages.entries()) {
       const fileName = `${key}.png`;
-      const base64Data = value.split(",")[1];
+      const base64Data = value.dataUrl.split(",")[1];
 
       const buffer = Buffer.from(base64Data, "base64");
 
@@ -52,11 +68,15 @@ export class SvgElementService {
         "welfare"
       );
 
-      console.log(`Uploaded ${fileName} to S3:`);
-
       const source = uploadResult.Location;
 
-      rasterUrls.set(key, source);
+      rasterUrls.set(key, {
+        src: source,
+        width: value.width,
+        height: value.height,
+        x: value.x,
+        y: value.y,
+      });
     }
 
     const svgFileName = `${name}.svg`;

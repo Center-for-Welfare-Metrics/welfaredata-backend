@@ -1,7 +1,10 @@
 import { optimize } from "svgo";
 import { removeUnusedIdsPlugin } from "src/svgo/plugins/removeUnusedIdsPlugin";
 import { sortSvgChildren } from "./utils/sortSvgChildren";
-import { SvgElementService } from "src/services/SvgElementService";
+import {
+  RasterizedData,
+  SvgElementService,
+} from "src/services/SvgElementService";
 import { rasterizeSvg } from "./utils/rasterizeSvg";
 import { removeBxAttributesPlugin } from "src/svgo/plugins/removeBxAttributesPlugin";
 
@@ -71,9 +74,15 @@ export class UploadSvgUseCase {
     }
 
     // Prepare raster images map for the root element
-    const rasterDataUrls = new Map<string, string>();
+    const rasterDataUrls = new Map<string, RasterizedData>();
     for (const element of elements) {
-      rasterDataUrls.set(element.id, element.dataUrl);
+      rasterDataUrls.set(element.id, {
+        dataUrl: element.dataUrl,
+        x: element.x,
+        y: element.y,
+        width: element.width,
+        height: element.height,
+      });
     }
 
     const specie = params.specie.toLowerCase();

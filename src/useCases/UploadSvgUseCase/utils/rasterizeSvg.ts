@@ -24,6 +24,10 @@ type ElementData = {
   id: string;
   name: string; // From data-name attribute
   levelName: string; // From data-level-name attribute
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 };
 
 type SvgData = {
@@ -257,6 +261,10 @@ export async function rasterizeSvg(
               id: element.id,
               name,
               levelName,
+              x,
+              y,
+              width,
+              height,
             });
           };
 
