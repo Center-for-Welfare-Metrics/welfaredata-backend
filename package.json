@@ -39,15 +39,13 @@
     "@types/validatorjs": "^3.15.0",
     "@types/voca": "^1.4.2",
     "ts-node": "^10.9.1",
-    "ts-transform-paths": "^3.0.0",
     "tscpaths": "^0.0.9",
-    "ttypescript": "^1.5.15",
     "typescript": "^4.8.2"
   },
   "scripts": {
     "dev": "ts-node-dev -r tsconfig-paths/register bin/server.ts",
+    "build": "tsc && tscpaths -p tsconfig.json --src .",
     "start": "node dist/bin/server.js",
-    "build": "ttsc",
     "seed": "ts-node -r tsconfig-paths/register seed/seed.ts"
   },
   "keywords": [],
