@@ -18,6 +18,7 @@
         "@/interfaces/*":["src/interfaces/*"],
         "@/useCases/*":["src/useCases/*"],
         "@/api/*":["src/api/*"]
-      }
+      },
+      "plugins": [{ "transform": "ts-transform-paths" }]
     }
 }
