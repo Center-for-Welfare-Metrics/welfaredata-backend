@@ -1,4 +1,4 @@
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
 
 interface Size {
   w: number;
@@ -45,7 +45,11 @@ export async function rasterizeSvg(
   svgString: string,
   selector: string
 ): Promise<RasterizedData> {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    headless: true,
+    executablePath: "/usr/bin/chromium",
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
   const page = await browser.newPage();
 
   // First, define the required functions in the browser context
