@@ -1,4 +1,4 @@
-import SvgElement, { ISvgElement } from "src/models/SvgElement";
+import SvgElement, { ISvgElement } from "@/src/models/SvgElement";
 
 interface Params {
   specie: string;

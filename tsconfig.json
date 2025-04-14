@@ -9,6 +9,7 @@
       "baseUrl": ".",
       "allowJs": true,
       "paths":{
+        "@/src/*":["src/*"],
         "@/helpers/*":["helpers/*"],
         "@/controllers/*":["src/controllers/*"],
         "@/middlewares/*":["src/middlewares/*"],

@@ -6,7 +6,7 @@ const upload = multer();
 
 import UploadSvgController from "@/useCases/UploadSvgUseCase/UploadSvgController";
 import { uploadSvgValidator } from "@/useCases/UploadSvgUseCase/Validator";
-import { validate } from "src/utils/validate";
+import { validate } from "@/src/utils/validate";
 
 router.post(
   "",

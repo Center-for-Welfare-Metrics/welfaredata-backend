@@ -1,12 +1,12 @@
 import { optimize } from "svgo";
-import { removeUnusedIdsPlugin } from "src/svgo/plugins/removeUnusedIdsPlugin";
+import { removeUnusedIdsPlugin } from "@/src/svgo/plugins/removeUnusedIdsPlugin";
 import { sortSvgChildren } from "./utils/sortSvgChildren";
 import {
   RasterizedData,
   SvgElementService,
-} from "src/services/SvgElementService";
+} from "@/src/services/SvgElementService";
 import { rasterizeSvg } from "./utils/rasterizeSvg";
-import { removeBxAttributesPlugin } from "src/svgo/plugins/removeBxAttributesPlugin";
+import { removeBxAttributesPlugin } from "@/src/svgo/plugins/removeBxAttributesPlugin";
 
 interface File {
   buffer: Buffer;

@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { GetElementUseCase } from "./GetElementUseCase";
 import { query } from "express-validator";
-import { validate } from "src/utils/validate";
 
 export const getElementValidator = () => [
   query("specie")

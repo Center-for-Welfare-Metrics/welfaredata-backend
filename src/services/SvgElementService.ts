@@ -1,5 +1,5 @@
-import SvgElement, { ISvgElement } from "src/models/SvgElement";
-import { upload } from "src/storage/storage";
+import SvgElement, { ISvgElement } from "@/src/models/SvgElement";
+import { upload } from "@/src/storage/storage";
 import mongoose from "mongoose";
 
 export interface SvgElementData {
