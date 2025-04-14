@@ -46,7 +46,7 @@
   },
   "scripts": {
     "dev": "ts-node-dev -r tsconfig-paths/register bin/server.ts",
-    "start": "node -r tsconfig-paths/register dist/bin/server.js",
+    "start": "node dist/bin/server.js",
     "build": "ttsc",
     "seed": "ts-node -r tsconfig-paths/register seed/seed.ts"
   },
