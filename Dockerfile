@@ -1,4 +1,5 @@
 FROM node:22-slim
+
 RUN apt-get update && apt-get install -y \
     chromium \
     fonts-liberation \
@@ -16,6 +17,7 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
+FROM node:22-slim
 
 WORKDIR /usr/src/app
 COPY package*.json ./
