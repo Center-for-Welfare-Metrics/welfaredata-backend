@@ -29,7 +29,8 @@ FROM node:22-slim
 
 WORKDIR /usr/src/app
 COPY package*.json ./
-RUN npm install --only=production
+RUN npm install
+RUN npm prune --production
 COPY --from=0 /usr/src/app/dist ./dist
 EXPOSE 8080
 CMD npm start
