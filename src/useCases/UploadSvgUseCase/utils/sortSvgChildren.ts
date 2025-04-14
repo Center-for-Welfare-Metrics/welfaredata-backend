@@ -1,4 +1,4 @@
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
 
 // Extend the Window interface to include custom properties
 declare global {
@@ -17,7 +17,11 @@ declare global {
  * @returns The updated SVG string with sorted children.
  */
 export async function sortSvgChildren(svgString: string): Promise<string> {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    headless: true,
+    executablePath: "/usr/bin/chromium",
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
   const page = await browser.newPage();
 
   // Create HTML with the SVG
