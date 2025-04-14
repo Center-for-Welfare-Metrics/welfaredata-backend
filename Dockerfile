@@ -1,4 +1,5 @@
-FROM node:22-slim
+# Build stage
+FROM node:22-slim AS build
 
 RUN apt-get update && apt-get install -y \
     chromium \
@@ -17,20 +18,24 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-
 WORKDIR /usr/src/app
+
 COPY package*.json ./
 COPY . .
+
 RUN npm install
 RUN npm run build
+RUN npm prune --production
 
-
+# Final stage
 FROM node:22-slim
 
 WORKDIR /usr/src/app
-COPY package*.json ./
-RUN npm install
-RUN npm prune --production
-COPY --from=0 /usr/src/app/dist ./dist
+
+# Copia apenas o que precisa pra produção
+COPY --from=build /usr/src/app/dist ./dist
+COPY --from=build /usr/src/app/node_modules ./node_modules
+COPY --from=build /usr/src/app/package*.json ./
+
 EXPOSE 8080
-CMD npm start
+CMD ["node", "dist/bin/server.js"]
