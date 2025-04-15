@@ -19,7 +19,7 @@ declare global {
 export async function sortSvgChildren(svgString: string): Promise<string> {
   const browser = await puppeteer.launch({
     headless: true,
-    executablePath: "/usr/bin/chromium",
+    executablePath: process.env.BROWSER_EXECUTABLE_PATH,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
   const page = await browser.newPage();
