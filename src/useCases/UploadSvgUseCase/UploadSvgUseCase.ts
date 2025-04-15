@@ -5,8 +5,10 @@ import {
   RasterizedData,
   SvgElementService,
 } from "@/src/services/SvgElementService";
+import { SvgDataService } from "@/src/services/SvgDataService";
 import { rasterizeSvg } from "./utils/rasterizeSvg";
 import { removeBxAttributesPlugin } from "@/src/svgo/plugins/removeBxAttributesPlugin";
+import { generateElementData } from "./utils/openaiGenerate";
 
 interface File {
   buffer: Buffer;
@@ -21,9 +23,11 @@ interface Params {
 
 export class UploadSvgUseCase {
   private svgElementService: SvgElementService;
+  private svgDataService: SvgDataService;
 
   constructor() {
     this.svgElementService = new SvgElementService();
+    this.svgDataService = new SvgDataService();
   }
 
   async execute(file: File, params: Params) {
@@ -101,8 +105,9 @@ export class UploadSvgUseCase {
       throw new Error("Failed to create root SVG element");
     }
 
+    // Create elements for each rasterized element
     for (const element of elements) {
-      await this.svgElementService.createElement({
+      this.svgElementService.createElement({
         rootId: rootElement._id,
         id: element.id,
         name: element.name,
@@ -110,6 +115,52 @@ export class UploadSvgUseCase {
         specie: specie,
       });
     }
+
+    // Process elements array into data object where ID is the key
+    const svgDataElements: {
+      [key: string]: {
+        id: string;
+        level: string;
+        name: string;
+        description: string;
+        duration_label: string;
+        duration_in_seconds: number;
+      };
+    } = {};
+
+    for (const element of elements) {
+      if (!element.id.includes("--ci")) {
+        const elementData = await generateElementData({
+          production_system_name: svgData.svgName,
+          levelName: element.levelName,
+          name: element.name,
+        });
+        svgDataElements[element.id] = {
+          id: element.id,
+          level: element.levelName,
+          name: element.name,
+          description: elementData.description,
+          duration_label: elementData.duration_label,
+          duration_in_seconds: elementData.duration_in_seconds,
+        };
+      } else {
+        svgDataElements[element.id] = {
+          id: element.id,
+          level: element.levelName,
+          name: element.name,
+          description: "",
+          duration_label: "",
+          duration_in_seconds: 0,
+        };
+      }
+    }
+
+    // Create SVG data automatically from processed elements
+    await this.svgDataService.createOrUpdateSvgData({
+      svgName: svgData.svgName,
+      elements: svgDataElements,
+      svgElementId: rootElement._id,
+    });
 
     return {
       message: "SVG file uploaded successfully",

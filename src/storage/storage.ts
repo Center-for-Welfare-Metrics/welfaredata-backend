@@ -20,7 +20,7 @@ export const upload = async (
 ): Promise<AWS.S3.ManagedUpload.SendData> => {
   let ext = path.extname(originalName);
 
-  let fileName = `${prefix}${uid.sync(18)}${ext}`;
+  let fileName = `${prefix}_${uid.sync(18)}${ext}`;
 
   const params: AWS.S3.PutObjectRequest = {
     Bucket: process.env.AWS_BUCKET_NAME || "danger-zone",

@@ -1,24 +1,24 @@
-import 'dotenv/config'
-import database from './config/database'
-database()
-import middlewaresAppConfig  from './config/middlewares'
-import express from 'express'
+import "dotenv/config";
+import database from "./config/database";
+database();
+import middlewaresAppConfig from "./config/middlewares";
+import express from "express";
 
-import http from 'http'
+import http from "http";
 
-import routes from '../src/routes'
+import routes from "../src/routes";
 
-const app = express()
+const app = express();
 
-import express_custom from './config/express-customizer'
+import express_custom from "./config/express-customizer";
 
-express_custom(app)
+express_custom(app);
 
-middlewaresAppConfig(app)
+middlewaresAppConfig(app);
 
-app.use(express.static(__dirname,{dotfiles:'allow'}))
+app.use(express.static(__dirname, { dotfiles: "allow" }));
 
-routes(app)
+routes(app);
 
-const server = new http.Server(app)
-server.listen(process.env.PORT || 8080)
+const server = new http.Server(app);
+server.listen(process.env.PORT || 8080);

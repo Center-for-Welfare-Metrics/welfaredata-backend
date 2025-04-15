@@ -22,14 +22,15 @@ class UploadSvgController {
 
       const clientBaseUrl = process.env.CLIENT_DOMAIN;
 
-      const revalidateUrl = `${clientBaseUrl}/api/revalidate?specie=${req.body.specie}?secret=${process.env.REVALIDATION_SECRET}`;
-
-      const response = await axios.get(revalidateUrl);
-
-      console.log("Revalidation triggered:", response.data);
-
+      const revalidateUrl = `${clientBaseUrl}/api/revalidate?specie=${req.body.specie}&secret=${process.env.REVALIDATION_SECRET}`;
+      try {
+        await axios.get(revalidateUrl);
+      } catch (error) {
+        console.log("Error revalidating:", error);
+      }
       return res.status(200).json(result);
     } catch (error: any) {
+      console.log("Error uploading SVG:", error);
       return res
         .status(500)
         .json({ error: error.message || "Failed to upload SVG" });
