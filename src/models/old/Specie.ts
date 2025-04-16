@@ -34,4 +34,4 @@ const SpecieSchema: Schema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model<ISpecie>("Specie", SpecieSchema);
+export default mongoose.model<ISpecie>("OldSpecie", SpecieSchema);

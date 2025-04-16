@@ -19,5 +19,5 @@ export default (app: Express) => {
     })
   );
   app.use(helmet());
-  app.use(morgan("dev"));
+  app.use(morgan("tiny"));
 };

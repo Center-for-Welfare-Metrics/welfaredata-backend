@@ -2,7 +2,7 @@ import { Express } from "express";
 import root from "./root";
 import processogram from "./processogram";
 import admin from "./admin";
-import specie from "./specie";
+import specie from "./legacy_specie";
 import production_system from "./production_system";
 import life_fate from "./life_fate";
 import phase from "./phase";

@@ -31,7 +31,6 @@ const SvgDataSchema: Schema = new mongoose.Schema(
     data: {
       type: Object,
       default: {},
-      // Object where key is an ID and value contains name, description, duration_label, and duration_in_seconds
     },
   },
   {
