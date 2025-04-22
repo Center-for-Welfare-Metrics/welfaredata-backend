@@ -1,4 +1,4 @@
-import SvgElement, { ISvgElement } from "@/src/models/SvgElement";
+import SvgElement from "@/src/models/SvgElement";
 import { upload } from "@/src/storage/storage";
 import mongoose from "mongoose";
 
@@ -26,30 +26,54 @@ export type RasterizedElement = {
 };
 
 type CreateRootElementParams = {
+  _id: string;
   id: string;
+  fileName: string;
   rasterImages: Map<string, RasterizedData>;
   svgString: string;
-  name: string;
   levelName: string;
-  specie: string;
 };
 
 type CreateElement = {
   id: string;
   name: string;
   levelName: string;
-  specie: string;
+  specie_id: string;
   rootId: mongoose.Types.ObjectId;
 };
 
+type InitializeRootElementParams = {
+  name: string;
+  specie_id: string;
+};
+
 export class SvgElementService {
+  async initializeRootElement({
+    name,
+    specie_id,
+  }: InitializeRootElementParams) {
+    const rootElement = new SvgElement({
+      element_type: "root",
+      name,
+      specie_id,
+      raster_images: {},
+      svg_url: "",
+      status: "processing",
+      root_id: null,
+    });
+
+    const savedElement = await rootElement.save();
+
+    return savedElement;
+  }
+
   async createRootElement({
     rasterImages,
     svgString,
-    name,
-    levelName,
-    specie,
+    _id,
     id,
+    levelName,
+    fileName,
   }: CreateRootElementParams) {
     const rasterUrls = new Map<string, RasterizedElement>();
 
@@ -79,7 +103,7 @@ export class SvgElementService {
       });
     }
 
-    const svgFileName = `${name}.svg`;
+    const svgFileName = `${fileName}.svg`;
 
     const svgBuffer = Buffer.from(svgString, "utf-8");
 
@@ -88,35 +112,37 @@ export class SvgElementService {
     const svgUploadResult = await upload(
       svgFileName,
       svgBuffer,
-      svgContentType
+      svgContentType,
+      "welfare"
     );
 
     const svgSource = svgUploadResult.Location;
 
     const rasterImagesObject = Object.fromEntries(rasterUrls);
 
-    const rootElement = new SvgElement({
-      element_type: "root",
-      name,
-      levelName,
-      specie,
-      identifier: id,
-      raster_images: rasterImagesObject,
+    const savedElement = await SvgElement.findByIdAndUpdate(_id, {
       svg_url: svgSource,
-      root_id: null,
+      raster_images: rasterImagesObject,
+      status: "processing",
+      identifier: id,
+      levelName,
     });
-
-    const savedElement = await rootElement.save();
 
     return savedElement;
   }
 
-  async createElement({ id, name, levelName, specie, rootId }: CreateElement) {
+  async createElement({
+    id,
+    name,
+    levelName,
+    specie_id,
+    rootId,
+  }: CreateElement) {
     const element = new SvgElement({
       identifier: id,
       name,
       levelName,
-      specie,
+      specie_id,
       element_type: "element",
       root_id: rootId,
     });

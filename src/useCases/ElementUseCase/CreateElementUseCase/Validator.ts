@@ -2,11 +2,17 @@ import { body, check } from "express-validator";
 import path from "path";
 
 export const uploadSvgValidator = () => [
-  body("specie")
-    .notEmpty()
-    .withMessage("Specie is required")
+  body("name")
     .isString()
-    .withMessage("Specie must be a string"),
+    .withMessage("Name is required")
+    .notEmpty()
+    .isLength({ min: 1, max: 100 })
+    .withMessage("Name must be between 1 and 100 characters"),
+  body("specie_id")
+    .isMongoId()
+    .withMessage("Specie ID must be a valid MongoDB ObjectId")
+    .notEmpty(),
+  body("path").isString().withMessage("Path is required"),
   check()
     .custom((_, { req }) => {
       if (!req.file) {

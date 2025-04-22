@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 
 export interface ISvgElement extends mongoose.Document {
   identifier: string; // The ID extracted from SVGElement
-  specie: string;
+  specie_id: string; // Reference to the Specie model
   root_id: mongoose.Types.ObjectId | null; // Reference to the root SVG element
   element_type: "root" | "element"; // Type of element - root is the SVG itself, element is a child
   name: string; // From data-name attribute
@@ -10,6 +10,7 @@ export interface ISvgElement extends mongoose.Document {
   normalized_name: string; // Will be populated later
   description: string; // Will be populated later
   svg_url?: string; // URL to the SVG file, only for root elements
+  status: "processing" | "ready" | "error"; // Status of the SVG processing
   raster_images: {
     // Object where key is the ID of svgelement and value is S3 URL
     [key: string]: string;
@@ -20,8 +21,12 @@ export interface ISvgElement extends mongoose.Document {
 
 const SvgElementSchema: Schema = new mongoose.Schema(
   {
-    identifier: { type: String, required: true },
-    specie: { type: String, required: true },
+    identifier: { type: String, required: false },
+    specie_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Specie",
+      required: true,
+    },
     root_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "SvgElement",
@@ -33,8 +38,13 @@ const SvgElementSchema: Schema = new mongoose.Schema(
       required: true,
       default: "element",
     },
+    status: {
+      type: String,
+      enum: ["processing", "ready", "error"],
+      default: "processing",
+    },
     name: { type: String, required: true },
-    levelName: { type: String, required: true },
+    levelName: { type: String, required: false },
     normalized_name: { type: String, required: false },
     description: { type: String, required: false },
     svg_url: { type: String, required: false },
@@ -48,6 +58,6 @@ const SvgElementSchema: Schema = new mongoose.Schema(
   }
 );
 
-SvgElementSchema.index({ specie: 1, element_type: 1, root_id: 1 });
+SvgElementSchema.index({ specie_id: 1, element_type: 1, root_id: 1 });
 
 export default mongoose.model<ISvgElement>("SvgElement", SvgElementSchema);

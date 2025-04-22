@@ -1,13 +1,13 @@
 import { optimize } from "svgo";
 import { removeUnusedIdsPlugin } from "@/src/svgo/plugins/removeUnusedIdsPlugin";
-import { sortSvgChildren } from "./utils/sortSvgChildren";
 import {
   RasterizedData,
   SvgElementService,
 } from "@/src/services/SvgElementService";
 import { SvgDataService } from "@/src/services/SvgDataService";
-import { rasterizeSvg } from "./utils/rasterizeSvg";
 import { removeBxAttributesPlugin } from "@/src/svgo/plugins/removeBxAttributesPlugin";
+import { sortSvgChildren } from "./utils/sortSvgChildren";
+import { rasterizeSvg } from "./utils/rasterizeSvg";
 import { generateElementData } from "./utils/openaiGenerate";
 
 interface File {
@@ -18,7 +18,8 @@ interface File {
 }
 
 interface Params {
-  specie: string;
+  specie_id: string;
+  _id: string;
 }
 
 export class UploadSvgUseCase {
@@ -30,7 +31,22 @@ export class UploadSvgUseCase {
     this.svgDataService = new SvgDataService();
   }
 
-  async execute(file: File, params: Params) {
+  async initializeRootElement({
+    name,
+    specie_id,
+  }: {
+    name: string;
+    specie_id: string;
+  }) {
+    const rootElement = await this.svgElementService.initializeRootElement({
+      name,
+      specie_id,
+    });
+
+    return String(rootElement._id);
+  }
+
+  async execute(file: File, { specie_id, _id }: Params) {
     // Validate if the file is a valid SVG
     if (file.mimetype !== "image/svg+xml") {
       throw new Error("File must be an SVG");
@@ -89,16 +105,14 @@ export class UploadSvgUseCase {
       });
     }
 
-    const specie = params.specie.toLowerCase();
-
     // Create a root SVG element in MongoDB with the SVG URL and all raster images
     const rootElement = await this.svgElementService.createRootElement({
-      id: svgData.svgId,
+      _id,
       rasterImages: rasterDataUrls,
       svgString: sortedSvgContent,
-      name: svgData.svgName,
+      id: svgData.svgId,
       levelName: svgData.svgLevelName,
-      specie: specie,
+      fileName: file.originalname,
     });
 
     if (!rootElement) {
@@ -112,7 +126,7 @@ export class UploadSvgUseCase {
         id: element.id,
         name: element.name,
         levelName: element.levelName,
-        specie: specie,
+        specie_id,
       });
     }
 

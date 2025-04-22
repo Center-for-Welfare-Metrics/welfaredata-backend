@@ -138,8 +138,8 @@ export async function rasterizeSvg(
 
     window.getScale = function getScale(
       relativeSize: number,
-      minScale: number = 4,
-      factor: number = 10
+      minScale: number = 3,
+      factor: number = 1
     ): number {
       // Ensure the relative size is not zero or negative
       if (relativeSize <= 0) {
@@ -225,7 +225,7 @@ export async function rasterizeSvg(
         { w: width, h: height }
       );
 
-      const scale = window.getScale(relativeSize, 3, 1);
+      const scale = window.getScale(relativeSize, 2, 1);
 
       // Extract data-name and data-level-name attributes
       const name = element.getAttribute("data-name") || element.id;
@@ -248,9 +248,15 @@ export async function rasterizeSvg(
               ctx.imageSmoothingEnabled = false;
             }
 
-            const safeScale = Math.min(scale, 10); // Cap maximum scale
-            const safeWidth = Math.max(1, Math.min(width * safeScale, 8192)); // Prevent zero width and cap maximum
-            const safeHeight = Math.max(1, Math.min(height * safeScale, 8192)); // Prevent zero height and cap maximum
+            const safeScale = Math.min(scale, 7); // Cap maximum scale
+            const safeWidth = Math.max(
+              1,
+              Math.min(width * safeScale, 8192 / 2)
+            ); // Prevent zero width and cap maximum
+            const safeHeight = Math.max(
+              1,
+              Math.min(height * safeScale, 8192 / 2)
+            ); // Prevent zero height and cap maximum
 
             canvas.width = safeWidth;
             canvas.height = safeHeight;

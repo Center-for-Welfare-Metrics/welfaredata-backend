@@ -12,7 +12,7 @@ router.all("/*", AuthProtected);
 
 // Create specie route
 router.post(
-  "/create",
+  "/",
   createSpecieValidator(),
   validate,
   CreateSpecieController.create

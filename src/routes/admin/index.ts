@@ -4,8 +4,8 @@ const router = express.Router();
 
 import users from "./users";
 import roles from "./roles";
-import uploadSvg from "./upload-svg";
-import specie from "./specie";
+import elements from "./element";
+import species from "./specie";
 
 router.all("/*", AuthProtected);
 
@@ -13,8 +13,8 @@ router.use("/users", users);
 
 router.use("/roles", roles);
 
-router.use("/upload-svg", uploadSvg);
+router.use("/elements", elements);
 
-router.use("/specie", specie);
+router.use("/species", species);
 
 export default router;
