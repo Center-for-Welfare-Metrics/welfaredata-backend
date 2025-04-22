@@ -145,6 +145,7 @@ export class SvgElementService {
       specie_id,
       element_type: "element",
       root_id: rootId,
+      status: "ready",
     });
 
     const savedElement = await element.save();

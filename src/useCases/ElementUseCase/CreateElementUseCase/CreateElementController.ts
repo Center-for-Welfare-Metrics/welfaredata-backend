@@ -25,19 +25,16 @@ const execSvgUpload = async (
     SvgElement.findByIdAndUpdate(
       _id,
       {
-        $set: {
-          status: "ready",
-        },
+        status: "ready",
       },
       { new: true }
     );
+    console.log("Revalidation successful");
   } catch (error) {
     SvgElement.findByIdAndUpdate(
       _id,
       {
-        $set: {
-          status: "error",
-        },
+        status: "error",
       },
       { new: true }
     );
