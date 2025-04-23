@@ -45,6 +45,8 @@ export async function rasterizeSvg(
   svgString: string,
   selector: string
 ): Promise<RasterizedData> {
+  console.log("Prepare to launch browser and rasterize SVG elements");
+
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: process.env.BROWSER_EXECUTABLE_PATH,
@@ -54,8 +56,11 @@ export async function rasterizeSvg(
       "--disable-dev-shm-usage",
     ],
   });
+
+  console.log("Browser launched");
   const page = await browser.newPage();
 
+  console.log("Setting content");
   // First, define the required functions in the browser context
   await page.evaluate(() => {
     // Copy getRotationTransform, getTransformedBBox, etc. here
@@ -158,6 +163,7 @@ export async function rasterizeSvg(
     };
   });
 
+  console.log("Functions defined in browser context");
   // Create HTML with the SVG
   await page.setContent(`
     <!DOCTYPE html>
@@ -184,6 +190,8 @@ export async function rasterizeSvg(
     </html>
   `);
 
+  console.log("SVG content set");
+
   page.setViewport({
     height: DIMENSIONS.height,
     width: DIMENSIONS.width,
@@ -192,6 +200,8 @@ export async function rasterizeSvg(
   page.on("console", (message) => {
     console.log(`Browser console: ${message.text()}`);
   });
+
+  console.log("Viewport set");
 
   // Get the SVG element and its bounding bo
   const elementsData = await page.evaluate((selectorParam) => {
@@ -302,6 +312,7 @@ export async function rasterizeSvg(
     return resolvedPromises;
   }, selector);
 
+  console.log("SVG elements processed");
   const svgData = await page.evaluate(() => {
     const svgElement = document.querySelector("svg");
     console.log("SVG Element:", svgElement);
@@ -325,6 +336,8 @@ export async function rasterizeSvg(
   const filteredElementsData = elementsData.filter(
     (element) => element !== null
   ) as ElementData[];
+
+  console.log("SVG processing completed");
 
   return { elements: filteredElementsData, svgData: svgData };
 }

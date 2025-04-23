@@ -17,6 +17,7 @@ declare global {
  * @returns The updated SVG string with sorted children.
  */
 export async function sortSvgChildren(svgString: string): Promise<string> {
+  console.log("Prepare to launch browser and sort SVG elements");
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: process.env.BROWSER_EXECUTABLE_PATH,
@@ -26,9 +27,11 @@ export async function sortSvgChildren(svgString: string): Promise<string> {
       "--disable-dev-shm-usage",
     ],
   });
+  console.log("Browser launched");
   const page = await browser.newPage();
 
   // Create HTML with the SVG
+  console.log("Setting content");
   await page.setContent(`
     <!DOCTYPE html>
     <html>
@@ -81,6 +84,8 @@ export async function sortSvgChildren(svgString: string): Promise<string> {
   if (!sortedSvg) {
     throw new Error("SVG processing failed");
   }
+
+  console.log("SVG processing completed");
 
   return sortedSvg;
 }
