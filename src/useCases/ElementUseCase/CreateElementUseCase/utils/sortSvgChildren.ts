@@ -1,4 +1,5 @@
 import puppeteer from "puppeteer-core";
+import { puppeteerLaunchArgs } from "./puppeteerLaunchArgs";
 
 // Extend the Window interface to include custom properties
 declare global {
@@ -18,16 +19,7 @@ declare global {
  */
 export async function sortSvgChildren(svgString: string): Promise<string> {
   console.log("Prepare to launch browser and sort SVG elements");
-  const browser = await puppeteer.launch({
-    headless: true,
-    executablePath: process.env.BROWSER_EXECUTABLE_PATH,
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-    ],
-    timeout: 0,
-  });
+  const browser = await puppeteer.launch(puppeteerLaunchArgs);
   console.log("Browser launched");
   const page = await browser.newPage();
 

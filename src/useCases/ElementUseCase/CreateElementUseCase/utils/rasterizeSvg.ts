@@ -1,4 +1,5 @@
 import puppeteer from "puppeteer-core";
+import { puppeteerLaunchArgs } from "./puppeteerLaunchArgs";
 
 interface Size {
   w: number;
@@ -47,16 +48,7 @@ export async function rasterizeSvg(
 ): Promise<RasterizedData> {
   console.log("Prepare to launch browser and rasterize SVG elements");
 
-  const browser = await puppeteer.launch({
-    headless: true,
-    executablePath: process.env.BROWSER_EXECUTABLE_PATH,
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-    ],
-    timeout: 0,
-  });
+  const browser = await puppeteer.launch(puppeteerLaunchArgs);
 
   console.log("Browser launched");
   const page = await browser.newPage();
