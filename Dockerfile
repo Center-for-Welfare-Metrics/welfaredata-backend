@@ -24,8 +24,31 @@ RUN apt-get update && apt-get install -y \
     libdbus-1-3 \
     libx11-xcb1 \
     libxcomposite1 \
+    libcairo2 \
+    libexpat1 \
+    libfontconfig1 \
     libxdamage1 \
+    libgbm1 \
+    libgcc1 \
+    libglib2.0-0 \
+    libgtk-3-0 \
+    libnspr4 \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
+    libstdc++6 \
+    libxcb1 \
+    libxcomposite1 \
+    libxcursor1 \
+    libxdamage1 \
+    libxext6 \
+    libxfixes3 \
+    libxi6 \
+    libx11-6 \
+    libxau6 \
+    libxrender1 \
+    libxtst6 \
     libxrandr2 \
+    libxss1 \
     libxshmfence1 \
     xdg-utils \
     --no-install-recommends && \
