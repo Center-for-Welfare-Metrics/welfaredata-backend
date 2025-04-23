@@ -55,6 +55,7 @@ export async function rasterizeSvg(
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
     ],
+    timeout: 0,
   });
 
   console.log("Browser launched");

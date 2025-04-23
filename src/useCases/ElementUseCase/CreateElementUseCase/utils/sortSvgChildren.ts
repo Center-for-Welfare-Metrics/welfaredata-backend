@@ -26,6 +26,7 @@ export async function sortSvgChildren(svgString: string): Promise<string> {
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
     ],
+    timeout: 0,
   });
   console.log("Browser launched");
   const page = await browser.newPage();
