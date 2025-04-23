@@ -18,6 +18,8 @@ export const generateElementData = async ({
 }: Params) => {
   const systemPrompt = `
    You are a data scientist and you have to describe a production system and his levels.
+   
+   additional informations: consider that --ci is equal circustamce, --ph is equal phase and, --lf is equal life fate.
 
    EXAMPLE INPUT:
    production system: conventional intensive;

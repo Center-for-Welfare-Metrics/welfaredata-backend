@@ -159,10 +159,11 @@ export class UploadSvgUseCase {
         continue;
       }
 
+      console.log(`Processing element with ID ${processedId}...`);
       const elementData = await generateElementData({
         production_system_name: svgData.svgName,
         levelName: element.levelName,
-        name: element.name,
+        name: removeIdIndicator(element.name),
       });
 
       if (!elementData) {
