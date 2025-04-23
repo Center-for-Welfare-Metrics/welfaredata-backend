@@ -142,31 +142,46 @@ export class UploadSvgUseCase {
       };
     } = {};
 
+    const removeIdIndicator = (id: string) => {
+      const index = id.indexOf("--");
+      return index !== -1 ? id.slice(0, index) : id;
+    };
+
+    const alreadyProcessedIds = new Set<string>();
+
     for (const element of elements) {
-      if (!element.id.includes("--ci")) {
-        const elementData = await generateElementData({
-          production_system_name: svgData.svgName,
-          levelName: element.levelName,
-          name: element.name,
-        });
-        svgDataElements[element.id] = {
-          id: element.id,
-          level: element.levelName,
-          name: element.name,
-          description: elementData.description,
-          duration_label: elementData.duration_label,
-          duration_in_seconds: elementData.duration_in_seconds,
-        };
-      } else {
-        svgDataElements[element.id] = {
-          id: element.id,
-          level: element.levelName,
-          name: element.name,
-          description: "",
-          duration_label: "",
-          duration_in_seconds: 0,
-        };
+      const processedId = removeIdIndicator(element.id);
+
+      if (alreadyProcessedIds.has(processedId)) {
+        console.log(
+          `Element with ID ${processedId} has already been processed.`
+        );
+        continue;
       }
+
+      const elementData = await generateElementData({
+        production_system_name: svgData.svgName,
+        levelName: element.levelName,
+        name: element.name,
+      });
+
+      if (!elementData) {
+        console.log(
+          `Failed to generate data for element with ID ${processedId}.`
+        );
+        continue;
+      }
+
+      svgDataElements[processedId] = {
+        id: element.id,
+        level: element.levelName,
+        name: element.name,
+        description: elementData.description,
+        duration_label: elementData.duration_label,
+        duration_in_seconds: elementData.duration_in_seconds,
+      };
+
+      alreadyProcessedIds.add(processedId);
     }
 
     // Create SVG data automatically from processed elements
