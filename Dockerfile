@@ -29,12 +29,12 @@ RUN apt-get update && apt-get install -y \
     libxshmfence1 \
     xdg-utils \
     --no-install-recommends && \
-    ln -s $(which chromium || which chromium-browser) /usr/bin/chromium && \
+    TARGET=$(which chromium || which chromium-browser) && \
+    [ "$TARGET" = "/usr/bin/chromium" ] || ln -sf "$TARGET" /usr/bin/chromium && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
 
-# Copia apenas o necessário
 COPY --from=build /usr/src/app/dist ./dist
 COPY --from=build /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/package*.json ./
