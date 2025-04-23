@@ -1,4 +1,4 @@
-import { LaunchOptions } from "puppeteer-core";
+import { LaunchOptions } from "puppeteer";
 
 export const puppeteerLaunchArgs: LaunchOptions = {
   headless: true,

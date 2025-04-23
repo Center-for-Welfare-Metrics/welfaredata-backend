@@ -1,4 +1,4 @@
-import puppeteer from "puppeteer-core";
+import puppeteer from "puppeteer";
 import { puppeteerLaunchArgs } from "./puppeteerLaunchArgs";
 
 // Extend the Window interface to include custom properties
