@@ -10,11 +10,13 @@ export interface ISvgElement extends mongoose.Document {
   normalized_name: string; // Will be populated later
   description: string; // Will be populated later
   svg_url?: string; // URL to the SVG file, only for root elements
-  status: "processing" | "ready" | "error"; // Status of the SVG processing
+  status: "processing" | "ready" | "error" | "generating"; // Status of the SVG processing
   raster_images: {
     // Object where key is the ID of svgelement and value is S3 URL
     [key: string]: string;
   };
+  originalSize: number;
+  finalSize: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -40,7 +42,7 @@ const SvgElementSchema: Schema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["processing", "ready", "error"],
+      enum: ["processing", "ready", "error", "generating"],
       default: "processing",
     },
     name: { type: String, required: true },
@@ -48,6 +50,8 @@ const SvgElementSchema: Schema = new mongoose.Schema(
     normalized_name: { type: String, required: false },
     description: { type: String, required: false },
     svg_url: { type: String, required: false },
+    originalSize: { type: Number, required: false },
+    finalSize: { type: Number, required: false },
     raster_images: {
       type: Object,
       default: {},

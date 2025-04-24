@@ -22,22 +22,24 @@ const execSvgUpload = async (
   const revalidateUrl = `${clientBaseUrl}/api/revalidate?specie=${path}&secret=${process.env.REVALIDATION_SECRET}`;
   try {
     await axios.get(revalidateUrl);
-    SvgElement.findByIdAndUpdate(
+    const updated = await SvgElement.findByIdAndUpdate(
       _id,
       {
         status: "ready",
       },
       { new: true }
     );
+    console.log(updated?._id, updated?.status);
     console.log("Revalidation successful");
   } catch (error) {
-    SvgElement.findByIdAndUpdate(
+    const updated = await SvgElement.findByIdAndUpdate(
       _id,
       {
         status: "error",
       },
       { new: true }
     );
+    console.log(updated?._id, updated?.status);
     console.log("Error revalidating:", error);
   }
 };
@@ -64,6 +66,7 @@ class UploadSvgController {
       const rootElementId = await uploadSvgUseCase.initializeRootElement({
         name: name,
         specie_id: specie_id,
+        fileSize: file.size,
       });
 
       if (!file) {

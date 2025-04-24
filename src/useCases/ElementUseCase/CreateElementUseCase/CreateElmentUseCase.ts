@@ -7,8 +7,10 @@ import {
 import { SvgDataService } from "@/src/services/SvgDataService";
 import { removeBxAttributesPlugin } from "@/src/svgo/plugins/removeBxAttributesPlugin";
 import { sortSvgChildren } from "./utils/sortSvgChildren";
-import { rasterizeSvg } from "./utils/rasterizeSvg";
+import { rasterizeSvg, RasterizedElement } from "./utils/rasterizeSvg";
 import { generateElementData } from "./utils/openaiGenerate";
+import mongoose from "mongoose";
+import { getElementNameFromId } from "./utils/extractInfoFromId";
 
 interface File {
   buffer: Buffer;
@@ -17,11 +19,41 @@ interface File {
   size: number;
 }
 
-interface Params {
+interface UploadParams {
   specie_id: string;
   _id: string;
 }
 
+interface InitializeParams {
+  name: string;
+  specie_id: string;
+  fileSize: number;
+}
+
+interface ElementData {
+  description: string;
+  duration_label: string;
+  duration_in_seconds: number;
+}
+
+export interface SvgDataElement {
+  id: string;
+  level: string;
+  name: string;
+  description: string;
+  duration_label: string;
+  duration_in_seconds: number;
+}
+
+interface UploadResult {
+  message: string;
+  rootElementId?: string;
+  elementsProcessed?: number;
+}
+
+/**
+ * Service responsible for handling SVG upload and processing
+ */
 export class UploadSvgUseCase {
   private svgElementService: SvgElementService;
   private svgDataService: SvgDataService;
@@ -31,31 +63,89 @@ export class UploadSvgUseCase {
     this.svgDataService = new SvgDataService();
   }
 
-  async initializeRootElement({
-    name,
-    specie_id,
-  }: {
-    name: string;
-    specie_id: string;
-  }) {
-    const rootElement = await this.svgElementService.initializeRootElement({
-      name,
-      specie_id,
-    });
-
+  /**
+   * Initializes a root SVG element
+   * @param params - Parameters for initializing the root element
+   * @returns The ID of the initialized root element
+   */
+  async initializeRootElement(params: InitializeParams): Promise<string> {
+    const rootElement = await this.svgElementService.initializeRootElement(
+      params
+    );
     return String(rootElement._id);
   }
 
-  async execute(file: File, { specie_id, _id }: Params) {
-    // Validate if the file is a valid SVG
+  /**
+   * Main execution function for processing and uploading an SVG file
+   * @param file - The SVG file to process
+   * @param params - Parameters for processing the file
+   * @returns Result of the upload operation
+   */
+  async execute(file: File, params: UploadParams): Promise<UploadResult> {
+    this.validateFile(file);
+
+    const svgContent = file.buffer.toString("utf-8");
+    const optimizedSvgContent = this.optimizeSvg(svgContent, file.originalname);
+    const sortedSvgContent = await sortSvgChildren(optimizedSvgContent);
+
+    const { elements, svgData } = await this.extractSvgElements(
+      sortedSvgContent
+    );
+
+    if (elements.length === 0) {
+      return {
+        message:
+          "SVG file uploaded successfully, but no elements were found to process",
+      };
+    }
+
+    const rootElement = await this.createRootElement(
+      params._id,
+      elements,
+      sortedSvgContent,
+      svgData,
+      file.originalname
+    );
+
+    await this.createChildElements(rootElement._id, elements, params.specie_id);
+
+    this.updateSvgElementStatusToGenerating(rootElement._id);
+
+    await this.processAndStoreSvgData(elements, svgData, rootElement._id);
+
+    return {
+      message: "SVG file uploaded successfully",
+      rootElementId: rootElement._id,
+      elementsProcessed: elements.length,
+    };
+  }
+
+  private async updateSvgElementStatusToGenerating(
+    rootId: string
+  ): Promise<void> {
+    await this.svgElementService.updateSvgElementStatusToGenerating(rootId);
+  }
+
+  /**
+   * Validates that the uploaded file is an SVG
+   * @param file - The file to validate
+   * @throws Error if the file is not a valid SVG
+   */
+  private validateFile(file: File): void {
     if (file.mimetype !== "image/svg+xml") {
       throw new Error("File must be an SVG");
     }
+  }
 
-    const svgContent = file.buffer.toString("utf-8");
-
+  /**
+   * Optimizes SVG content using SVGO
+   * @param svgContent - The raw SVG content
+   * @param filename - Original filename of the SVG
+   * @returns Optimized SVG content
+   */
+  private optimizeSvg(svgContent: string, filename: string): string {
     const result = optimize(svgContent, {
-      path: file.originalname,
+      path: filename,
       floatPrecision: 2,
       plugins: [
         {
@@ -71,30 +161,38 @@ export class UploadSvgUseCase {
       ],
     });
 
-    const optimizedSvgContent = result.data;
+    return result.data;
+  }
 
-    const sortedSvgContent = await sortSvgChildren(optimizedSvgContent);
-
-    // Extract elements with IDs containing "--"
-    const { elements, svgData } = await rasterizeSvg(
-      sortedSvgContent,
-      '[id*="--"]'
-    );
+  /**
+   * Extracts elements from the SVG content
+   * @param svgContent - The SVG content to process
+   * @returns Object containing extracted elements and SVG data
+   * @throws Error if SVG data extraction fails
+   */
+  private async extractSvgElements(svgContent: string): Promise<{
+    elements: RasterizedElement[];
+    svgData: any;
+  }> {
+    const { elements, svgData } = await rasterizeSvg(svgContent, '[id*="--"]');
 
     if (!svgData) {
       throw new Error("Failed to extract SVG data");
     }
 
-    if (elements.length === 0) {
-      console.log("No elements with IDs found in the SVG");
-      return {
-        message:
-          "SVG file uploaded successfully, but no elements were found to process",
-      };
-    }
+    return { elements, svgData };
+  }
 
-    // Prepare raster images map for the root element
+  /**
+   * Creates a raster data URL map from extracted elements
+   * @param elements - The extracted SVG elements
+   * @returns Map of element IDs to rasterized data
+   */
+  private createRasterDataMap(
+    elements: RasterizedElement[]
+  ): Map<string, RasterizedData> {
     const rasterDataUrls = new Map<string, RasterizedData>();
+
     for (const element of elements) {
       rasterDataUrls.set(element.id, {
         dataUrl: element.dataUrl,
@@ -102,100 +200,159 @@ export class UploadSvgUseCase {
         y: element.y,
         width: element.width,
         height: element.height,
+        skipUpload: element.skipUpload,
       });
     }
 
-    // Create a root SVG element in MongoDB with the SVG URL and all raster images
+    return rasterDataUrls;
+  }
+
+  /**
+   * Creates the root SVG element in the database
+   * @param elementId - The root element ID
+   * @param elements - The extracted SVG elements
+   * @param svgContent - The optimized and sorted SVG content
+   * @param svgData - Data extracted from the SVG
+   * @param filename - Original filename of the SVG
+   * @returns The created root element
+   * @throws Error if root element creation fails
+   */
+  private async createRootElement(
+    elementId: string,
+    elements: RasterizedElement[],
+    svgContent: string,
+    svgData: any,
+    filename: string
+  ): Promise<any> {
+    const rasterDataUrls = this.createRasterDataMap(elements);
+
     const rootElement = await this.svgElementService.createRootElement({
-      _id,
+      _id: elementId,
       rasterImages: rasterDataUrls,
-      svgString: sortedSvgContent,
+      svgString: svgContent,
       id: svgData.svgId,
       levelName: svgData.svgLevelName,
-      fileName: file.originalname,
+      fileName: filename,
     });
 
     if (!rootElement) {
       throw new Error("Failed to create root SVG element");
     }
 
-    // Create elements for each rasterized element
-    for (const element of elements) {
+    return rootElement;
+  }
+
+  /**
+   * Creates child elements in the database for each extracted SVG element
+   * @param rootId - The root element ID
+   * @param elements - The extracted SVG elements
+   * @param specieId - The species ID
+   */
+  private async createChildElements(
+    rootId: mongoose.Types.ObjectId,
+    elements: RasterizedElement[],
+    specieId: string
+  ): Promise<void> {
+    const creationPromises = elements.map((element) =>
       this.svgElementService.createElement({
-        rootId: rootElement._id,
+        rootId,
         id: element.id,
         name: element.name,
         levelName: element.levelName,
-        specie_id,
-      });
-    }
+        specie_id: specieId,
+      })
+    );
 
-    // Process elements array into data object where ID is the key
-    const svgDataElements: {
-      [key: string]: {
-        id: string;
-        level: string;
-        name: string;
-        description: string;
-        duration_label: string;
-        duration_in_seconds: number;
-      };
-    } = {};
+    await Promise.all(creationPromises);
+  }
 
-    const removeIdIndicator = (id: string) => {
-      const index = id.indexOf("--");
-      return index !== -1 ? id.slice(0, index) : id;
-    };
+  /**
+   * Processes SVG elements and generates associated data
+   * @param elements - The extracted SVG elements
+   * @param svgData - Data extracted from the SVG
+   * @param rootElementId - The root element ID
+   */
+  private async processAndStoreSvgData(
+    elements: RasterizedElement[],
+    svgData: any,
+    rootElementId: string
+  ): Promise<void> {
+    const svgDataElements = new Map<string, SvgDataElement>();
+    const processedElements = new Set<string>();
 
-    const alreadyProcessedIds = new Set<string>();
+    const elementsPromises: Promise<void>[] = [];
+
+    console.log("Generating SVG data with AI...");
 
     for (const element of elements) {
-      const processedId = removeIdIndicator(element.id);
+      const elementName = getElementNameFromId(element.id);
 
-      if (alreadyProcessedIds.has(processedId)) {
+      if (processedElements.has(elementName)) {
         console.log(
-          `Element with ID ${processedId} has already been processed.`
+          `Element with ID ${elementName} has already been processed.`
         );
         continue;
       }
 
-      console.log(`Processing element with ID ${processedId}...`);
-      const elementData = await generateElementData({
-        production_system_name: svgData.svgName,
-        levelName: element.levelName,
-        name: removeIdIndicator(element.name),
+      const elementData = this.generateElementData(
+        svgData.svgName,
+        element
+      ).then((data) => {
+        if (data) {
+          svgDataElements.set(elementName, {
+            id: element.id,
+            level: element.levelName,
+            name: element.name,
+            description: data.description,
+            duration_label: data.duration_label,
+            duration_in_seconds: data.duration_in_seconds,
+          });
+        }
       });
 
-      if (!elementData) {
-        console.log(
-          `Failed to generate data for element with ID ${processedId}.`
-        );
-        continue;
-      }
-
-      svgDataElements[processedId] = {
-        id: element.id,
-        level: element.levelName,
-        name: element.name,
-        description: elementData.description,
-        duration_label: elementData.duration_label,
-        duration_in_seconds: elementData.duration_in_seconds,
-      };
-
-      alreadyProcessedIds.add(processedId);
+      processedElements.add(elementName);
+      elementsPromises.push(elementData);
     }
 
-    // Create SVG data automatically from processed elements
+    await Promise.all(elementsPromises);
+
+    console.log("SVG data generation completed.");
+
     await this.svgDataService.createOrUpdateSvgData({
       svgName: svgData.svgName,
       elements: svgDataElements,
-      svgElementId: rootElement._id,
+      svgElementId: rootElementId,
     });
+  }
 
-    return {
-      message: "SVG file uploaded successfully",
-      rootElementId: rootElement._id,
-      elementsProcessed: elements.length,
-    };
+  /**
+   * Generates data for an SVG element
+   * @param productionSystemName - The SVG production system name
+   * @param element - The SVG element
+   * @returns Generated element data or null if generation fails
+   */
+  private async generateElementData(
+    productionSystemName: string,
+    element: RasterizedElement
+  ): Promise<ElementData | null> {
+    try {
+      console.log(
+        `Processing element with ID ${getElementNameFromId(element.id)}...`
+      );
+
+      const elementData = generateElementData({
+        production_system_name: productionSystemName,
+        levelName: element.levelName,
+        name: element.name,
+      });
+
+      return elementData;
+    } catch (error) {
+      console.error(
+        `Failed to generate data for element with ID ${element.id}:`,
+        error
+      );
+      return null;
+    }
   }
 }

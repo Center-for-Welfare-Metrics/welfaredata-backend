@@ -17,10 +17,17 @@ export class ListElementUseCase {
     }
   }
 
-  async getById(id: string): Promise<ISvgElement | null> {
+  async getById(id: string): Promise<any | null> {
     try {
-      const element = await SvgElement.findById(id).exec();
-      return element;
+      const element = (await SvgElement.findById(id)
+        .populate("specie_id")
+        .lean()) as ISvgElement & { specie_id: any };
+
+      return {
+        ...element,
+        specie: element?.specie_id,
+        specie_id: element?.specie_id?._id,
+      };
     } catch (error: any) {
       console.error(`Error fetching element with ID ${id}:`, error);
       throw new Error(error.message || "Failed to fetch element by ID");

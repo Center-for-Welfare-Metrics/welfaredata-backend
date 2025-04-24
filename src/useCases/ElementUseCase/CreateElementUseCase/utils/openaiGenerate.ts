@@ -34,12 +34,6 @@ export const generateElementData = async ({
    }
   `;
 
-  console.log("Params", {
-    production_system_name,
-    levelName,
-    name,
-  });
-
   const userPrompt = `
     production system: ${production_system_name};
     level name: ${levelName};
@@ -75,8 +69,6 @@ export const generateElementData = async ({
     };
 
   const parsedData = JSON.parse(data);
-
-  console.log("Parsed Data:", parsedData);
 
   return {
     description: parsedData.description || "No description available",

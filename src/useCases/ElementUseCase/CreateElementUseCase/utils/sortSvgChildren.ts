@@ -8,6 +8,8 @@ declare global {
     getTransformedBBox: any;
     getRelativeSize: any;
     getScale: any;
+    getElementNameFromId: any;
+    getElementLevelFromId: any;
   }
 }
 

@@ -2,19 +2,11 @@
 import SvgData, { ISvgData } from "@/src/models/SvgData";
 import SvgElement from "@/src/models/SvgElement";
 import mongoose from "mongoose";
-
-interface DataElement {
-  id: string;
-  level: string;
-  name: string;
-  description: string;
-  duration_label: string;
-  duration_in_seconds: number;
-}
+import { SvgDataElement } from "../useCases/ElementUseCase/CreateElementUseCase/CreateElmentUseCase";
 
 interface CreateSvgDataParams {
   svgName: string; // Used as production_system_name
-  elements: { [key: string]: DataElement }; // Data object where ID is key
+  elements: Map<string, SvgDataElement>;
   svgElementId: mongoose.Types.ObjectId | string;
 }
 
@@ -48,7 +40,7 @@ export class SvgDataService {
     if (svgData) {
       // Update existing record
       svgData.production_system_name = svgName;
-      svgData.data = elements;
+      svgData.data = Object.fromEntries(elements);
       await svgData.save();
     } else {
       // Create new record

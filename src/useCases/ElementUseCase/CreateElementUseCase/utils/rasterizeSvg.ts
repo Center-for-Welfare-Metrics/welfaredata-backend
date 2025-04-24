@@ -20,7 +20,7 @@ const DIMENSIONS = {
  *
  */
 
-type ElementData = {
+export type RasterizedElement = {
   dataUrl: string;
   id: string;
   name: string; // From data-name attribute
@@ -29,6 +29,7 @@ type ElementData = {
   y: number;
   width: number;
   height: number;
+  skipUpload: boolean; // Optional property to skip upload
 };
 
 type SvgData = {
@@ -38,7 +39,7 @@ type SvgData = {
 };
 
 type RasterizedData = {
-  elements: ElementData[];
+  elements: RasterizedElement[];
   svgData: SvgData | null;
 };
 
@@ -154,6 +155,30 @@ export async function rasterizeSvg(
       // Ensure the scale is never below the minimum value
       return Math.max(scale, minScale);
     };
+
+    window.getElementNameFromId = function (id: string) {
+      const index = id.indexOf("--");
+      const name = index !== -1 ? id.slice(0, index) : id;
+      return name.replace(/^[^a-zA-Z]+|[^a-zA-Z]+$/g, "").trim();
+    };
+
+    const levelObject = {
+      ps: "Production system",
+      lf: "Life fate",
+      ph: "Phase",
+      ci: "Circumstance",
+    };
+
+    window.getElementLevelFromId = function (id: string) {
+      const level = id.split("--")[1];
+
+      const levelWithoutNumbers = level.replace(/--\d+$/, "");
+
+      if (levelObject[levelWithoutNumbers as keyof typeof levelObject]) {
+        return levelObject[levelWithoutNumbers as keyof typeof levelObject];
+      }
+      return levelWithoutNumbers;
+    };
   });
 
   console.log("Functions defined in browser context");
@@ -207,6 +232,29 @@ export async function rasterizeSvg(
     const promises = [];
 
     for (const element of allElements) {
+      const isCircumstance = element.id.includes("--ci");
+
+      // Extract data-name and data-level-name attributes
+      const name = window.getElementNameFromId(element.id);
+      const levelName = window.getElementLevelFromId(element.id);
+
+      if (isCircumstance) {
+        promises.push(
+          Promise.resolve({
+            dataUrl: "",
+            id: element.id,
+            name,
+            levelName,
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 0,
+            skipUpload: isCircumstance,
+          })
+        );
+        continue; // Skip rasterization for this element
+      }
+
       const { width, height, x, y } = window.getTransformedBBox(
         element as SVGGraphicsElement
       );
@@ -232,17 +280,12 @@ export async function rasterizeSvg(
         { w: width, h: height }
       );
 
-      const scale = window.getScale(relativeSize, 2, 1);
-
-      // Extract data-name and data-level-name attributes
-      const name = element.getAttribute("data-name") || element.id;
-      const levelName =
-        element.getAttribute("data-level") || element.id.split("--")[1];
+      const scale = window.getScale(relativeSize, 3, 1);
 
       const svgBlob = new Blob([svgString], { type: "image/svg+xml" });
       const url = URL.createObjectURL(svgBlob);
       promises.push(
-        new Promise<ElementData | null>((resolve) => {
+        new Promise<RasterizedElement | null>((resolve) => {
           const img = new Image();
 
           img.crossOrigin = "anonymous";
@@ -255,7 +298,7 @@ export async function rasterizeSvg(
               ctx.imageSmoothingEnabled = false;
             }
 
-            const safeScale = Math.min(scale, 7); // Cap maximum scale
+            const safeScale = Math.min(scale, 10); // Cap maximum scale
             const safeWidth = Math.max(
               1,
               Math.min(width * safeScale, 8192 / 2)
@@ -282,6 +325,7 @@ export async function rasterizeSvg(
               y,
               width,
               height,
+              skipUpload: isCircumstance,
             });
           };
 
@@ -311,9 +355,8 @@ export async function rasterizeSvg(
     console.log("SVG Element:", svgElement);
     if (!svgElement) return null;
 
-    const svgName = svgElement.getAttribute("data-name") || svgElement.id;
-    const svgLevelName =
-      svgElement.getAttribute("data-level") || svgElement.id.split("--")[1];
+    const svgName = window.getElementNameFromId(svgElement.id);
+    const svgLevelName = window.getElementLevelFromId(svgElement.id);
 
     const svgId = svgElement.id || "root";
 
@@ -328,7 +371,7 @@ export async function rasterizeSvg(
 
   const filteredElementsData = elementsData.filter(
     (element) => element !== null
-  ) as ElementData[];
+  ) as RasterizedElement[];
 
   console.log("SVG processing completed");
 
