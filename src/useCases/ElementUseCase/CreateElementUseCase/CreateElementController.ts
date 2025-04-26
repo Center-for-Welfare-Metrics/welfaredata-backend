@@ -12,15 +12,16 @@ const execSvgUpload = async (
 ) => {
   const uploadSvgUseCase = new UploadSvgUseCase();
 
-  await uploadSvgUseCase.execute(file, {
-    specie_id: specie_id,
-    _id,
-  });
-
-  const clientBaseUrl = process.env.CLIENT_DOMAIN;
-
-  const revalidateUrl = `${clientBaseUrl}/api/revalidate?specie=${path}&secret=${process.env.REVALIDATION_SECRET}`;
   try {
+    await uploadSvgUseCase.execute(file, {
+      specie_id: specie_id,
+      _id,
+    });
+
+    const clientBaseUrl = process.env.CLIENT_DOMAIN;
+
+    const revalidateUrl = `${clientBaseUrl}/api/revalidate?specie=${path}&secret=${process.env.REVALIDATION_SECRET}`;
+
     await axios.get(revalidateUrl);
     const updated = await SvgElement.findByIdAndUpdate(
       _id,
@@ -30,7 +31,7 @@ const execSvgUpload = async (
       { new: true }
     );
     console.log(updated?._id, updated?.status);
-    console.log("Revalidation successful");
+    console.log("SVG uploaded successfully");
   } catch (error) {
     const updated = await SvgElement.findByIdAndUpdate(
       _id,
@@ -40,7 +41,7 @@ const execSvgUpload = async (
       { new: true }
     );
     console.log(updated?._id, updated?.status);
-    console.log("Error revalidating:", error);
+    console.log("Error uploading SVG:", error);
   }
 };
 

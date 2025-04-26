@@ -12,7 +12,8 @@ interface DataEntry {
 
 export interface ISvgData extends mongoose.Document {
   production_system_name: string;
-  svg_element_id: mongoose.Types.ObjectId | ISvgElement;
+  svg_element_id: mongoose.Types.ObjectId;
+  specie_id: mongoose.Types.ObjectId;
   data: {
     [key: string]: DataEntry;
   };
@@ -23,6 +24,11 @@ export interface ISvgData extends mongoose.Document {
 const SvgDataSchema: Schema = new mongoose.Schema(
   {
     production_system_name: { type: String, required: true },
+    specie_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Specie",
+      required: true,
+    },
     svg_element_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "SvgElement",

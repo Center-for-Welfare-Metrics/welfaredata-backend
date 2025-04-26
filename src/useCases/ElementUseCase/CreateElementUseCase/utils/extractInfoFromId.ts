@@ -14,7 +14,7 @@ const levelObject = {
 export const getElementLevelFromId = (id: string): string => {
   const level = id.split("--")[1];
 
-  const levelWithoutNumbers = level.replace(/--\d+$/, "");
+  const levelWithoutNumbers = level.replace(/[^a-zA-Z]/g, "");
 
   if (levelObject[levelWithoutNumbers as keyof typeof levelObject]) {
     return levelObject[levelWithoutNumbers as keyof typeof levelObject];

@@ -5,9 +5,10 @@ import mongoose from "mongoose";
 import { SvgDataElement } from "../useCases/ElementUseCase/CreateElementUseCase/CreateElmentUseCase";
 
 interface CreateSvgDataParams {
-  svgName: string; // Used as production_system_name
+  production_system_name: string; // Used as production_system_name
+  specie_id: string;
+  svg_element_id: string;
   elements: Map<string, SvgDataElement>;
-  svgElementId: mongoose.Types.ObjectId | string;
 }
 
 export class SvgDataService {
@@ -17,40 +18,19 @@ export class SvgDataService {
    * @returns The created or updated SVG data record
    */
   async createOrUpdateSvgData({
-    svgName,
+    production_system_name,
+    specie_id,
+    svg_element_id,
     elements,
-    svgElementId,
   }: CreateSvgDataParams): Promise<ISvgData> {
-    // Convert string ID to ObjectId if needed
-    const objectId =
-      typeof svgElementId === "string"
-        ? new mongoose.Types.ObjectId(svgElementId)
-        : svgElementId;
-
-    // Check if SVG element exists
-    const svgElementExists = await SvgElement.exists({ _id: objectId });
-
-    if (!svgElementExists) {
-      throw new Error(`SVG element with ID ${svgElementId} does not exist`);
-    }
-
-    // Check if SVG data already exists for this element
-    let svgData = await SvgData.findOne({ svg_element_id: objectId });
-
-    if (svgData) {
-      // Update existing record
-      svgData.production_system_name = svgName;
-      svgData.data = Object.fromEntries(elements);
-      await svgData.save();
-    } else {
-      // Create new record
-      svgData = new SvgData({
-        production_system_name: svgName,
-        svg_element_id: objectId,
-        data: elements,
-      });
-      await svgData.save();
-    }
+    // Create new record
+    const svgData = new SvgData({
+      production_system_name,
+      specie_id: specie_id,
+      data: elements,
+      svg_element_id,
+    });
+    await svgData.save();
 
     return svgData;
   }

@@ -10,6 +10,8 @@ declare global {
     getScale: any;
     getElementNameFromId: any;
     getElementLevelFromId: any;
+    getLevelFromId: any;
+    deslugify: any;
   }
 }
 

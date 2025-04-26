@@ -107,7 +107,6 @@ export class SvgElementService {
   };
   private readonly ELEMENT_TYPES = {
     ROOT: "root",
-    ELEMENT: "element",
   };
 
   /**
@@ -184,34 +183,6 @@ export class SvgElementService {
       console.error("Error creating root element:", error);
       throw new Error(
         `Failed to create root element: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
-    }
-  }
-
-  /**
-   * Creates a child SVG element associated with a root element
-   * @param params - Parameters for creating the child element
-   * @returns The saved child element
-   */
-  async createElement(params: CreateElementParams): Promise<mongoose.Document> {
-    try {
-      const element = new SvgElement({
-        identifier: params.id,
-        name: params.name,
-        levelName: params.levelName,
-        specie_id: params.specie_id,
-        element_type: this.ELEMENT_TYPES.ELEMENT,
-        root_id: params.rootId,
-        status: this.DEFAULT_STATUS.READY,
-      });
-
-      return await element.save();
-    } catch (error) {
-      console.error("Error creating child element:", error);
-      throw new Error(
-        `Failed to create child element: ${
           error instanceof Error ? error.message : String(error)
         }`
       );

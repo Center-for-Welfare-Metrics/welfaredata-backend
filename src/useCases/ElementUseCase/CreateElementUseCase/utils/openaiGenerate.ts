@@ -1,3 +1,4 @@
+import { deslugify } from "@/src/utils/string";
 import OpenAI from "openai";
 
 const openai = new OpenAI({
@@ -9,22 +10,29 @@ type Params = {
   production_system_name: string;
   levelName: string;
   name: string;
+  hierarchy: {
+    levelNumber: number;
+    level: string;
+    name: string;
+  }[];
 };
 
 export const generateElementData = async ({
   production_system_name,
   levelName,
   name,
+  hierarchy,
 }: Params) => {
   const systemPrompt = `
-   You are a data scientist and you have to describe a production system and his levels.
-   
-   additional informations: consider that --ci is equal circustamce, --ph is equal phase and, --lf is equal life fate.
+   You are a data scientist and you have to describe a production system and his levels.   
 
-   EXAMPLE INPUT:
-   production system: conventional intensive;
-   level name: life fate;
-   name: market pig;
+   EXAMPLE INPUT:   
+   level name: circumstance;
+   name: piglet;
+   parents: phase - suckling, life fate - market pig, production system - conventional intensive;
+
+
+   if no parents are provided, that means that the level is the root of the production system.
 
    EXAMPLE JSON OUTPUT: 
    {
@@ -34,10 +42,15 @@ export const generateElementData = async ({
    }
   `;
 
-  const userPrompt = `
-    production system: ${production_system_name};
+  const hierarchyString = hierarchy
+    .sort((a, b) => b.levelNumber - a.levelNumber)
+    .map((item) => `${item.level} - ${item.name}`)
+    .join(", ");
+
+  const userPrompt = `    
     level name: ${levelName};
-    name: ${name};
+    name: ${deslugify(name)};
+    parents: ${hierarchyString};
   `;
 
   const messages = [

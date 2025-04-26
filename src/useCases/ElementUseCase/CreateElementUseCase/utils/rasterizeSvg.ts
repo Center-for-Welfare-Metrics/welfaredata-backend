@@ -30,6 +30,11 @@ export type RasterizedElement = {
   width: number;
   height: number;
   skipUpload: boolean; // Optional property to skip upload
+  hierarchy: {
+    levelNumber: number;
+    level: string;
+    name: string;
+  }[];
 };
 
 type SvgData = {
@@ -162,22 +167,36 @@ export async function rasterizeSvg(
       return name.replace(/^[^a-zA-Z]+|[^a-zA-Z]+$/g, "").trim();
     };
 
-    const levelObject = {
-      ps: "Production system",
-      lf: "Life fate",
-      ph: "Phase",
-      ci: "Circumstance",
+    window.getLevelFromId = function (id: string) {
+      const level = id.split("--")[1];
+      return level.replace(/-\d+$/, "");
     };
 
     window.getElementLevelFromId = function (id: string) {
+      const levelObject = {
+        ps: "Production system",
+        lf: "Life fate",
+        ph: "Phase",
+        ci: "Circumstance",
+      };
+
       const level = id.split("--")[1];
 
-      const levelWithoutNumbers = level.replace(/--\d+$/, "");
+      const levelWithoutNumbers = level.replace(/[^a-zA-Z]/g, "");
 
       if (levelObject[levelWithoutNumbers as keyof typeof levelObject]) {
         return levelObject[levelWithoutNumbers as keyof typeof levelObject];
       }
       return levelWithoutNumbers;
+    };
+
+    window.deslugify = function (slug: string) {
+      return slug
+        .replace(/-/g, " ")
+        .replace(/_/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .replace(/\b\w/g, (c) => c.toUpperCase());
     };
   });
 
@@ -223,6 +242,20 @@ export async function rasterizeSvg(
 
   // Get the SVG element and its bounding bo
   const elementsData = await page.evaluate((selectorParam) => {
+    const levels = {
+      ps: 0,
+      lf: 1,
+      ph: 2,
+      ci: 3,
+    };
+
+    const levels_inverted = {
+      0: "ps",
+      1: "lf",
+      2: "ph",
+      3: "ci",
+    };
+
     const svgElement = document.querySelector("svg");
 
     if (!svgElement) return;
@@ -238,6 +271,58 @@ export async function rasterizeSvg(
       const name = window.getElementNameFromId(element.id);
       const levelName = window.getElementLevelFromId(element.id);
 
+      const getHierarchy = (element: Element) => {
+        const level = window.getLevelFromId(element.id);
+        const levelNumber = levels[level as keyof typeof levels];
+
+        if (!levelNumber) {
+          return [];
+        }
+
+        let previousLevel = levelNumber - 1;
+
+        const hierarchy: {
+          levelNumber: number;
+          level: string;
+          name: string;
+        }[] = [];
+
+        let currentElement = element;
+
+        while (currentElement && previousLevel >= 0) {
+          const levelString =
+            levels_inverted[previousLevel as keyof typeof levels_inverted];
+
+          if (!levelString) {
+            break;
+          }
+
+          const closest = currentElement.closest(`[id*="--${levelString}"]`);
+
+          if (!closest) {
+            break;
+          }
+
+          const name = window.deslugify(
+            window.getElementNameFromId(closest.id)
+          );
+          const levelName = window.getElementLevelFromId(closest.id);
+
+          hierarchy.push({
+            levelNumber: previousLevel,
+            level: levelName,
+            name,
+          });
+
+          currentElement = closest;
+          previousLevel--;
+        }
+
+        return hierarchy.reverse();
+      };
+
+      const hierarchy = getHierarchy(element);
+
       if (isCircumstance) {
         promises.push(
           Promise.resolve({
@@ -250,6 +335,7 @@ export async function rasterizeSvg(
             width: 0,
             height: 0,
             skipUpload: isCircumstance,
+            hierarchy,
           })
         );
         continue; // Skip rasterization for this element
@@ -326,6 +412,7 @@ export async function rasterizeSvg(
               width,
               height,
               skipUpload: isCircumstance,
+              hierarchy,
             });
           };
 

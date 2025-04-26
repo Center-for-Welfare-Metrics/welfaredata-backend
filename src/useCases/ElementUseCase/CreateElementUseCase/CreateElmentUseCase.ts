@@ -9,7 +9,6 @@ import { removeBxAttributesPlugin } from "@/src/svgo/plugins/removeBxAttributesP
 import { sortSvgChildren } from "./utils/sortSvgChildren";
 import { rasterizeSvg, RasterizedElement } from "./utils/rasterizeSvg";
 import { generateElementData } from "./utils/openaiGenerate";
-import mongoose from "mongoose";
 import { getElementNameFromId } from "./utils/extractInfoFromId";
 
 interface File {
@@ -107,11 +106,14 @@ export class UploadSvgUseCase {
       file.originalname
     );
 
-    await this.createChildElements(rootElement._id, elements, params.specie_id);
-
     this.updateSvgElementStatusToGenerating(rootElement._id);
 
-    await this.processAndStoreSvgData(elements, svgData, rootElement._id);
+    await this.processAndStoreSvgData(
+      elements,
+      svgData,
+      rootElement._id,
+      params.specie_id
+    );
 
     return {
       message: "SVG file uploaded successfully",
@@ -243,30 +245,6 @@ export class UploadSvgUseCase {
   }
 
   /**
-   * Creates child elements in the database for each extracted SVG element
-   * @param rootId - The root element ID
-   * @param elements - The extracted SVG elements
-   * @param specieId - The species ID
-   */
-  private async createChildElements(
-    rootId: mongoose.Types.ObjectId,
-    elements: RasterizedElement[],
-    specieId: string
-  ): Promise<void> {
-    const creationPromises = elements.map((element) =>
-      this.svgElementService.createElement({
-        rootId,
-        id: element.id,
-        name: element.name,
-        levelName: element.levelName,
-        specie_id: specieId,
-      })
-    );
-
-    await Promise.all(creationPromises);
-  }
-
-  /**
    * Processes SVG elements and generates associated data
    * @param elements - The extracted SVG elements
    * @param svgData - Data extracted from the SVG
@@ -275,12 +253,11 @@ export class UploadSvgUseCase {
   private async processAndStoreSvgData(
     elements: RasterizedElement[],
     svgData: any,
-    rootElementId: string
+    rootElementId: string,
+    specie_id: string
   ): Promise<void> {
     const svgDataElements = new Map<string, SvgDataElement>();
     const processedElements = new Set<string>();
-
-    const elementsPromises: Promise<void>[] = [];
 
     console.log("Generating SVG data with AI...");
 
@@ -294,34 +271,32 @@ export class UploadSvgUseCase {
         continue;
       }
 
-      const elementData = this.generateElementData(
+      const elementData = await this.generateElementData(
         svgData.svgName,
         element
-      ).then((data) => {
-        if (data) {
-          svgDataElements.set(elementName, {
-            id: element.id,
-            level: element.levelName,
-            name: element.name,
-            description: data.description,
-            duration_label: data.duration_label,
-            duration_in_seconds: data.duration_in_seconds,
-          });
-        }
-      });
+      );
+
+      if (elementData) {
+        svgDataElements.set(elementName, {
+          id: element.id,
+          level: element.levelName,
+          name: element.name,
+          description: elementData.description,
+          duration_label: elementData.duration_label,
+          duration_in_seconds: elementData.duration_in_seconds,
+        });
+      }
 
       processedElements.add(elementName);
-      elementsPromises.push(elementData);
     }
-
-    await Promise.all(elementsPromises);
 
     console.log("SVG data generation completed.");
 
     await this.svgDataService.createOrUpdateSvgData({
-      svgName: svgData.svgName,
+      production_system_name: svgData.svgName,
       elements: svgDataElements,
-      svgElementId: rootElementId,
+      svg_element_id: rootElementId,
+      specie_id: specie_id,
     });
   }
 
@@ -344,6 +319,7 @@ export class UploadSvgUseCase {
         production_system_name: productionSystemName,
         levelName: element.levelName,
         name: element.name,
+        hierarchy: element.hierarchy,
       });
 
       return elementData;
