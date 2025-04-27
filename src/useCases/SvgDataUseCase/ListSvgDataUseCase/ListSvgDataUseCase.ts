@@ -1,12 +1,22 @@
+import Specie from "@/src/models/Specie";
 import SvgData, { ISvgData } from "@/src/models/SvgData";
 import mongoose from "mongoose";
 
 export class ListSvgDataUseCase {
-  async execute(specie_id: string): Promise<ISvgData[]> {
+  async execute(pathname: string): Promise<ISvgData[]> {
     try {
-      // Get svg data with the specified specie_id
+      const specie = await Specie.findOne({
+        pathname: pathname.toLowerCase(),
+      });
+
+      const specieId = specie?._id;
+
+      if (!specieId) {
+        throw new Error("Specie not found");
+      }
+
       const svgData = await SvgData.find({
-        specie_id: new mongoose.Types.ObjectId(specie_id),
+        specie_id: new mongoose.Types.ObjectId(specieId),
       }).sort({ createdAt: -1 });
 
       return svgData;

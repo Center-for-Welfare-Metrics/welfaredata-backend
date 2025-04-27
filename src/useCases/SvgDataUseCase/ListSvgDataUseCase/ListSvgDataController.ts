@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { ListSvgDataUseCase } from "./ListSvgDataUseCase";
 
 type ListReqQuery = {
-  specie_id: string;
+  specie: string;
 };
 
 type BySvgElementReqParams = {
@@ -15,15 +15,15 @@ class ListSvgDataController {
     res: Response
   ): Promise<Response> {
     try {
-      const { specie_id } = req.query;
+      const { specie } = req.query;
 
-      if (!specie_id) {
+      if (!specie) {
         return res.status(400).json({ message: "Specie ID is required" });
       }
 
       const listSvgDataUseCase = new ListSvgDataUseCase();
 
-      const data = await listSvgDataUseCase.execute(specie_id as string);
+      const data = await listSvgDataUseCase.execute(specie as string);
 
       return res.json(data);
     } catch (error: any) {
