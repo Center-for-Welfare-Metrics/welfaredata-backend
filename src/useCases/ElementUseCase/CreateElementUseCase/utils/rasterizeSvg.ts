@@ -11,14 +11,12 @@ const DIMENSIONS = {
   height: 1200,
 };
 
-/**
- * Rasterizes the SVG string and his contents
- * Converts the SVG to a PNG image based on the SVG string and a query selector.
- * Uses Puppeteer to render the SVG and convert it to a PNG.
- * @param svgString - The SVG string to convert.
- * @param selector - The CSS selector to target the SVG element.
- *
- */
+export type RasterizedElementHierarchy = {
+  levelNumber: number;
+  level: string;
+  name: string;
+  id: string;
+};
 
 export type RasterizedElement = {
   dataUrl: string;
@@ -30,11 +28,7 @@ export type RasterizedElement = {
   width: number;
   height: number;
   skipUpload: boolean; // Optional property to skip upload
-  hierarchy: {
-    levelNumber: number;
-    level: string;
-    name: string;
-  }[];
+  hierarchy: RasterizedElementHierarchy[];
 };
 
 type SvgData = {
@@ -47,6 +41,15 @@ type RasterizedData = {
   elements: RasterizedElement[];
   svgData: SvgData | null;
 };
+
+/**
+ * Rasterizes the SVG string and his contents
+ * Converts the SVG to a PNG image based on the SVG string and a query selector.
+ * Uses Puppeteer to render the SVG and convert it to a PNG.
+ * @param svgString - The SVG string to convert.
+ * @param selector - The CSS selector to target the SVG element.
+ *
+ */
 
 export async function rasterizeSvg(
   svgString: string,
@@ -285,6 +288,7 @@ export async function rasterizeSvg(
           levelNumber: number;
           level: string;
           name: string;
+          id: string;
         }[] = [];
 
         let currentElement = element;
@@ -303,15 +307,15 @@ export async function rasterizeSvg(
             break;
           }
 
-          const name = window.deslugify(
-            window.getElementNameFromId(closest.id)
-          );
+          const elementName = window.getElementNameFromId(closest.id);
+          const readableName = window.deslugify(elementName);
           const levelName = window.getElementLevelFromId(closest.id);
 
           hierarchy.push({
             levelNumber: previousLevel,
             level: levelName,
-            name,
+            name: readableName,
+            id: elementName,
           });
 
           currentElement = closest;

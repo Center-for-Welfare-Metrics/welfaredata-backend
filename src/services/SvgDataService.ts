@@ -1,14 +1,13 @@
 // filepath: /home/herikle/Codes/wm-platform-new/src/services/SvgDataService.ts
-import SvgData, { ISvgData } from "@/src/models/SvgData";
-import SvgElement from "@/src/models/SvgElement";
-import mongoose from "mongoose";
-import { SvgDataElement } from "../useCases/ElementUseCase/CreateElementUseCase/CreateElmentUseCase";
+import SvgData from "@/src/models/SvgData";
+import { SvgDataElement } from "../useCases/ElementUseCase/CreateElementUseCase/CreateElementUseCase";
 
 interface CreateSvgDataParams {
   production_system_name: string; // Used as production_system_name
   specie_id: string;
   svg_element_id: string;
-  elements: Map<string, SvgDataElement>;
+  key: string;
+  value: SvgDataElement;
 }
 
 export class SvgDataService {
@@ -21,17 +20,32 @@ export class SvgDataService {
     production_system_name,
     specie_id,
     svg_element_id,
-    elements,
-  }: CreateSvgDataParams): Promise<ISvgData> {
-    // Create new record
-    const svgData = new SvgData({
-      production_system_name,
-      specie_id: specie_id,
-      data: elements,
-      svg_element_id,
-    });
-    await svgData.save();
+    key,
+    value,
+  }: CreateSvgDataParams) {
+    const existingDoc = await SvgData.findOne({ svg_element_id }).lean();
 
-    return svgData;
+    if (existingDoc) {
+      const updatedData = {
+        ...existingDoc.data,
+        [key]: value,
+      };
+
+      await SvgData.updateOne(
+        { svg_element_id },
+        {
+          $set: {
+            data: updatedData,
+          },
+        }
+      );
+    } else {
+      await SvgData.create({
+        production_system_name,
+        specie_id,
+        svg_element_id,
+        data: { [key]: value },
+      });
+    }
   }
 }

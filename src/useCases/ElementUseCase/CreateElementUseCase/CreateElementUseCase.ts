@@ -9,7 +9,10 @@ import { removeBxAttributesPlugin } from "@/src/svgo/plugins/removeBxAttributesP
 import { sortSvgChildren } from "./utils/sortSvgChildren";
 import { rasterizeSvg, RasterizedElement } from "./utils/rasterizeSvg";
 import { generateElementData } from "./utils/openaiGenerate";
-import { getElementNameFromId } from "./utils/extractInfoFromId";
+import {
+  getElementIdentifier,
+  getElementNameFromId,
+} from "./utils/extractInfoFromId";
 
 interface File {
   buffer: Buffer;
@@ -256,20 +259,24 @@ export class UploadSvgUseCase {
     rootElementId: string,
     specie_id: string
   ): Promise<void> {
-    const svgDataElements = new Map<string, SvgDataElement>();
     const processedElements = new Set<string>();
 
     console.log("Generating SVG data with AI...");
 
     for (const element of elements) {
-      const elementName = getElementNameFromId(element.id);
+      const elementIdentifier = getElementIdentifier(
+        element.id,
+        element.hierarchy
+      );
 
-      if (processedElements.has(elementName)) {
+      if (processedElements.has(elementIdentifier)) {
         console.log(
-          `Element with ID ${elementName} has already been processed.`
+          `Element with ID ${elementIdentifier} has already been processed.`
         );
         continue;
       }
+
+      console.log(`Processing element with ID ${elementIdentifier}...`);
 
       const elementData = await this.generateElementData(
         svgData.svgName,
@@ -277,27 +284,26 @@ export class UploadSvgUseCase {
       );
 
       if (elementData) {
-        svgDataElements.set(elementName, {
-          id: element.id,
-          level: element.levelName,
-          name: element.name,
-          description: elementData.description,
-          duration_label: elementData.duration_label,
-          duration_in_seconds: elementData.duration_in_seconds,
+        this.svgDataService.createOrUpdateSvgData({
+          production_system_name: svgData.svgName,
+          svg_element_id: rootElementId,
+          specie_id: specie_id,
+          key: elementIdentifier,
+          value: {
+            id: element.id,
+            level: element.levelName,
+            name: element.name,
+            description: elementData.description,
+            duration_label: elementData.duration_label,
+            duration_in_seconds: elementData.duration_in_seconds,
+          },
         });
       }
 
-      processedElements.add(elementName);
+      processedElements.add(elementIdentifier);
     }
 
     console.log("SVG data generation completed.");
-
-    await this.svgDataService.createOrUpdateSvgData({
-      production_system_name: svgData.svgName,
-      elements: svgDataElements,
-      svg_element_id: rootElementId,
-      specie_id: specie_id,
-    });
   }
 
   /**
@@ -311,10 +317,6 @@ export class UploadSvgUseCase {
     element: RasterizedElement
   ): Promise<ElementData | null> {
     try {
-      console.log(
-        `Processing element with ID ${getElementNameFromId(element.id)}...`
-      );
-
       const elementData = generateElementData({
         production_system_name: productionSystemName,
         levelName: element.levelName,

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import { Request, Response } from "express";
-import { UploadSvgUseCase } from "./CreateElmentUseCase";
+import { UploadSvgUseCase } from "./CreateElementUseCase";
 import SvgElement from "@/src/models/SvgElement";
 
 const execSvgUpload = async (

@@ -1,3 +1,5 @@
+import { RasterizedElementHierarchy } from "./rasterizeSvg";
+
 export const getElementNameFromId = (id: string): string => {
   const index = id.indexOf("--");
   const name = index !== -1 ? id.slice(0, index) : id;
@@ -20,4 +22,31 @@ export const getElementLevelFromId = (id: string): string => {
     return levelObject[levelWithoutNumbers as keyof typeof levelObject];
   }
   return levelWithoutNumbers;
+};
+
+export const getElementIdentifier = (
+  id: string,
+  hierarchy: RasterizedElementHierarchy[]
+) => {
+  const name = getElementNameFromId(id);
+
+  if (hierarchy.length === 0) {
+    return name;
+  }
+
+  const hierarchyString = hierarchy
+    .sort((a, b) => a.levelNumber - b.levelNumber)
+    .map((item) => item.id)
+    .join(".");
+
+  return `${hierarchyString}.${name}`;
+};
+
+export const getHierarchyString = (hierarchy: RasterizedElementHierarchy[]) => {
+  const hierarchyString = hierarchy
+    .sort((a, b) => b.levelNumber - a.levelNumber)
+    .map((item) => `${item.level} - ${item.name}`)
+    .join(", ");
+
+  return hierarchyString;
 };
