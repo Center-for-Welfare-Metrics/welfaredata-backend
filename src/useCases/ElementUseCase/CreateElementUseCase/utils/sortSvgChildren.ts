@@ -1,20 +1,6 @@
 import puppeteer from "puppeteer-core";
 import { puppeteerLaunchArgs } from "./puppeteerLaunchArgs";
 
-// Extend the Window interface to include custom properties
-declare global {
-  interface Window {
-    getRotationTransform: any;
-    getTransformedBBox: any;
-    getRelativeSize: any;
-    getScale: any;
-    getElementNameFromId: any;
-    getElementLevelFromId: any;
-    getLevelFromId: any;
-    deslugify: any;
-  }
-}
-
 /**
  * Sorts the children of an SVG string based on their size (smallest first).
  * Recursively applies sorting to all levels of the SVG.

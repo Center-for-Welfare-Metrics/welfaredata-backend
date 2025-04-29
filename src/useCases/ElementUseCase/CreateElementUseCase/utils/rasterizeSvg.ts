@@ -172,7 +172,10 @@ export async function rasterizeSvg(
 
     window.getLevelFromId = function (id: string) {
       const level = id.split("--")[1];
-      return level.replace(/-\d+$/, "");
+
+      const levelWithoutNumbers = level.replace(/[^a-zA-Z]/g, "");
+
+      return levelWithoutNumbers;
     };
 
     window.getElementLevelFromId = function (id: string) {
@@ -183,9 +186,7 @@ export async function rasterizeSvg(
         ci: "Circumstance",
       };
 
-      const level = id.split("--")[1];
-
-      const levelWithoutNumbers = level.replace(/[^a-zA-Z]/g, "");
+      const levelWithoutNumbers = window.getLevelFromId(id);
 
       if (levelObject[levelWithoutNumbers as keyof typeof levelObject]) {
         return levelObject[levelWithoutNumbers as keyof typeof levelObject];
