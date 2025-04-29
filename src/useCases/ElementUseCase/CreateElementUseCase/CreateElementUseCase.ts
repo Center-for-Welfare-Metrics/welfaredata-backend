@@ -88,10 +88,10 @@ export class UploadSvgUseCase {
 
     const svgContent = file.buffer.toString("utf-8");
     const optimizedSvgContent = this.optimizeSvg(svgContent, file.originalname);
-    const sortedSvgContent = await sortSvgChildren(optimizedSvgContent);
+    // const sortedSvgContent = await sortSvgChildren(optimizedSvgContent);
 
     const { elements, svgData } = await this.extractSvgElements(
-      sortedSvgContent
+      optimizedSvgContent
     );
 
     if (elements.length === 0) {
@@ -104,7 +104,7 @@ export class UploadSvgUseCase {
     const rootElement = await this.createRootElement(
       params._id,
       elements,
-      sortedSvgContent,
+      optimizedSvgContent,
       svgData,
       file.originalname
     );
