@@ -1,4 +1,5 @@
 import puppeteer from "puppeteer-core";
+import "@/types/global";
 import { puppeteerLaunchArgs } from "./puppeteerLaunchArgs";
 
 interface Size {

@@ -2,6 +2,10 @@ import { deslugify } from "@/src/utils/string";
 import OpenAI from "openai";
 import { RasterizedElementHierarchy } from "./rasterizeSvg";
 import { getHierarchyString } from "./extractInfoFromId";
+import {
+  getOpenAiJSON,
+  OpenAiMessage,
+} from "@/src/services/OpenAiGenerateJson";
 
 const openai = new OpenAI({
   baseURL: "https://api.deepseek.com",
@@ -13,6 +17,12 @@ type Params = {
   levelName: string;
   name: string;
   hierarchy: RasterizedElementHierarchy[];
+};
+
+type GeneratedElementData = {
+  description: string;
+  duration_label: string;
+  duration_in_seconds: number;
 };
 
 export const generateElementData = async ({
@@ -49,7 +59,7 @@ export const generateElementData = async ({
     parents: ${hierarchyString};
   `;
 
-  const messages = [
+  const messages: OpenAiMessage[] = [
     {
       role: "system",
       content: systemPrompt,
@@ -60,28 +70,19 @@ export const generateElementData = async ({
     },
   ];
 
-  const response = await openai.chat.completions.create({
-    model: "deepseek-chat",
-    messages: messages as any,
-    response_format: {
-      type: "json_object",
-    },
-  });
+  const responseData = await getOpenAiJSON<GeneratedElementData>(messages);
 
-  const data = response.choices[0].message.content;
-
-  if (!data)
+  if (!responseData)
     return {
       description: "No description available",
       duration_label: "No duration label available",
       duration_in_seconds: 0,
     };
 
-  const parsedData = JSON.parse(data);
-
   return {
-    description: parsedData.description || "No description available",
-    duration_label: parsedData.duration_label || "No duration label available",
-    duration_in_seconds: parsedData.duration_in_seconds || 0,
+    description: responseData.description || "No description available",
+    duration_label:
+      responseData.duration_label || "No duration label available",
+    duration_in_seconds: responseData.duration_in_seconds || 0,
   };
 };

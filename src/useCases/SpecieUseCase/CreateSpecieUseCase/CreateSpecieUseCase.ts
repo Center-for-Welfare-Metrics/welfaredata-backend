@@ -1,4 +1,5 @@
 import SpecieModel, { SpecieType } from "@/models/Specie";
+import { generateAndSaveSpecieData } from "./utils/generateAndSaveSpecieData";
 
 interface CreateSpecieParams {
   name: string;
@@ -9,10 +10,12 @@ interface CreateSpecieParams {
 export class CreateSpecieUseCase {
   async execute(params: CreateSpecieParams): Promise<SpecieType> {
     try {
-      // Check if the species already exists
-
-      // Create new species
       const newSpecie = await SpecieModel.create(params);
+
+      generateAndSaveSpecieData({
+        specieName: params.name,
+        _id: newSpecie._id,
+      });
 
       return newSpecie;
     } catch (error: any) {

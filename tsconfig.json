@@ -1,24 +1,25 @@
 {
-    "compilerOptions": {
-      "target": "es6",
-      "module": "commonjs",
-      "rootDir": ".",
-      "outDir": "./dist",
-      "esModuleInterop": true,
-      "strict": true,
-      "baseUrl": ".",
-      "allowJs": true,
-      "paths":{
-        "@/src/*":["src/*"],
-        "@/helpers/*":["helpers/*"],
-        "@/controllers/*":["src/controllers/*"],
-        "@/middlewares/*":["src/middlewares/*"],
-        "@/models/*":["src/models/*"],
-        "@/routes/*":["src/routes/*"],
-        "@/storage/*":["src/storage/*"],
-        "@/interfaces/*":["src/interfaces/*"],
-        "@/useCases/*":["src/useCases/*"],
-        "@/api/*":["src/api/*"]
-      }     
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "rootDir": ".",
+    "outDir": "./dist",
+    "esModuleInterop": true,
+    "strict": true,
+    "baseUrl": ".",
+    "allowJs": true,
+    "paths": {
+      "@/src/*": ["src/*"],
+      "@/helpers/*": ["helpers/*"],
+      "@/controllers/*": ["src/controllers/*"],
+      "@/middlewares/*": ["src/middlewares/*"],
+      "@/models/*": ["src/models/*"],
+      "@/routes/*": ["src/routes/*"],
+      "@/storage/*": ["src/storage/*"],
+      "@/interfaces/*": ["src/interfaces/*"],
+      "@/useCases/*": ["src/useCases/*"],
+      "@/api/*": ["src/api/*"],
+      "@/types/*": ["src/types/*"]
     }
+  }
 }

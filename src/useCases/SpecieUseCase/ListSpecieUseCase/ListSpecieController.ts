@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { ListSpecieUseCase } from "./ListSpecieUseCase";
-import { query } from "express-validator";
 
 class ListSpecieController {
   async list(req: Request, res: Response) {
@@ -40,11 +39,11 @@ class ListSpecieController {
   async getByPathname(req: Request, res: Response) {
     try {
       const { pathname } = req.params;
-
       const listSpecieUseCase = new ListSpecieUseCase();
       const specie = await listSpecieUseCase.getByPathname(pathname);
 
       if (!specie) {
+        console.log("Specie not found for pathname:", pathname);
         return res.status(404).json({ error: "Species not found" });
       }
 
