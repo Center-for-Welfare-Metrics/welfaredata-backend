@@ -12,6 +12,10 @@ export const uploadSvgValidator = () => [
     .isMongoId()
     .withMessage("Specie ID must be a valid MongoDB ObjectId")
     .notEmpty(),
+  body("production_module_id")
+    .isMongoId()
+    .withMessage("Production Module ID must be a valid MongoDB ObjectId")
+    .notEmpty(),
   body("path").isString().withMessage("Path is required"),
   check()
     .custom((_, { req }) => {

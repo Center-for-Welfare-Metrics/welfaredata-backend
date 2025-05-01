@@ -47,6 +47,7 @@ const execSvgUpload = async (
 
 type ReqBody = {
   specie_id: string;
+  production_module_id: string;
   name: string;
   path: string;
 };
@@ -54,7 +55,7 @@ type ReqBody = {
 class UploadSvgController {
   async upload(req: Request<{}, {}, ReqBody>, res: Response) {
     try {
-      const { path, specie_id, name } = req.body;
+      const { path, specie_id, name, production_module_id } = req.body;
 
       const file = req.file;
 
@@ -66,7 +67,8 @@ class UploadSvgController {
 
       const rootElementId = await uploadSvgUseCase.initializeRootElement({
         name: name,
-        specie_id: specie_id,
+        specie_id,
+        production_module_id,
         fileSize: file.size,
       });
 

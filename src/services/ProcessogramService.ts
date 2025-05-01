@@ -88,10 +88,9 @@ interface CreateElementParams {
  * Parameters for initializing a root SVG element
  */
 interface InitializeRootElementParams {
-  /** Name of the root element */
   name: string;
-  /** Species ID for taxonomy */
   specie_id: string;
+  production_module_id: string;
   fileSize: number;
 }
 
@@ -117,11 +116,13 @@ export class ProcessogramService {
   async initializeRootElement(
     params: InitializeRootElementParams
   ): Promise<mongoose.Document> {
+    console.log(params);
     try {
       const rootElement = new ProcessogramModel({
         element_type: this.ELEMENT_TYPES.ROOT,
         name: params.name,
         specie_id: params.specie_id,
+        production_module_id: params.production_module_id,
         raster_images: {},
         svg_url: "",
         status: this.DEFAULT_STATUS.PROCESSING,

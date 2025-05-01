@@ -4,25 +4,30 @@ import { query } from "express-validator";
 
 export const listProcessogramValidator = () => [
   query("specie_id")
-    .notEmpty()
-    .withMessage("Specie ID is required")
-    .isString()
-    .withMessage("Specie ID must be a string"),
+    .optional()
+    .isMongoId()
+    .withMessage("Specie ID must be a valid MongoDB ObjectId"),
+  query("production_module_id")
+    .optional()
+    .isMongoId()
+    .withMessage("Production Module ID must be a valid MongoDB ObjectId"),
 ];
 
-class ListProcessogramController {
-  async list(req: Request, res: Response) {
-    try {
-      const { specie_id } = req.query;
+type ReqQuery = {
+  specie_id?: string;
+  production_module_id?: string;
+};
 
-      if (!specie_id || typeof specie_id !== "string") {
-        return res
-          .status(400)
-          .json({ error: "Specie ID parameter is required" });
-      }
+class ListProcessogramController {
+  async list(req: Request<any, any, any, ReqQuery>, res: Response) {
+    try {
+      const { specie_id, production_module_id } = req.query;
 
       const listProcessogramUseCase = new ListProcessogramUseCase();
-      const elements = await listProcessogramUseCase.execute(specie_id);
+      const elements = await listProcessogramUseCase.execute({
+        specie_id,
+        production_module_id,
+      });
 
       return res.status(200).json(elements);
     } catch (error: any) {

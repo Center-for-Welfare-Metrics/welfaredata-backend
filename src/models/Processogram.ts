@@ -3,6 +3,7 @@ import mongoose, { Schema } from "mongoose";
 export interface IProcessogram extends mongoose.Document {
   identifier: string; // The ID extracted from SVGElement
   specie_id: string; // Reference to the Specie model
+  production_module_id: mongoose.Types.ObjectId; // Reference to the ProductionModule model
   root_id: mongoose.Types.ObjectId | null; // Reference to the root SVG element
   element_type: "root" | "element"; // Type of element - root is the SVG itself, element is a child
   name: string; // From data-name attribute
@@ -27,6 +28,11 @@ const ProcessogramSchema: Schema = new mongoose.Schema(
     specie_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Specie",
+      required: true,
+    },
+    production_module_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ProductionModule",
       required: true,
     },
     root_id: {
@@ -63,6 +69,7 @@ const ProcessogramSchema: Schema = new mongoose.Schema(
 );
 
 ProcessogramSchema.index({ specie_id: 1, element_type: 1, root_id: 1 });
+ProcessogramSchema.index({ production_module_id: 1 });
 
 export const ProcessogramModel = mongoose.model<IProcessogram>(
   "Processogram",

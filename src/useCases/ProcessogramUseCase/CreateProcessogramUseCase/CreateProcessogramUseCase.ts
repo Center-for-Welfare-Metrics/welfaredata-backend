@@ -25,6 +25,7 @@ interface UploadParams {
 interface InitializeParams {
   name: string;
   specie_id: string;
+  production_module_id: string;
   fileSize: number;
 }
 
