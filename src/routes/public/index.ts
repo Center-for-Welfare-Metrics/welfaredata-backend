@@ -1,10 +1,10 @@
 import express from "express";
 const router = express.Router();
 
-import getElement from "./get-elements";
+import getProcessograms from "./get-processograms";
 import getSpecies from "./get-species";
 
-router.use("/elements", getElement);
+router.use("/processograms", getProcessograms);
 
 router.use("/species", getSpecies);
 

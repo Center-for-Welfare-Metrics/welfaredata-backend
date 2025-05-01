@@ -51,7 +51,7 @@
     "dev": "ts-node-dev -r tsconfig-paths/register bin/server.ts",
     "build": "tsc && tscpaths -p tsconfig.json --src .",
     "start": "node dist/bin/server.js",
-    "seed": "ts-node -r tsconfig-paths/register seed/seed.ts"
+    "checkTs": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
