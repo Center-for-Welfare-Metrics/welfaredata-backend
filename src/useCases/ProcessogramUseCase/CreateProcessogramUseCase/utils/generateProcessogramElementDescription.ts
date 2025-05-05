@@ -1,16 +1,10 @@
 import { deslugify } from "@/src/utils/string";
-import OpenAI from "openai";
 import { RasterizedElementHierarchy } from "./rasterizeSvg";
 import { getHierarchyString } from "./extractInfoFromId";
 import {
   getOpenAiJSON,
   OpenAiMessage,
 } from "@/src/services/OpenAiGenerateJson";
-
-const openai = new OpenAI({
-  baseURL: "https://api.deepseek.com",
-  apiKey: process.env.DEEPSEEK_API_KEY,
-});
 
 type Params = {
   production_system_name: string;
@@ -25,7 +19,7 @@ type GeneratedElementData = {
   duration_in_seconds: number;
 };
 
-export const generateElementData = async ({
+export const generateProcessogramElementDescription = async ({
   levelName,
   name,
   hierarchy,

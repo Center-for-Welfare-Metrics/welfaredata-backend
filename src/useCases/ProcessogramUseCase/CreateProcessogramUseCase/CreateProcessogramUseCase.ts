@@ -7,8 +7,13 @@ import {
 import { SvgDataService } from "@/src/services/ProcessogramDataService";
 import { removeBxAttributesPlugin } from "@/src/svgo/plugins/removeBxAttributesPlugin";
 import { rasterizeSvg, RasterizedElement } from "./utils/rasterizeSvg";
-import { generateElementData } from "./utils/openaiGenerate";
+import { generateProcessogramElementDescription } from "./utils/generateProcessogramElementDescription";
 import { getElementIdentifier } from "./utils/extractInfoFromId";
+import {
+  GeneratedProcessogramQuestions,
+  generateProcessogramElementQuestions,
+  ProcessogramQuestion,
+} from "./utils/generateProcessogramElementQuestions";
 
 interface File {
   buffer: Buffer;
@@ -42,6 +47,13 @@ export interface SvgDataElement {
   description: string;
   duration_label: string;
   duration_in_seconds: number;
+}
+
+export interface SvgQuestionElement {
+  id: string;
+  level: string;
+  name: string;
+  questions: ProcessogramQuestion[];
 }
 
 interface UploadResult {
@@ -275,13 +287,11 @@ export class CreateProcessogramUseCase {
 
       console.log(`Processing element with ID ${elementIdentifier}...`);
 
-      const elementData = await this.generateElementData(
-        svgData.svgName,
-        element
-      );
+      const processogramElementDescription =
+        await this.generateElementDescription(svgData.svgName, element);
 
-      if (elementData) {
-        this.svgDataService.createOrUpdateSvgData({
+      if (processogramElementDescription) {
+        await this.svgDataService.createOrUpdateSvgData({
           production_system_name: svgData.svgName,
           svg_element_id: rootElementId,
           specie_id: specie_id,
@@ -290,14 +300,40 @@ export class CreateProcessogramUseCase {
             id: element.id,
             level: element.levelName,
             name: element.name,
-            description: elementData.description,
-            duration_label: elementData.duration_label,
-            duration_in_seconds: elementData.duration_in_seconds,
+            description: processogramElementDescription.description,
+            duration_label: processogramElementDescription.duration_label,
+            duration_in_seconds:
+              processogramElementDescription.duration_in_seconds,
           },
         });
       }
 
       processedElements.add(elementIdentifier);
+
+      // Generate questions for the element
+      console.log(
+        `Generating questions for element with ID ${elementIdentifier}...`
+      );
+
+      const processogramElementQuestion = await this.generateElementQuestion(
+        svgData.svgName,
+        element
+      );
+
+      if (processogramElementQuestion) {
+        await this.svgDataService.createOrUpdateSvgQuestions({
+          production_system_name: svgData.svgName,
+          svg_element_id: rootElementId,
+          specie_id: specie_id,
+          key: elementIdentifier,
+          value: {
+            id: element.id,
+            level: element.levelName,
+            name: element.name,
+            questions: processogramElementQuestion.questions,
+          },
+        });
+      }
     }
 
     console.log("SVG data generation completed.");
@@ -309,12 +345,40 @@ export class CreateProcessogramUseCase {
    * @param element - The SVG element
    * @returns Generated element data or null if generation fails
    */
-  private async generateElementData(
+  private async generateElementDescription(
     productionSystemName: string,
     element: RasterizedElement
   ): Promise<ElementData | null> {
     try {
-      const elementData = generateElementData({
+      const elementData = generateProcessogramElementDescription({
+        production_system_name: productionSystemName,
+        levelName: element.levelName,
+        name: element.name,
+        hierarchy: element.hierarchy,
+      });
+
+      return elementData;
+    } catch (error) {
+      console.error(
+        `Failed to generate data for element with ID ${element.id}:`,
+        error
+      );
+      return null;
+    }
+  }
+
+  /**
+   * Generates questions for an SVG element
+   * @param productionSystemName - The SVG production system name
+   * @param element - The SVG element
+   * @returns Generated element data or null if generation fails
+   */
+  private async generateElementQuestion(
+    productionSystemName: string,
+    element: RasterizedElement
+  ): Promise<GeneratedProcessogramQuestions | null> {
+    try {
+      const elementData = generateProcessogramElementQuestions({
         production_system_name: productionSystemName,
         levelName: element.levelName,
         name: element.name,
