@@ -16,6 +16,7 @@ export interface IProcessogram extends mongoose.Document {
     // Object where key is the ID of svgelement and value is S3 URL
     [key: string]: string;
   };
+  theme: "light" | "dark"; // Theme of the SVG
   originalSize: number;
   finalSize: number;
   createdAt: Date;
@@ -50,6 +51,12 @@ const ProcessogramSchema: Schema = new mongoose.Schema(
       type: String,
       enum: ["processing", "ready", "error", "generating"],
       default: "processing",
+    },
+    theme: {
+      type: String,
+      enum: ["light", "dark"],
+      requred: true,
+      default: "dark",
     },
     name: { type: String, required: true },
     levelName: { type: String, required: false },

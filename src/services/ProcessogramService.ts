@@ -91,6 +91,7 @@ interface InitializeRootElementParams {
   name: string;
   specie_id: string;
   production_module_id: string;
+  theme: "light" | "dark";
   fileSize: number;
 }
 
@@ -116,7 +117,6 @@ export class ProcessogramService {
   async initializeRootElement(
     params: InitializeRootElementParams
   ): Promise<mongoose.Document> {
-    console.log(params);
     try {
       const rootElement = new ProcessogramModel({
         element_type: this.ELEMENT_TYPES.ROOT,
@@ -128,6 +128,7 @@ export class ProcessogramService {
         status: this.DEFAULT_STATUS.PROCESSING,
         root_id: null,
         originalSize: params.fileSize,
+        theme: params.theme,
       });
 
       return await rootElement.save();

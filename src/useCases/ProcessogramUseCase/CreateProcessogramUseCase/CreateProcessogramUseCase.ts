@@ -30,6 +30,7 @@ interface UploadParams {
 interface InitializeParams {
   name: string;
   specie_id: string;
+  theme: "light" | "dark";
   production_module_id: string;
   fileSize: number;
 }

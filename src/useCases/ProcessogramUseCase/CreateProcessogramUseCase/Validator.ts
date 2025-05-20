@@ -17,6 +17,9 @@ export const uploadSvgValidator = () => [
     .withMessage("Production Module ID must be a valid MongoDB ObjectId")
     .notEmpty(),
   body("path").isString().withMessage("Path is required"),
+  body("theme")
+    .isIn(["light", "dark"])
+    .withMessage("Theme must be either 'light' or 'dark'"),
   check()
     .custom((_, { req }) => {
       if (!req.file) {
