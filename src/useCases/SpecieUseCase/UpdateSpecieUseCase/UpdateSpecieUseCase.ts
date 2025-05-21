@@ -12,18 +12,16 @@ export class UpdateSpecieUseCase {
     const { id, description, name, pathname } = params;
 
     try {
-      // Check if the specie exists
       const existingSpecie = await SpecieModel.findById(id);
 
       if (!existingSpecie) {
         throw new Error("Species not found");
       }
 
-      // If updating pathname, check if the new pathname already exists (only if it's different)
       if (params.pathname && params.pathname !== existingSpecie.pathname) {
         const pathnameExists = await SpecieModel.findOne({
           pathname: params.pathname,
-          _id: { $ne: params.id }, // exclude current document
+          _id: { $ne: params.id },
         });
 
         if (pathnameExists) {
@@ -31,13 +29,11 @@ export class UpdateSpecieUseCase {
         }
       }
 
-      // Update the specie
       const updateData: Partial<SpecieType> = {};
 
-      if (params.name) updateData.name = params.name;
-      if (params.pathname) updateData.pathname = params.pathname;
-      if (params.description !== undefined)
-        updateData.description = params.description;
+      if (name) updateData.name = name;
+      if (pathname) updateData.pathname = pathname;
+      if (description !== undefined) updateData.description = description;
 
       const updatedSpecie = await SpecieModel.findByIdAndUpdate(
         params.id,

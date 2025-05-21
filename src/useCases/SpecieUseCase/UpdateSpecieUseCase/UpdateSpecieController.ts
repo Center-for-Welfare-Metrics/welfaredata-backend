@@ -17,7 +17,6 @@ class UpdateSpecieController {
       const { id } = req.params;
       const { name, pathname, description } = req.body;
 
-      // Check if at least one field to update was provided
       if (!name && !pathname && description === undefined) {
         return res.status(400).json({
           error:

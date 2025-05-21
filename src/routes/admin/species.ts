@@ -3,6 +3,8 @@ import express from "express";
 import { AuthProtected } from "@/middlewares/logged";
 import CreateSpecieController from "@/src/useCases/SpecieUseCase/CreateSpecieUseCase/CreateSpecieController";
 import { createSpecieValidator } from "@/src/useCases/SpecieUseCase/CreateSpecieUseCase/Validator";
+import DeleteSpecieController from "@/src/useCases/SpecieUseCase/DeleteSpecieUseCase/DeleteSpecieController";
+import { deleteSpecieValidator } from "@/src/useCases/SpecieUseCase/DeleteSpecieUseCase/Validator";
 import ListSpecieController from "@/src/useCases/SpecieUseCase/ListSpecieUseCase/ListSpecieController";
 import UpdateSpecieController from "@/src/useCases/SpecieUseCase/UpdateSpecieUseCase/UpdateSpecieController";
 import { updateSpecieValidator } from "@/src/useCases/SpecieUseCase/UpdateSpecieUseCase/Validator";
@@ -35,6 +37,14 @@ router.patch(
   updateSpecieValidator(),
   validate,
   UpdateSpecieController.update
+);
+
+// Delete specie route
+router.delete(
+  "/:id",
+  deleteSpecieValidator(),
+  validate,
+  DeleteSpecieController.delete
 );
 
 export default router;
