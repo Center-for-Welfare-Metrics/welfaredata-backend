@@ -9,6 +9,8 @@ import {
 } from "@/src/useCases/ProductionModuleUseCase/ListProductionModuleUseCase/ListProductionModuleController";
 import { updateProductionModuleController } from "@/src/useCases/ProductionModuleUseCase/UpdateProductionModuleUseCase/UpdateProductionModuleController";
 import { updateProductionModuleValidator } from "@/src/useCases/ProductionModuleUseCase/UpdateProductionModuleUseCase/Validator";
+import deleteProductionModuleController from "@/src/useCases/ProductionModuleUseCase/DeleteProductionModuleUseCase/DeleteProductionModuleController";
+import { deleteProductionModuleValidator } from "@/src/useCases/ProductionModuleUseCase/DeleteProductionModuleUseCase/Validator";
 
 const router = express.Router();
 
@@ -39,6 +41,14 @@ router.patch(
   updateProductionModuleValidator(),
   validate,
   updateProductionModuleController.update
+);
+
+// Delete production module route
+router.delete(
+  "/:id",
+  deleteProductionModuleValidator(),
+  validate,
+  deleteProductionModuleController.delete
 );
 
 export default router;
