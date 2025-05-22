@@ -7,6 +7,8 @@ import {
   listProductionModuleController,
   listProductionModuleValidator,
 } from "@/src/useCases/ProductionModuleUseCase/ListProductionModuleUseCase/ListProductionModuleController";
+import { updateProductionModuleController } from "@/src/useCases/ProductionModuleUseCase/UpdateProductionModuleUseCase/UpdateProductionModuleController";
+import { updateProductionModuleValidator } from "@/src/useCases/ProductionModuleUseCase/UpdateProductionModuleUseCase/Validator";
 
 const router = express.Router();
 
@@ -30,5 +32,13 @@ router.get(
 
 // Get production module by ID
 router.get("/:id", listProductionModuleController.getById);
+
+// Update production module route
+router.patch(
+  "/:id",
+  updateProductionModuleValidator(),
+  validate,
+  updateProductionModuleController.update
+);
 
 export default router;
