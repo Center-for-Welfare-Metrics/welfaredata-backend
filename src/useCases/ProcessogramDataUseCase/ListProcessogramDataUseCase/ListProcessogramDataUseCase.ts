@@ -33,15 +33,18 @@ export class ListSvgDataUseCase {
     try {
       const svgData = (await ProcessogramDataModel.findById(id)
         .populate("specie_id")
-        .populate("svg_element_id")
-        .lean()) as IProcessogramData & { specie_id: any; svg_element_id: any };
+        .populate("processogram_id")
+        .lean()) as IProcessogramData & {
+        specie_id: any;
+        processogram_id: any;
+      };
 
       return {
         ...svgData,
         specie: svgData?.specie_id,
         specie_id: svgData?.specie_id?._id,
-        svg_element: svgData?.svg_element_id,
-        svg_element_id: svgData?.svg_element_id?._id,
+        svg_element: svgData?.processogram_id,
+        processogram_id: svgData?.processogram_id?._id,
       };
     } catch (error: any) {
       console.error(`Error fetching svg data with ID ${id}:`, error);
@@ -50,21 +53,21 @@ export class ListSvgDataUseCase {
   }
 
   async getByProcessogramId(
-    svg_element_id: string
+    processogram_id: string
   ): Promise<IProcessogramData> {
     try {
       const svgData = await ProcessogramDataModel.findOne({
-        svg_element_id: new mongoose.Types.ObjectId(svg_element_id),
+        processogram_id: new mongoose.Types.ObjectId(processogram_id),
       }).exec();
 
       if (!svgData) {
-        throw new Error(`No SVG data found for element ID: ${svg_element_id}`);
+        throw new Error(`No SVG data found for element ID: ${processogram_id}`);
       }
 
       return svgData;
     } catch (error: any) {
       console.error(
-        `Error fetching svg data with element ID ${svg_element_id}:`,
+        `Error fetching svg data with element ID ${processogram_id}:`,
         error
       );
       throw new Error(

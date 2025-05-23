@@ -11,7 +11,7 @@ interface DataEntry {
 
 export interface IProcessogramQuestion extends mongoose.Document {
   production_system_name: string;
-  svg_element_id: mongoose.Types.ObjectId;
+  processogram_id: mongoose.Types.ObjectId;
   specie_id: mongoose.Types.ObjectId;
   data: {
     [key: string]: DataEntry;
@@ -28,9 +28,9 @@ const ProcessogramQuestionSchema: Schema = new mongoose.Schema(
       ref: "Specie",
       required: true,
     },
-    svg_element_id: {
+    processogram_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "SvgElement",
+      ref: "Processogram",
       required: true,
     },
     data: {
@@ -43,7 +43,7 @@ const ProcessogramQuestionSchema: Schema = new mongoose.Schema(
   }
 );
 
-ProcessogramQuestionSchema.index({ svg_element_id: 1 });
+ProcessogramQuestionSchema.index({ processogram_id: 1 });
 
 export const ProcessogramQuestionModel = mongoose.model<IProcessogramQuestion>(
   "ProcessogramQuestion",

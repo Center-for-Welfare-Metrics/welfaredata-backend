@@ -8,6 +8,8 @@ import { uploadSvgValidator } from "@/src/useCases/ProcessogramUseCase/CreatePro
 import UploadSvgController from "@/src/useCases/ProcessogramUseCase/CreateProcessogramUseCase/CreateProcessogramController";
 import UpdateProcessogramController from "@/src/useCases/ProcessogramUseCase/UpdateProcessogramUseCase/UpdateProcessogramController";
 import { updateProcessogramValidator } from "@/src/useCases/ProcessogramUseCase/UpdateProcessogramUseCase/Validator";
+import deleteProcessogramController from "@/src/useCases/ProcessogramUseCase/DeleteProcessogramUseCase/DeleteProcessogramController";
+import { deleteProcessogramValidator } from "@/src/useCases/ProcessogramUseCase/DeleteProcessogramUseCase/Validator";
 
 const router = express.Router();
 
@@ -33,6 +35,14 @@ router.patch(
   updateProcessogramValidator(),
   validate,
   UpdateProcessogramController.update
+);
+
+// Delete processogram route
+router.delete(
+  "/:id",
+  deleteProcessogramValidator(),
+  validate,
+  deleteProcessogramController.delete
 );
 
 export default router;

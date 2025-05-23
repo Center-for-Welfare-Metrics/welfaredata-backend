@@ -28,12 +28,12 @@ export class DeleteProductionModuleUseCase {
       const processogramIds = processograms.map((proc) => proc._id);
 
       const deletedProcessogramData = await ProcessogramDataModel.deleteMany({
-        svg_element_id: { $in: processogramIds },
+        processogram_id: { $in: processogramIds },
       });
 
       const deletedProcessogramQuestions =
         await ProcessogramQuestionModel.deleteMany({
-          svg_element_id: { $in: processogramIds },
+          processogram_id: { $in: processogramIds },
         });
 
       const deletedProcessograms = await ProcessogramModel.deleteMany({

@@ -9,7 +9,7 @@ import { ProcessogramQuestionModel } from "../models/ProcessogramQuestion";
 interface CreateSvgDataParams {
   production_system_name: string; // Used as production_system_name
   specie_id: string;
-  svg_element_id: string;
+  processogram_id: string;
   key: string;
   value: SvgDataElement;
 }
@@ -17,7 +17,7 @@ interface CreateSvgDataParams {
 interface CreateSvgQuestionsParams {
   production_system_name: string; // Used as production_system_name
   specie_id: string;
-  svg_element_id: string;
+  processogram_id: string;
   key: string;
   value: SvgQuestionElement;
 }
@@ -30,12 +30,12 @@ export class SvgDataService {
   async createOrUpdateSvgData({
     production_system_name,
     specie_id,
-    svg_element_id,
+    processogram_id,
     key,
     value,
   }: CreateSvgDataParams) {
     const existingDoc = await ProcessogramDataModel.findOne({
-      svg_element_id,
+      processogram_id,
     }).lean();
 
     if (existingDoc) {
@@ -45,7 +45,7 @@ export class SvgDataService {
       };
 
       await ProcessogramDataModel.updateOne(
-        { svg_element_id },
+        { processogram_id },
         {
           $set: {
             data: updatedData,
@@ -56,7 +56,7 @@ export class SvgDataService {
       await ProcessogramDataModel.create({
         production_system_name,
         specie_id,
-        svg_element_id,
+        processogram_id,
         data: { [key]: value },
       });
     }
@@ -70,12 +70,12 @@ export class SvgDataService {
   async createOrUpdateSvgQuestions({
     production_system_name,
     specie_id,
-    svg_element_id,
+    processogram_id,
     key,
     value,
   }: CreateSvgQuestionsParams) {
     const existingDoc = await ProcessogramQuestionModel.findOne({
-      svg_element_id,
+      processogram_id,
     }).lean();
 
     if (existingDoc) {
@@ -85,7 +85,7 @@ export class SvgDataService {
       };
 
       await ProcessogramQuestionModel.updateOne(
-        { svg_element_id },
+        { processogram_id },
         {
           $set: {
             data: updatedData,
@@ -96,7 +96,7 @@ export class SvgDataService {
       await ProcessogramQuestionModel.create({
         production_system_name,
         specie_id,
-        svg_element_id,
+        processogram_id,
         data: { [key]: value },
       });
     }

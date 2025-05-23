@@ -33,18 +33,18 @@ export class ListProcessogramQuestionUseCase {
     try {
       const questionData = (await ProcessogramQuestionModel.findById(id)
         .populate("specie_id")
-        .populate("svg_element_id")
+        .populate("processogram_id")
         .lean()) as IProcessogramQuestion & {
         specie_id: any;
-        svg_element_id: any;
+        processogram_id: any;
       };
 
       return {
         ...questionData,
         specie: questionData?.specie_id,
         specie_id: questionData?.specie_id?._id,
-        svg_element: questionData?.svg_element_id,
-        svg_element_id: questionData?.svg_element_id?._id,
+        svg_element: questionData?.processogram_id,
+        processogram_id: questionData?.processogram_id?._id,
       };
     } catch (error: any) {
       console.error(
@@ -58,23 +58,23 @@ export class ListProcessogramQuestionUseCase {
   }
 
   async getByProcessogramId(
-    svg_element_id: string
+    processogram_id: string
   ): Promise<IProcessogramQuestion> {
     try {
       const questionData = await ProcessogramQuestionModel.findOne({
-        svg_element_id: new mongoose.Types.ObjectId(svg_element_id),
+        processogram_id: new mongoose.Types.ObjectId(processogram_id),
       }).exec();
 
       if (!questionData) {
         throw new Error(
-          `No question data found for element ID: ${svg_element_id}`
+          `No question data found for element ID: ${processogram_id}`
         );
       }
 
       return questionData;
     } catch (error: any) {
       console.error(
-        `Error fetching processogram question with element ID ${svg_element_id}:`,
+        `Error fetching processogram question with element ID ${processogram_id}:`,
         error
       );
       throw new Error(

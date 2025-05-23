@@ -294,7 +294,7 @@ export class CreateProcessogramUseCase {
       if (processogramElementDescription) {
         await this.svgDataService.createOrUpdateSvgData({
           production_system_name: svgData.svgName,
-          svg_element_id: rootElementId,
+          processogram_id: rootElementId,
           specie_id: specie_id,
           key: elementIdentifier,
           value: {
@@ -324,7 +324,7 @@ export class CreateProcessogramUseCase {
       if (processogramElementQuestion) {
         await this.svgDataService.createOrUpdateSvgQuestions({
           production_system_name: svgData.svgName,
-          svg_element_id: rootElementId,
+          processogram_id: rootElementId,
           specie_id: specie_id,
           key: elementIdentifier,
           value: {
