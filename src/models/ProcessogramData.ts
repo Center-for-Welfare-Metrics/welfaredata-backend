@@ -28,9 +28,9 @@ const ProcessogramDataSchema: Schema = new mongoose.Schema(
       ref: "Specie",
       required: true,
     },
-    svg_element_id: {
+    processogram_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "SvgElement",
+      ref: "Processogram",
       required: true,
     },
     data: {

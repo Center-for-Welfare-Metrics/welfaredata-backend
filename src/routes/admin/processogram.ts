@@ -6,6 +6,8 @@ import { listProcessogramController } from "@/src/useCases/ProcessogramUseCase/L
 import { validate } from "@/src/utils/validate";
 import { uploadSvgValidator } from "@/src/useCases/ProcessogramUseCase/CreateProcessogramUseCase/Validator";
 import UploadSvgController from "@/src/useCases/ProcessogramUseCase/CreateProcessogramUseCase/CreateProcessogramController";
+import UpdateProcessogramController from "@/src/useCases/ProcessogramUseCase/UpdateProcessogramUseCase/UpdateProcessogramController";
+import { updateProcessogramValidator } from "@/src/useCases/ProcessogramUseCase/UpdateProcessogramUseCase/Validator";
 
 const router = express.Router();
 
@@ -24,5 +26,13 @@ router.post(
 router.get("/", listProcessogramController.list);
 
 router.get("/:id", listProcessogramController.getById);
+
+// Update processogram route
+router.patch(
+  "/:id",
+  updateProcessogramValidator(),
+  validate,
+  UpdateProcessogramController.update
+);
 
 export default router;
