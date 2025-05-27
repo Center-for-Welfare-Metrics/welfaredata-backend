@@ -23,6 +23,8 @@ export class GetProcessogramUseCase {
     const rootElements = await ProcessogramModel.find({
       specie_id: specieId,
       element_type: "root",
+      status: "ready",
+      is_published: true,
     });
 
     if (!rootElements || rootElements.length === 0) {

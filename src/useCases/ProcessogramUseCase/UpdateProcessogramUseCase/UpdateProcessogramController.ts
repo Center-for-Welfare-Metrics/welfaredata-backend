@@ -11,21 +11,29 @@ type RequestBody = {
   theme?: "light" | "dark";
   name?: string;
   description?: string;
+  is_published?: boolean;
 };
 
 class UpdateProcessogramController {
   async update(req: Request<RequestParams, {}, RequestBody>, res: Response) {
     try {
       const { id } = req.params;
-      const { specie_id, production_module_id, theme, name, description } =
-        req.body;
+      const {
+        specie_id,
+        production_module_id,
+        theme,
+        name,
+        description,
+        is_published,
+      } = req.body;
 
       if (
         !specie_id &&
         !production_module_id &&
         !theme &&
         !name &&
-        description === undefined
+        description === undefined &&
+        is_published === undefined
       ) {
         return res.status(400).json({
           error:
@@ -42,6 +50,7 @@ class UpdateProcessogramController {
         theme,
         name,
         description,
+        is_published,
       });
 
       return res.status(200).json(result);

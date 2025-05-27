@@ -19,4 +19,8 @@ export const updateProcessogramValidator = () => [
     .optional()
     .isString()
     .withMessage("Description must be a string"),
+  body("is_published")
+    .optional()
+    .isBoolean()
+    .withMessage("is_published must be a boolean"),
 ];

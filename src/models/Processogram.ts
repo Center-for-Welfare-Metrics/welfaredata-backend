@@ -17,6 +17,7 @@ export interface IProcessogram extends mongoose.Document {
     [key: string]: string;
   };
   theme: "light" | "dark"; // Theme of the SVG
+  is_published: boolean; // Whether the processogram is published
   originalSize: number;
   finalSize: number;
   createdAt: Date;
@@ -57,6 +58,11 @@ const ProcessogramSchema: Schema = new mongoose.Schema(
       enum: ["light", "dark"],
       requred: true,
       default: "dark",
+    },
+    is_published: {
+      type: Boolean,
+      default: false,
+      required: false,
     },
     name: { type: String, required: true },
     levelName: { type: String, required: false },

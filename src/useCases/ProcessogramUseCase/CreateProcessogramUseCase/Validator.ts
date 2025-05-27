@@ -20,6 +20,10 @@ export const uploadSvgValidator = () => [
   body("theme")
     .isIn(["light", "dark"])
     .withMessage("Theme must be either 'light' or 'dark'"),
+  body("is_published")
+    .optional()
+    .isBoolean()
+    .withMessage("is_published must be a boolean"),
   check()
     .custom((_, { req }) => {
       if (!req.file) {

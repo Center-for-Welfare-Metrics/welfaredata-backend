@@ -93,6 +93,7 @@ interface InitializeRootElementParams {
   production_module_id: string;
   theme: "light" | "dark";
   fileSize: number;
+  is_published?: boolean;
 }
 
 /**
@@ -129,6 +130,7 @@ export class ProcessogramService {
         root_id: null,
         originalSize: params.fileSize,
         theme: params.theme,
+        is_published: params.is_published || false,
       });
 
       return await rootElement.save();

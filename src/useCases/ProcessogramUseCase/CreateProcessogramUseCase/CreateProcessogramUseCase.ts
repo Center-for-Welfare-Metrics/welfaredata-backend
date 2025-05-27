@@ -14,6 +14,7 @@ import {
   generateProcessogramElementQuestions,
   ProcessogramQuestion,
 } from "./utils/generateProcessogramElementQuestions";
+import { sortSvgChildren } from "./utils/sortSvgChildren";
 
 interface File {
   buffer: Buffer;
@@ -33,6 +34,7 @@ interface InitializeParams {
   theme: "light" | "dark";
   production_module_id: string;
   fileSize: number;
+  is_published?: boolean;
 }
 
 interface ElementData {
@@ -98,6 +100,7 @@ export class CreateProcessogramUseCase {
 
     const svgContent = file.buffer.toString("utf-8");
     const optimizedSvgContent = this.optimizeSvg(svgContent, file.originalname);
+
     // const sortedSvgContent = await sortSvgChildren(optimizedSvgContent);
 
     const { elements, svgData } = await this.extractSvgElements(
@@ -169,6 +172,12 @@ export class CreateProcessogramUseCase {
             overrides: {
               cleanupIds: false,
             },
+          },
+        },
+        {
+          name: "inlineStyles",
+          params: {
+            onlyMatchedOnce: false,
           },
         },
         removeUnusedIdsPlugin,
@@ -312,29 +321,29 @@ export class CreateProcessogramUseCase {
       processedElements.add(elementIdentifier);
 
       // Generate questions for the element
-      console.log(
-        `Generating questions for element with ID ${elementIdentifier}...`
-      );
+      // console.log(
+      //   `Generating questions for element with ID ${elementIdentifier}...`
+      // );
 
-      const processogramElementQuestion = await this.generateElementQuestion(
-        svgData.svgName,
-        element
-      );
+      // const processogramElementQuestion = await this.generateElementQuestion(
+      //   svgData.svgName,
+      //   element
+      // );
 
-      if (processogramElementQuestion) {
-        await this.svgDataService.createOrUpdateSvgQuestions({
-          production_system_name: svgData.svgName,
-          processogram_id: rootElementId,
-          specie_id: specie_id,
-          key: elementIdentifier,
-          value: {
-            id: element.id,
-            level: element.levelName,
-            name: element.name,
-            questions: processogramElementQuestion.questions,
-          },
-        });
-      }
+      // if (processogramElementQuestion) {
+      //   await this.svgDataService.createOrUpdateSvgQuestions({
+      //     production_system_name: svgData.svgName,
+      //     processogram_id: rootElementId,
+      //     specie_id: specie_id,
+      //     key: elementIdentifier,
+      //     value: {
+      //       id: element.id,
+      //       level: element.levelName,
+      //       name: element.name,
+      //       questions: processogramElementQuestion.questions,
+      //     },
+      //   });
+      // }
     }
 
     console.log("SVG data generation completed.");

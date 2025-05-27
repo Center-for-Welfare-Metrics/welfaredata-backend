@@ -51,12 +51,20 @@ type ReqBody = {
   name: string;
   path: string;
   theme: "light" | "dark";
+  is_published?: string;
 };
 
 class UploadSvgController {
   async upload(req: Request<{}, {}, ReqBody>, res: Response) {
     try {
-      const { path, specie_id, name, production_module_id, theme } = req.body;
+      const {
+        path,
+        specie_id,
+        name,
+        production_module_id,
+        theme,
+        is_published,
+      } = req.body;
 
       const file = req.file;
 
@@ -72,6 +80,7 @@ class UploadSvgController {
         production_module_id,
         fileSize: file.size,
         theme,
+        is_published: is_published === "true",
       });
 
       if (!file) {
