@@ -39,7 +39,7 @@ SpecieSchema.virtual("processogramsCount", {
 });
 
 SpecieSchema.virtual("productionModulesCount", {
-  ref: "Processogram",
+  ref: "ProductionModule",
   localField: "_id",
   foreignField: "specie_id",
   count: true,
