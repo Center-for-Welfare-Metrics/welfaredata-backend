@@ -8,17 +8,6 @@ type LeanSpecie = LeanDocument<
   }
 >;
 
-type RasterImages = {
-  [key: string]: {
-    src: string;
-  };
-};
-
-type Processogram = {
-  identifier: string;
-  raster_images: RasterImages;
-};
-
 export class ListSpecieUseCase {
   async execute(): Promise<LeanSpecie[]> {
     try {
@@ -28,16 +17,22 @@ export class ListSpecieUseCase {
         .populate("processogramsCount")
         .populate("productionModulesCount")
         .populate({
-          path: "processograms", // virtual que precisamos criar agora
+          path: "processograms",
           select: "identifier raster_images",
         })
         .lean();
 
       const speciesWithUrls = species.map((specie) => {
-        const urls = specie.processograms?.map((processogram: any) => {
-          const url = processogram.raster_images[processogram.identifier].src;
+        const urls = specie.processograms?.flatMap((processogram: any) => {
+          const raster_images = processogram.raster_images;
 
-          return url;
+          if (!raster_images) return [];
+
+          const url = raster_images[processogram.identifier].src;
+
+          if (!url) return [];
+
+          return [url];
         });
 
         return {

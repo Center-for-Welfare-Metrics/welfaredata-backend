@@ -1,17 +1,54 @@
 import ProductionModuleModel, {
   ProductionModuleType,
 } from "@/src/models/ProductionModule";
-import mongoose from "mongoose";
+import mongoose, { LeanDocument } from "mongoose";
+
+type LeanProductionModule = LeanDocument<
+  ProductionModuleType & {
+    _id: string;
+    processograms_urls: string[] | undefined;
+  }
+>;
 
 export class ListProductionModuleUseCase {
-  async execute(specie_id: string): Promise<ProductionModuleType[]> {
+  async execute(specie_id: string): Promise<LeanProductionModule[]> {
     try {
       // Get production modules for the specified specie_id
       const productionModules = await ProductionModuleModel.find({
         specie_id: new mongoose.Types.ObjectId(specie_id),
-      }).sort({ createdAt: -1 });
+      })
+        .sort({ createdAt: -1 })
+        .populate("processogramsCount")
+        .populate({
+          path: "processograms",
+          select: "identifier raster_images",
+        })
+        .lean();
 
-      return productionModules;
+      const productionModulesWithUrls = productionModules.map(
+        (productionModule) => {
+          const urls = productionModule.processograms?.flatMap(
+            (processogram: any) => {
+              const raster_images = processogram.raster_images;
+
+              if (!raster_images) return [];
+
+              const url = raster_images[processogram.identifier].src;
+
+              if (!url) return [];
+
+              return [url];
+            }
+          );
+
+          return {
+            ...productionModule,
+            processograms_urls: urls,
+          };
+        }
+      );
+
+      return productionModulesWithUrls;
     } catch (error: any) {
       console.error("Error listing production modules:", error);
       throw new Error(error.message || "Failed to list production modules");

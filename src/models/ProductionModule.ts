@@ -5,6 +5,12 @@ export interface ProductionModuleType extends mongoose.Document {
   description?: string;
   specie_id: mongoose.Types.ObjectId;
   creator_id?: mongoose.Types.ObjectId;
+  processograms?: {
+    identifier: string;
+    raster_images: {
+      [key: string]: string; // Key is the ID of the SVG element, value is the S3 URL
+    };
+  }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -24,6 +30,19 @@ const ProductionModuleSchema: Schema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+ProductionModuleSchema.virtual("processogramsCount", {
+  ref: "Processogram",
+  localField: "_id",
+  foreignField: "production_module_id",
+  count: true,
+});
+
+ProductionModuleSchema.virtual("processograms", {
+  ref: "Processogram",
+  localField: "_id",
+  foreignField: "production_module_id",
+});
 
 // Create indexes for faster lookups
 ProductionModuleSchema.index({ specie_id: 1 });
