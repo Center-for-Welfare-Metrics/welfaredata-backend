@@ -15,6 +15,7 @@ import {
   ProcessogramQuestion,
 } from "./utils/generateProcessogramElementQuestions";
 import { sortSvgChildren } from "./utils/sortSvgChildren";
+import { fixMissingSvgIdPlugin } from "@/src/svgo/plugins/fixMissingSvgIdPlugin";
 
 interface File {
   buffer: Buffer;
@@ -182,6 +183,7 @@ export class CreateProcessogramUseCase {
         },
         removeUnusedIdsPlugin,
         removeBxAttributesPlugin,
+        fixMissingSvgIdPlugin,
       ],
     });
 
