@@ -45,6 +45,12 @@ export class UpdateProcessogramUseCase {
       if (description !== undefined) updateData.description = description;
       if (is_published !== undefined) updateData.is_published = is_published;
 
+      const updatedProcessogram = await ProcessogramModel.findByIdAndUpdate(
+        params.id,
+        updateData,
+        { new: true }
+      );
+
       if (is_published !== existingProcessogram.is_published) {
         const clientBaseUrl = process.env.CLIENT_DOMAIN;
 
@@ -58,12 +64,6 @@ export class UpdateProcessogramUseCase {
           await axios.get(revalidateUrl);
         }
       }
-
-      const updatedProcessogram = await ProcessogramModel.findByIdAndUpdate(
-        params.id,
-        updateData,
-        { new: true }
-      );
 
       return updatedProcessogram;
     } catch (error: any) {
