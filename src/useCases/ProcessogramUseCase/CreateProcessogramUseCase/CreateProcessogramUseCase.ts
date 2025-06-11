@@ -12,9 +12,7 @@ import { getElementIdentifier } from "./utils/extractInfoFromId";
 import {
   GeneratedProcessogramQuestions,
   generateProcessogramElementQuestions,
-  ProcessogramQuestion,
 } from "./utils/generateProcessogramElementQuestions";
-import { sortSvgChildren } from "./utils/sortSvgChildren";
 import { fixMissingSvgIdPlugin } from "@/src/svgo/plugins/fixMissingSvgIdPlugin";
 
 interface File {
@@ -57,7 +55,7 @@ export interface SvgQuestionElement {
   id: string;
   level: string;
   name: string;
-  questions: ProcessogramQuestion[];
+  questions: string[];
 }
 
 interface UploadResult {
@@ -323,29 +321,29 @@ export class CreateProcessogramUseCase {
       processedElements.add(elementIdentifier);
 
       // Generate questions for the element
-      // console.log(
-      //   `Generating questions for element with ID ${elementIdentifier}...`
-      // );
+      console.log(
+        `Generating questions for element with ID ${elementIdentifier}...`
+      );
 
-      // const processogramElementQuestion = await this.generateElementQuestion(
-      //   svgData.svgName,
-      //   element
-      // );
+      const processogramElementQuestion = await this.generateElementQuestion(
+        svgData.svgName,
+        element
+      );
 
-      // if (processogramElementQuestion) {
-      //   await this.svgDataService.createOrUpdateSvgQuestions({
-      //     production_system_name: svgData.svgName,
-      //     processogram_id: rootElementId,
-      //     specie_id: specie_id,
-      //     key: elementIdentifier,
-      //     value: {
-      //       id: element.id,
-      //       level: element.levelName,
-      //       name: element.name,
-      //       questions: processogramElementQuestion.questions,
-      //     },
-      //   });
-      // }
+      if (processogramElementQuestion) {
+        await this.svgDataService.createOrUpdateSvgQuestions({
+          production_system_name: svgData.svgName,
+          processogram_id: rootElementId,
+          specie_id: specie_id,
+          key: elementIdentifier,
+          value: {
+            id: element.id,
+            level: element.levelName,
+            name: element.name,
+            questions: processogramElementQuestion.questions,
+          },
+        });
+      }
     }
 
     console.log("SVG data generation completed.");

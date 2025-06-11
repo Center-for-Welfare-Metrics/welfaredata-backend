@@ -14,13 +14,8 @@ type Params = {
   hierarchy: RasterizedElementHierarchy[];
 };
 
-export type ProcessogramQuestion = {
-  question: string;
-  answer: string;
-};
-
 export type GeneratedProcessogramQuestions = {
-  questions: ProcessogramQuestion[];
+  questions: string[];
 };
 
 export const generateProcessogramElementQuestions = async ({
@@ -29,36 +24,28 @@ export const generateProcessogramElementQuestions = async ({
   hierarchy,
 }: Params) => {
   const systemPrompt = `
-    You are an expert in animal production systems.
-    Given the description of a production system element (such as a stage, phase, or animal group), generate 3 informative questions and their corresponding answers.
-    Use the name as the main subject, and the level name and parents as background context.
-    Your goal is to help someone understand the biological, functional, and management-related aspects of that element.
-    Instructions:
-    The questions must be relevant to understanding the nature and role of the element
-    Use the context from parents to enrich the answers, not to copy them
-    Avoid generic trivia or repeating input data
-    Answers should be factual and concise, ideally 1–3 sentences
+    You are a data scientist specializing in animal production systems.
+    Given the input below, your task is to generate 4 short and relevant questions that could be used to initiate a conversation about the target level (the first item in the parents list). These questions should:
 
-    EXAMPLE INPUT:   
+    Be informative, curious, or analytical in nature.
+    Be phrased naturally, as if coming from a user seeking to understand more about the topic.
+    Take into account the hierarchical context that follows the target, but keep the focus of the question on the target only.
+    Avoid unnecessary technical jargon; the tone should be accessible and practical.
+    Do not explain or repeat the hierarchy in your output — just provide the list of questions.
+    Return the questions in a JSON object with the key questions.
+
+    EXAMPLE INPUT:
     level name: circumstance;
     name: piglet;
     parents: phase - suckling, life fate - market pig, production system - conventional intensive;
 
     EXAMPLE JSON OUTPUT:
-    {
+      {
       "questions": [
-        {
-          "question": "What defines the piglet stage in pig production?",
-          "answer": "The piglet stage refers to the early life of pigs, typically from birth until weaning, during which they are dependent on the sow's milk and require close health monitoring."
-        },
-        {
-          "question": "Why is the suckling phase critical for piglets?",
-          "answer": "This phase is vital for growth and immunity development, as piglets receive essential nutrients and maternal antibodies through the sow’s milk."
-        },
-        {
-          "question": "What are common management practices for piglets in intensive systems?",
-          "answer": "Common practices include temperature regulation, iron supplementation, tail docking, and monitoring for signs of illness or developmental issues."
-        }
+        "What are common stressors for piglets in the suckling phase?",
+        "How does this stage impact the piglet's growth trajectory?",
+        "What kind of care do piglets typically require at this point?",
+        "Are piglets in this context already being prepared for market?"
       ]
     }
   `;
