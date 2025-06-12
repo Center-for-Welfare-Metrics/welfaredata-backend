@@ -25,22 +25,41 @@ export const generateProcessogramElementDescription = async ({
   hierarchy,
 }: Params) => {
   const systemPrompt = `
-  You are a data scientist specializing in animal production systems.
-  Given the inputs below, generate a detailed and informative description of the object (animal, phase, etc.) focusing on biological characteristics, typical behavior, purpose within the production system, and commercial importance.
-  Also estimate a typical duration for this level, including a label (e.g., "5 weeks") and the equivalent value in seconds.
-  Important: Do not just restate the inputs. Expand with plausible details based on common knowledge of conventional intensive pig farming or similar production systems.
+You are a data scientist specializing in animal production systems.
 
-  EXAMPLE INPUT:   
-  level name: circumstance;
-  name: piglet;
-  parents: phase - suckling, life fate - market pig, production system - conventional intensive;
+Your task is to describe a specific component of a processogram, based on its level and name. This component may be a production system, life-fate, phase, or circumstance.
 
-  EXAMPLE JSON OUTPUT: 
-  {
-    "description": "This is a description of the level",
-    "duration_label": "2 hours",
-    "duration_in_seconds": 7200,
-  }
+Important:
+- Focus the description strictly on the named component (not its parent elements).
+- Use the parent hierarchy only to provide context — do NOT shift the focus of the description to them.
+- If the item is a 'circumstance', describe it as a localized structure, space, or equipment element that animals interact with (e.g., ramp, tray, enclosure, crate).
+- If the item is a 'phase', describe the time period in terms of what typically happens, its biological and commercial relevance, and its role in the system sequence.
+- If the item is a 'life-fate', describe the type of animal that follows this path and what characterizes its experience.
+- Always return the description, a duration label (e.g., “5 minutes”), and an approximate duration in seconds.
+
+EXAMPLE 1 — (Circumstance):
+level name: circumstance  
+name: ramp  
+parents: phase - chicks tipped from trays, life-fate - female chick, production system - industrial hatchery  
+
+Expected JSON output:
+{
+  "description": "The ramp is a downward-sloping structure that allows newly hatched chicks to exit incubation trays and continue along the production line. It supports gravity-based movement and reduces handling stress during transfer. The surface is typically textured or ridged to prevent slipping, and the angle is calibrated to minimize injury risk for fragile chicks.",
+  "duration_label": "15 seconds",
+  "duration_in_seconds": 15
+}
+
+EXAMPLE 2 — (Phase):
+level name: phase  
+name: crowding at plant  
+parents: life-fate - market trout, production system - flow-through tank slaughter  
+
+Expected JSON output:
+{
+  "description": "In this phase, trout are gradually moved into a confined holding area in preparation for stunning. Fish densities increase significantly to facilitate transfer into the stunner. This phase requires careful water quality monitoring and can trigger strong aversive reactions if poorly managed.",
+  "duration_label": "40 minutes",
+  "duration_in_seconds": 2400
+}
 
    if no parents are provided, that means that the level is the root of the production system.
   `;
