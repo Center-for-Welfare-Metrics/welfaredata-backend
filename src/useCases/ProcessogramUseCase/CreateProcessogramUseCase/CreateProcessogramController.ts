@@ -1,4 +1,5 @@
 import axios from "axios";
+import FormData from "form-data";
 
 import { Request, Response } from "express";
 import { CreateProcessogramUseCase } from "./CreateProcessogramUseCase";
@@ -8,25 +9,15 @@ type WorkerReqBody = {
   specie_id: string;
   path: string;
   rootElementId: string;
-  base64file: string; // base64 encoded string of the SVG file
-  fileOriginalName: string;
 };
 
 export const execSvgUpload = async (
   req: Request<{}, {}, WorkerReqBody>,
   res: Response
 ) => {
-  const { specie_id, rootElementId, path, base64file, fileOriginalName } =
-    req.body;
+  const { specie_id, rootElementId, path } = req.body;
 
-  const fileBuffer = Buffer.from(base64file, "base64");
-
-  const file = {
-    originalname: fileOriginalName,
-    mimetype: "image/svg+xml",
-    buffer: fileBuffer,
-    size: fileBuffer.length,
-  };
+  const file = req.file;
 
   if (!file) {
     console.log("No file uploaded");
@@ -116,23 +107,23 @@ class UploadSvgController {
 
       const WORKER_API_URL = process.env.WORKER_API_URL;
 
+      const formData = new FormData();
+      formData.append("specie_id", specie_id);
+      formData.append("rootElementId", rootElementId);
+      formData.append("path", path);
+      formData.append("file", file.buffer, {
+        filename: file.originalname,
+        contentType: file.mimetype,
+      });
+
       axios
-        .post(
-          `${WORKER_API_URL}/admin/processograms/worker`,
-          {
-            specie_id,
-            rootElementId,
-            path,
-            base64file: file.buffer.toString("base64"),
-            fileOriginalName: file.originalname,
+        .post(`${WORKER_API_URL}/admin/processograms/worker`, formData, {
+          headers: {
+            ...formData.getHeaders(),
+            cookie: reqHeaders.cookie || "",
+            accept: reqHeaders.accept || "application/json",
           },
-          {
-            headers: {
-              cookie: reqHeaders.cookie || "",
-              accept: reqHeaders.accept || "application/json",
-            },
-          }
-        )
+        })
         .catch((error) => {
           console.error("Error sending file to worker:", error);
           throw new Error("Failed to send file to worker");
