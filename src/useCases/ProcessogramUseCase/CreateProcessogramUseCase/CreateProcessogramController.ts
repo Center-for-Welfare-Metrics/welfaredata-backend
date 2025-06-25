@@ -4,18 +4,41 @@ import { Request, Response } from "express";
 import { CreateProcessogramUseCase } from "./CreateProcessogramUseCase";
 import { ProcessogramModel } from "@/src/models/Processogram";
 
-const execSvgUpload = async (
-  file: Express.Multer.File,
-  specie_id: string,
-  path: string,
-  _id: string
+type WorkerReqBody = {
+  specie_id: string;
+  path: string;
+  rootElementId: string;
+  base64file: string; // base64 encoded string of the SVG file
+  fileOriginalName: string;
+};
+
+export const execSvgUpload = async (
+  req: Request<{}, {}, WorkerReqBody>,
+  res: Response
 ) => {
+  const { specie_id, rootElementId, path, base64file, fileOriginalName } =
+    req.body;
+
+  const fileBuffer = Buffer.from(base64file, "base64");
+
+  const file = {
+    originalname: fileOriginalName,
+    mimetype: "image/svg+xml",
+    buffer: fileBuffer,
+    size: fileBuffer.length,
+  };
+
+  if (!file) {
+    console.log("No file uploaded");
+    return res.status(400).json({ error: "No file uploaded" });
+  }
+
   const uploadSvgUseCase = new CreateProcessogramUseCase();
 
   try {
     await uploadSvgUseCase.execute(file, {
       specie_id: specie_id,
-      _id,
+      _id: rootElementId,
     });
 
     const clientBaseUrl = process.env.CLIENT_DOMAIN;
@@ -24,7 +47,7 @@ const execSvgUpload = async (
 
     await axios.get(revalidateUrl);
     const updated = await ProcessogramModel.findByIdAndUpdate(
-      _id,
+      rootElementId,
       {
         status: "ready",
       },
@@ -34,7 +57,7 @@ const execSvgUpload = async (
     console.log("SVG uploaded successfully");
   } catch (error) {
     const updated = await ProcessogramModel.findByIdAndUpdate(
-      _id,
+      rootElementId,
       {
         status: "error",
       },
@@ -43,6 +66,8 @@ const execSvgUpload = async (
     console.log(updated?._id, updated?.status);
     console.log("Error uploading SVG:", error);
   }
+
+  return res.status(200).json(true);
 };
 
 type ReqBody = {
@@ -68,6 +93,8 @@ class UploadSvgController {
 
       const file = req.file;
 
+      const reqHeaders = req.headers;
+
       if (!file) {
         return res.status(400).json({ error: "No file uploaded" });
       }
@@ -87,7 +114,29 @@ class UploadSvgController {
         return res.status(400).json({ error: "No file uploaded" });
       }
 
-      execSvgUpload(file, specie_id, path, rootElementId);
+      const WORKER_API_URL = process.env.WORKER_API_URL;
+
+      axios
+        .post(
+          `${WORKER_API_URL}/admin/processograms/worker`,
+          {
+            specie_id,
+            rootElementId,
+            path,
+            base64file: file.buffer.toString("base64"),
+            fileOriginalName: file.originalname,
+          },
+          {
+            headers: {
+              cookie: reqHeaders.cookie || "",
+              accept: reqHeaders.accept || "application/json",
+            },
+          }
+        )
+        .catch((error) => {
+          console.error("Error sending file to worker:", error);
+          throw new Error("Failed to send file to worker");
+        });
 
       return res.status(200).json(true);
     } catch (error: any) {
