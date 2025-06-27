@@ -59,11 +59,13 @@ interface CreateRootElementParams {
   /** Unique identifier within the SVG */
   id: string;
   /** Original file name */
-  fileName: string;
+  fileNameLight: string;
+  fileNameDark: string;
   /** Map of element IDs to their rasterized data */
   rasterImages: Map<string, RasterizedData>;
   /** SVG content as a string */
-  svgString: string;
+  svgLightString: string;
+  svgDarkString: string;
   /** Name of the level this SVG represents */
   levelName: string;
 }
@@ -125,7 +127,8 @@ export class ProcessogramService {
         specie_id: params.specie_id,
         production_module_id: params.production_module_id,
         raster_images: {},
-        svg_url: "",
+        svg_url_light: "",
+        svg_url_dark: "",
         status: this.DEFAULT_STATUS.PROCESSING,
         root_id: null,
         originalSize: params.fileSize,
@@ -156,9 +159,14 @@ export class ProcessogramService {
       const rasterUrls = await this.processAndUploadRasterImages(
         params.rasterImages
       );
-      const svgSource = await this.uploadSvgFile(
-        params.fileName,
-        params.svgString
+      const svgDarkSource = await this.uploadSvgFile(
+        params.fileNameDark,
+        params.svgDarkString
+      );
+
+      const svgLightSource = await this.uploadSvgFile(
+        params.fileNameLight,
+        params.svgLightString
       );
 
       const rasterImagesObject = Object.fromEntries(rasterUrls);
@@ -166,8 +174,10 @@ export class ProcessogramService {
       const savedElement = await ProcessogramModel.findByIdAndUpdate(
         params._id,
         {
-          svg_url: svgSource.location,
-          finalSize: svgSource.fileSize,
+          svg_url_light: svgLightSource.location,
+          final_size_light: svgLightSource.fileSize,
+          svg_url_dark: svgDarkSource.location,
+          final_size_dark: svgDarkSource.fileSize,
           raster_images: rasterImagesObject,
           status: this.DEFAULT_STATUS.PROCESSING,
           identifier: params.id,
@@ -313,6 +323,13 @@ export class ProcessogramService {
     location: string;
     fileSize: number;
   }> {
+    if (!fileName || !svgString) {
+      return {
+        location: "",
+        fileSize: 0,
+      };
+    }
+
     try {
       const svgFileName = `${fileName}.svg`;
       const svgBuffer = Buffer.from(svgString, "utf-8");

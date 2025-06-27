@@ -21,13 +21,23 @@ router.all("/*", AuthProtected);
 
 router.post(
   "/",
-  upload.single("file"),
+  upload.fields([
+    { name: "file_light", maxCount: 1 },
+    { name: "file_dark", maxCount: 1 },
+  ]),
   uploadSvgValidator(),
   validate,
   UploadSvgController.upload
 );
 
-router.post("/worker", upload.single("file"), execSvgUpload);
+router.post(
+  "/worker",
+  upload.fields([
+    { name: "file_light", maxCount: 1 },
+    { name: "file_dark", maxCount: 1 },
+  ]),
+  execSvgUpload
+);
 
 router.get("/", listProcessogramController.list);
 

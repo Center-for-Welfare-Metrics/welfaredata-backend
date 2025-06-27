@@ -10,7 +10,8 @@ export interface IProcessogram extends mongoose.Document {
   levelName: string; // From data-level-name attribute
   normalized_name: string; // Will be populated later
   description: string; // Will be populated later
-  svg_url?: string; // URL to the SVG file, only for root elements
+  svg_url_light: string;
+  svg_url_dark: string;
   status: "processing" | "ready" | "error" | "generating"; // Status of the SVG processing
   raster_images: {
     // Object where key is the ID of svgelement and value is S3 URL
@@ -68,9 +69,12 @@ const ProcessogramSchema: Schema = new mongoose.Schema(
     levelName: { type: String, required: false },
     normalized_name: { type: String, required: false },
     description: { type: String, required: false },
-    svg_url: { type: String, required: false },
-    originalSize: { type: Number, required: false },
-    finalSize: { type: Number, required: false },
+    svg_url_light: { type: String, required: false },
+    original_size_light: { type: Number, required: false },
+    final_size_light: { type: Number, required: false },
+    svg_url_dark: { type: String, required: false },
+    original_size_dark: { type: Number, required: false },
+    final_size_dark: { type: Number, required: false },
     raster_images: {
       type: Object,
       default: {},

@@ -17,9 +17,37 @@ export const execSvgUpload = async (
 ) => {
   const { specie_id, rootElementId, path } = req.body;
 
-  const file = req.file;
+  let file_light;
+  if (
+    req.files &&
+    typeof req.files === "object" &&
+    "file_light" in req.files &&
+    Array.isArray(
+      (req.files as { [fieldname: string]: Express.Multer.File[] })[
+        "file_light"
+      ]
+    )
+  ) {
+    file_light = (req.files as { [fieldname: string]: Express.Multer.File[] })[
+      "file_light"
+    ][0];
+  }
 
-  if (!file) {
+  let file_dark;
+  if (
+    req.files &&
+    typeof req.files === "object" &&
+    "file_dark" in req.files &&
+    Array.isArray(
+      (req.files as { [fieldname: string]: Express.Multer.File[] })["file_dark"]
+    )
+  ) {
+    file_dark = (req.files as { [fieldname: string]: Express.Multer.File[] })[
+      "file_dark"
+    ][0];
+  }
+
+  if (!file_light && !file_dark) {
     console.log("No file uploaded");
     return res.status(400).json({ error: "No file uploaded" });
   }
@@ -27,7 +55,7 @@ export const execSvgUpload = async (
   const uploadSvgUseCase = new CreateProcessogramUseCase();
 
   try {
-    await uploadSvgUseCase.execute(file, {
+    await uploadSvgUseCase.execute(file_light, file_dark, {
       specie_id: specie_id,
       _id: rootElementId,
     });
@@ -82,15 +110,52 @@ class UploadSvgController {
         is_published,
       } = req.body;
 
-      const file = req.file;
+      let file_light;
+      if (
+        req.files &&
+        typeof req.files === "object" &&
+        "file_light" in req.files &&
+        Array.isArray(
+          (req.files as { [fieldname: string]: Express.Multer.File[] })[
+            "file_light"
+          ]
+        )
+      ) {
+        file_light = (
+          req.files as { [fieldname: string]: Express.Multer.File[] }
+        )["file_light"][0];
+      }
+
+      let file_dark;
+      if (
+        req.files &&
+        typeof req.files === "object" &&
+        "file_dark" in req.files &&
+        Array.isArray(
+          (req.files as { [fieldname: string]: Express.Multer.File[] })[
+            "file_dark"
+          ]
+        )
+      ) {
+        file_dark = (
+          req.files as { [fieldname: string]: Express.Multer.File[] }
+        )["file_dark"][0];
+      }
+
+      if (!file_light && !file_dark) {
+        console.log("No file uploaded");
+        return res.status(400).json({ error: "No file uploaded" });
+      }
 
       const reqHeaders = req.headers;
 
-      if (!file) {
+      if (!file_light && !file_dark) {
         return res.status(400).json({ error: "No file uploaded" });
       }
 
       const uploadSvgUseCase = new CreateProcessogramUseCase();
+
+      const file = (file_light || file_dark) as any as File;
 
       const rootElementId = await uploadSvgUseCase.initializeRootElement({
         name: name,
@@ -101,20 +166,24 @@ class UploadSvgController {
         is_published: is_published === "true",
       });
 
-      if (!file) {
-        return res.status(400).json({ error: "No file uploaded" });
-      }
-
       const WORKER_API_URL = process.env.WORKER_API_URL;
 
       const formData = new FormData();
       formData.append("specie_id", specie_id);
       formData.append("rootElementId", rootElementId);
       formData.append("path", path);
-      formData.append("file", file.buffer, {
-        filename: file.originalname,
-        contentType: file.mimetype,
-      });
+      if (file_light) {
+        formData.append("file_light", file_light.buffer, {
+          filename: file_light.originalname,
+          contentType: file_light.mimetype,
+        });
+      }
+      if (file_dark) {
+        formData.append("file_dark", file_dark.buffer, {
+          filename: file_dark.originalname,
+          contentType: file_dark.mimetype,
+        });
+      }
 
       axios
         .post(`${WORKER_API_URL}/admin/processograms/worker`, formData, {
