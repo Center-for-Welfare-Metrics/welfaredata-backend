@@ -8,7 +8,6 @@ type RequestParams = {
 type RequestBody = {
   specie_id?: string;
   production_module_id?: string;
-  theme?: "light" | "dark";
   name?: string;
   description?: string;
   is_published?: boolean;
@@ -21,7 +20,6 @@ class UpdateProcessogramController {
       const {
         specie_id,
         production_module_id,
-        theme,
         name,
         description,
         is_published,
@@ -30,7 +28,6 @@ class UpdateProcessogramController {
       if (
         !specie_id &&
         !production_module_id &&
-        !theme &&
         !name &&
         description === undefined &&
         is_published === undefined
@@ -47,7 +44,6 @@ class UpdateProcessogramController {
         id,
         specie_id,
         production_module_id,
-        theme,
         name,
         description,
         is_published,

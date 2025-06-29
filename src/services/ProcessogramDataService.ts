@@ -21,7 +21,7 @@ interface CreateSvgQuestionsParams {
   key: string;
   value: SvgQuestionElement;
 }
-export class SvgDataService {
+export class ProcessogramDataService {
   /**
    * Creates or updates SVG data records
    * @param params Parameters containing SVG name, elements data, and SVG element ID

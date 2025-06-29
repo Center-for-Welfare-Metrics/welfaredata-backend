@@ -2,25 +2,35 @@ import mongoose, { Schema } from "mongoose";
 
 export interface IProcessogram extends mongoose.Document {
   identifier: string; // The ID extracted from SVGElement
+
   specie_id: string; // Reference to the Specie model
   production_module_id: mongoose.Types.ObjectId; // Reference to the ProductionModule model
-  root_id: mongoose.Types.ObjectId | null; // Reference to the root SVG element
-  element_type: "root" | "element"; // Type of element - root is the SVG itself, element is a child
+
   name: string; // From data-name attribute
   levelName: string; // From data-level-name attribute
   normalized_name: string; // Will be populated later
   description: string; // Will be populated later
-  svg_url_light: string;
-  svg_url_dark: string;
-  status: "processing" | "ready" | "error" | "generating"; // Status of the SVG processing
+
+  is_published: boolean; // Whether the processogram is published
   raster_images: {
     // Object where key is the ID of svgelement and value is S3 URL
     [key: string]: string;
   };
-  theme: "light" | "dark"; // Theme of the SVG
-  is_published: boolean; // Whether the processogram is published
-  originalSize: number;
-  finalSize: number;
+
+  original_name_light: string;
+  svg_url_light: string;
+  original_size_light: number; // Original size of the SVG in light
+  final_size_light: number; // Final size of the SVG in light after processing
+
+  original_name_dark: string;
+  svg_url_dark: string;
+  original_size_dark: number; // Original size of the SVG in dark
+  final_size_dark: number; // Final size of the SVG in dark after processing
+
+  status: "processing" | "ready" | "error" | "generating"; // Status of the SVG processing
+  errorMessage?: string; // Error message if status is error
+
+  // Timestamps for creation and updates
   createdAt: Date;
   updatedAt: Date;
 }
@@ -28,6 +38,7 @@ export interface IProcessogram extends mongoose.Document {
 const ProcessogramSchema: Schema = new mongoose.Schema(
   {
     identifier: { type: String, required: false },
+
     specie_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Specie",
@@ -38,47 +49,41 @@ const ProcessogramSchema: Schema = new mongoose.Schema(
       ref: "ProductionModule",
       required: true,
     },
-    root_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "SvgElement",
-      required: false, // Can be null for root elements
-    },
-    element_type: {
-      type: String,
-      enum: ["root", "element"],
-      required: true,
-      default: "element",
-    },
-    status: {
-      type: String,
-      enum: ["processing", "ready", "error", "generating"],
-      default: "processing",
-    },
-    theme: {
-      type: String,
-      enum: ["light", "dark"],
-      requred: true,
-      default: "dark",
-    },
+
     is_published: {
       type: Boolean,
       default: false,
       required: false,
     },
-    name: { type: String, required: true },
-    levelName: { type: String, required: false },
-    normalized_name: { type: String, required: false },
-    description: { type: String, required: false },
-    svg_url_light: { type: String, required: false },
-    original_size_light: { type: Number, required: false },
-    final_size_light: { type: Number, required: false },
-    svg_url_dark: { type: String, required: false },
-    original_size_dark: { type: Number, required: false },
-    final_size_dark: { type: Number, required: false },
     raster_images: {
       type: Object,
       default: {},
     },
+
+    status: {
+      type: String,
+      enum: ["processing", "ready", "error", "generating"],
+      default: "processing",
+    },
+    errorMessage: {
+      type: String,
+      required: false,
+    },
+
+    name: { type: String, required: true },
+    levelName: { type: String, required: false },
+    normalized_name: { type: String, required: false },
+    description: { type: String, required: false },
+
+    original_name_light: { type: String, required: false },
+    svg_url_light: { type: String, required: false },
+    original_size_light: { type: Number, required: false },
+    final_size_light: { type: Number, required: false },
+
+    original_name_dark: { type: String, required: false },
+    svg_url_dark: { type: String, required: false },
+    original_size_dark: { type: Number, required: false },
+    final_size_dark: { type: Number, required: false },
   },
   {
     timestamps: true,

@@ -79,6 +79,7 @@ export const execSvgUpload = async (
       rootElementId,
       {
         status: "error",
+        errorMessage: error instanceof Error ? error.message : String(error),
       },
       { new: true }
     );
@@ -155,15 +156,15 @@ class UploadSvgController {
 
       const uploadSvgUseCase = new CreateProcessogramUseCase();
 
-      const file = (file_light || file_dark) as any as File;
-
       const rootElementId = await uploadSvgUseCase.initializeRootElement({
         name: name,
         specie_id,
         production_module_id,
-        fileSize: file.size,
-        theme,
         is_published: is_published === "true",
+        original_size_dark: file_dark ? file_dark.size : undefined,
+        original_size_light: file_light ? file_light.size : undefined,
+        original_name_light: file_light ? file_light.originalname : undefined,
+        original_name_dark: file_dark ? file_dark.originalname : undefined,
       });
 
       const WORKER_API_URL = process.env.WORKER_API_URL;

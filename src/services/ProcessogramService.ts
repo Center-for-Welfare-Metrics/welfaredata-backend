@@ -93,9 +93,11 @@ interface InitializeRootElementParams {
   name: string;
   specie_id: string;
   production_module_id: string;
-  theme: "light" | "dark";
-  fileSize: number;
-  is_published?: boolean;
+  original_size_light: number | undefined;
+  original_size_dark: number | undefined;
+  original_name_light: string | undefined;
+  original_name_dark: string | undefined;
+  is_published: boolean | undefined;
 }
 
 /**
@@ -131,9 +133,11 @@ export class ProcessogramService {
         svg_url_dark: "",
         status: this.DEFAULT_STATUS.PROCESSING,
         root_id: null,
-        originalSize: params.fileSize,
-        theme: params.theme,
         is_published: params.is_published || false,
+        original_size_light: params.original_size_light,
+        original_size_dark: params.original_size_dark,
+        original_name_light: params.original_name_light,
+        original_name_dark: params.original_name_dark,
       });
 
       return await rootElement.save();

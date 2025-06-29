@@ -7,7 +7,6 @@ interface UpdateProcessogramParams {
   id: string;
   specie_id?: string;
   production_module_id?: mongoose.Types.ObjectId | string;
-  theme?: "light" | "dark";
   name?: string;
   description?: string;
   is_published?: boolean;
@@ -21,7 +20,6 @@ export class UpdateProcessogramUseCase {
       id,
       specie_id,
       production_module_id,
-      theme,
       name,
       description,
       is_published,
@@ -40,7 +38,7 @@ export class UpdateProcessogramUseCase {
       if (production_module_id)
         updateData.production_module_id =
           production_module_id as mongoose.Types.ObjectId;
-      if (theme) updateData.theme = theme;
+
       if (name) updateData.name = name;
       if (description !== undefined) updateData.description = description;
       if (is_published !== undefined) updateData.is_published = is_published;

@@ -4,7 +4,7 @@ import {
   RasterizedData,
   ProcessogramService,
 } from "@/src/services/ProcessogramService";
-import { SvgDataService } from "@/src/services/ProcessogramDataService";
+import { ProcessogramDataService } from "@/src/services/ProcessogramDataService";
 import { removeBxAttributesPlugin } from "@/src/svgo/plugins/removeBxAttributesPlugin";
 import { rasterizeSvg, RasterizedElement } from "./utils/rasterizeSvg";
 import { generateProcessogramElementDescription } from "./utils/generateProcessogramElementDescription";
@@ -30,10 +30,12 @@ interface UploadParams {
 interface InitializeParams {
   name: string;
   specie_id: string;
-  theme: "light" | "dark";
   production_module_id: string;
-  fileSize: number;
-  is_published?: boolean;
+  is_published: boolean | undefined;
+  original_size_light: number | undefined;
+  original_size_dark: number | undefined;
+  original_name_light: string | undefined;
+  original_name_dark: string | undefined;
 }
 
 interface ElementData {
@@ -79,11 +81,11 @@ type CreateRootElementParams = {
  */
 export class CreateProcessogramUseCase {
   private svgElementService: ProcessogramService;
-  private svgDataService: SvgDataService;
+  private dataService: ProcessogramDataService;
 
   constructor() {
     this.svgElementService = new ProcessogramService();
-    this.svgDataService = new SvgDataService();
+    this.dataService = new ProcessogramDataService();
   }
 
   /**
@@ -96,6 +98,55 @@ export class CreateProcessogramUseCase {
       params
     );
     return String(rootElement._id);
+  }
+
+  /**
+   * Process SVG files
+   * @param file_light - The light mode SVG file
+   * @param file_dark - The dark mode SVG file
+   * @returns String preprocesseds SVG files as string
+   */
+  async preProcessSvgFileAndGetElementsData(params: {
+    file_light: File | null | undefined;
+    file_dark: File | null | undefined;
+  }): Promise<{
+    svgLightContent: string;
+    svgDarkContent: string;
+    elements: RasterizedElement[];
+    svgData: any;
+  }> {
+    const { file_light, file_dark } = params;
+
+    const svgContentLight = file_light
+      ? file_light.buffer.toString("utf-8")
+      : "";
+
+    const optimizedSvgContentLight = file_light
+      ? this.optimizeSvg(svgContentLight, file_light.originalname)
+      : "";
+
+    const svgContentDark = file_dark ? file_dark.buffer.toString("utf-8") : "";
+
+    const optimizedSvgContentDark = file_dark
+      ? this.optimizeSvg(svgContentDark, file_dark.originalname)
+      : optimizedSvgContentLight;
+
+    const { elements, svgData } = await this.extractSvgElements(
+      optimizedSvgContentLight || optimizedSvgContentDark
+    );
+
+    if (elements.length === 0) {
+      throw new Error(
+        "SVG file uploaded successfully, but no elements were found to process"
+      );
+    }
+
+    return {
+      svgLightContent: optimizedSvgContentLight,
+      svgDarkContent: optimizedSvgContentDark,
+      elements: elements,
+      svgData: svgData,
+    };
   }
 
   /**
@@ -118,37 +169,18 @@ export class CreateProcessogramUseCase {
       this.validateFile(file_dark);
     }
 
-    const svgContentLight = file_light
-      ? file_light.buffer.toString("utf-8")
-      : "";
-
-    const optimizedSvgContentLight = file_light
-      ? this.optimizeSvg(svgContentLight, file_light.originalname)
-      : "";
-
-    const svgContentDark = file_dark ? file_dark.buffer.toString("utf-8") : "";
-
-    const optimizedSvgContentDark = file_dark
-      ? this.optimizeSvg(svgContentDark, file_dark.originalname)
-      : optimizedSvgContentLight;
-
-    const { elements, svgData } = await this.extractSvgElements(
-      optimizedSvgContentLight || optimizedSvgContentDark
-    );
-
-    if (elements.length === 0) {
-      return {
-        message:
-          "SVG file uploaded successfully, but no elements were found to process",
-      };
-    }
+    const { svgLightContent, svgDarkContent, elements, svgData } =
+      await this.preProcessSvgFileAndGetElementsData({
+        file_light: file_light,
+        file_dark: file_dark,
+      });
 
     const rootElement = await this.createRootElement({
       elementId: params._id,
       elements: elements,
-      svgDarkContent: optimizedSvgContentDark,
+      svgDarkContent,
       darkFilename: file_dark?.originalname ?? "",
-      svgLightContent: optimizedSvgContentLight,
+      svgLightContent,
       lightFilename: file_light?.originalname ?? "",
       svgData: svgData,
     });
@@ -338,7 +370,7 @@ export class CreateProcessogramUseCase {
         await this.generateElementDescription(svgData.svgName, element);
 
       if (processogramElementDescription) {
-        await this.svgDataService.createOrUpdateSvgData({
+        await this.dataService.createOrUpdateSvgData({
           production_system_name: svgData.svgName,
           processogram_id: rootElementId,
           specie_id: specie_id,
@@ -368,7 +400,7 @@ export class CreateProcessogramUseCase {
       );
 
       if (processogramElementQuestion) {
-        await this.svgDataService.createOrUpdateSvgQuestions({
+        await this.dataService.createOrUpdateSvgQuestions({
           production_system_name: svgData.svgName,
           processogram_id: rootElementId,
           specie_id: specie_id,

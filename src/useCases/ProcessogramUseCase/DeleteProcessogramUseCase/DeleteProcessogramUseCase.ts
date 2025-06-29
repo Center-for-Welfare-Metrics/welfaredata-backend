@@ -34,17 +34,9 @@ export class DeleteProcessogramUseCase {
       // Delete the processogram itself
       await ProcessogramModel.findByIdAndDelete(id);
 
-      // Delete all child processograms if this is a root element
-      let deletedChildren = { deletedCount: 0 };
-      if (existingProcessogram.element_type === "root") {
-        deletedChildren = await ProcessogramModel.deleteMany({
-          root_id: new mongoose.Types.ObjectId(id),
-        });
-      }
-
       return {
         success: true,
-        message: `Processogram and all related data deleted successfully. Removed: ${deletedProcessogramData.deletedCount} processogram data entries, ${deletedProcessogramQuestions.deletedCount} processogram questions, and ${deletedChildren.deletedCount} child processograms.`,
+        message: `Processogram and all related data deleted successfully. Removed: ${deletedProcessogramData.deletedCount} processogram data entries, ${deletedProcessogramQuestions.deletedCount} processogram questions.`,
       };
     } catch (error: any) {
       console.error("Error deleting processogram:", error);
