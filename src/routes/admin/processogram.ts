@@ -46,6 +46,10 @@ router.get("/:id", listProcessogramController.getById);
 // Update processogram route
 router.patch(
   "/:id",
+  upload.fields([
+    { name: "file_light", maxCount: 1 },
+    { name: "file_dark", maxCount: 1 },
+  ]),
   updateProcessogramValidator(),
   validate,
   UpdateProcessogramController.update

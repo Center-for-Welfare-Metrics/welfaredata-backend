@@ -70,6 +70,16 @@ interface CreateRootElementParams {
   levelName: string;
 }
 
+interface UpdateElementParams {
+  _id: string;
+
+  fileNameLight: string;
+  fileNameDark: string;
+
+  svgLightString: string;
+  svgDarkString: string;
+}
+
 /**
  * Parameters for creating a child SVG element
  */
@@ -124,7 +134,6 @@ export class ProcessogramService {
   ): Promise<mongoose.Document> {
     try {
       const rootElement = new ProcessogramModel({
-        element_type: this.ELEMENT_TYPES.ROOT,
         name: params.name,
         specie_id: params.specie_id,
         production_module_id: params.production_module_id,
@@ -201,6 +210,59 @@ export class ProcessogramService {
       console.error("Error creating root element:", error);
       throw new Error(
         `Failed to create root element: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+
+  /**
+   * Update element svg metadata for light and dark
+   * @param params - Parameters for updating the element
+   */
+
+  async updateElementSvgMetadata(params: UpdateElementParams): Promise<void> {
+    try {
+      const svgDarkSource = await this.uploadSvgFile(
+        params.fileNameDark,
+        params.svgDarkString
+      );
+
+      const svgLightSource = await this.uploadSvgFile(
+        params.fileNameLight,
+        params.svgLightString
+      );
+
+      const updateBody: {
+        svg_url_light?: string;
+        final_size_light?: number;
+        svg_url_dark?: string;
+        final_size_dark?: number;
+      } = {};
+
+      if (svgLightSource.location) {
+        updateBody.svg_url_light = svgLightSource.location;
+        updateBody.final_size_light = svgLightSource.fileSize;
+      }
+
+      if (svgDarkSource.location) {
+        updateBody.svg_url_dark = svgDarkSource.location;
+        updateBody.final_size_dark = svgDarkSource.fileSize;
+      }
+
+      const updatedElement = await ProcessogramModel.findByIdAndUpdate(
+        params._id,
+        updateBody,
+        { new: true }
+      );
+
+      if (!updatedElement) {
+        throw new Error(`Could not find element with ID: ${params._id}`);
+      }
+    } catch (error) {
+      console.error("Error updating element SVG metadata:", error);
+      throw new Error(
+        `Failed to update element SVG metadata: ${
           error instanceof Error ? error.message : String(error)
         }`
       );

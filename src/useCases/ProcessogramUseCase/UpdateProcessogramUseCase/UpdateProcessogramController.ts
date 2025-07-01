@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { UpdateProcessogramUseCase } from "./UpdateProcessogramUseCase";
+import { getLightAndDarkFiles } from "../utils";
 
 type RequestParams = {
   id: string;
@@ -25,13 +26,18 @@ class UpdateProcessogramController {
         is_published,
       } = req.body;
 
-      if (
+      const { file_dark, file_light } = getLightAndDarkFiles(req);
+
+      const doNotHasBodyValues =
         !specie_id &&
         !production_module_id &&
         !name &&
         description === undefined &&
-        is_published === undefined
-      ) {
+        is_published === undefined;
+
+      const doNotHasFiles = !file_dark && !file_light;
+
+      if (doNotHasBodyValues && doNotHasFiles) {
         return res.status(400).json({
           error:
             "At least one field (specie_id, production_module_id, theme, name, or description) must be provided for update",
@@ -40,14 +46,26 @@ class UpdateProcessogramController {
 
       const updateProcessogramUseCase = new UpdateProcessogramUseCase();
 
-      const result = await updateProcessogramUseCase.execute({
-        id,
-        specie_id,
-        production_module_id,
-        name,
-        description,
-        is_published,
-      });
+      let result = null;
+
+      if (!doNotHasBodyValues) {
+        result = await updateProcessogramUseCase.executeUpdate({
+          id,
+          specie_id,
+          production_module_id,
+          name,
+          description,
+          is_published,
+        });
+      }
+
+      if (!doNotHasFiles) {
+        await updateProcessogramUseCase.replaceSvgFiles(
+          file_light,
+          file_dark,
+          id
+        );
+      }
 
       return res.status(200).json(result);
     } catch (error: any) {

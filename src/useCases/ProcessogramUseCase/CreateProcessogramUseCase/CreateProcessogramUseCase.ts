@@ -80,7 +80,7 @@ type CreateRootElementParams = {
  * Service responsible for handling SVG upload and processing
  */
 export class CreateProcessogramUseCase {
-  private svgElementService: ProcessogramService;
+  svgElementService: ProcessogramService;
   private dataService: ProcessogramDataService;
 
   constructor() {
@@ -212,7 +212,7 @@ export class CreateProcessogramUseCase {
    * @param file - The file to validate
    * @throws Error if the file is not a valid SVG
    */
-  private validateFile(file: File): void {
+  validateFile(file: File): void {
     if (file.mimetype !== "image/svg+xml") {
       throw new Error("File must be an SVG");
     }
@@ -224,7 +224,7 @@ export class CreateProcessogramUseCase {
    * @param filename - Original filename of the SVG
    * @returns Optimized SVG content
    */
-  private optimizeSvg(svgContent: string, filename: string): string {
+  optimizeSvg(svgContent: string, filename: string): string {
     const result = optimize(svgContent, {
       path: filename,
       floatPrecision: 2,

@@ -4,6 +4,7 @@ import FormData from "form-data";
 import { Request, Response } from "express";
 import { CreateProcessogramUseCase } from "./CreateProcessogramUseCase";
 import { ProcessogramModel } from "@/src/models/Processogram";
+import { getLightAndDarkFiles } from "../utils";
 
 type WorkerReqBody = {
   specie_id: string;
@@ -17,35 +18,7 @@ export const execSvgUpload = async (
 ) => {
   const { specie_id, rootElementId, path } = req.body;
 
-  let file_light;
-  if (
-    req.files &&
-    typeof req.files === "object" &&
-    "file_light" in req.files &&
-    Array.isArray(
-      (req.files as { [fieldname: string]: Express.Multer.File[] })[
-        "file_light"
-      ]
-    )
-  ) {
-    file_light = (req.files as { [fieldname: string]: Express.Multer.File[] })[
-      "file_light"
-    ][0];
-  }
-
-  let file_dark;
-  if (
-    req.files &&
-    typeof req.files === "object" &&
-    "file_dark" in req.files &&
-    Array.isArray(
-      (req.files as { [fieldname: string]: Express.Multer.File[] })["file_dark"]
-    )
-  ) {
-    file_dark = (req.files as { [fieldname: string]: Express.Multer.File[] })[
-      "file_dark"
-    ][0];
-  }
+  const { file_light, file_dark } = getLightAndDarkFiles(req);
 
   if (!file_light && !file_dark) {
     console.log("No file uploaded");
@@ -95,53 +68,16 @@ type ReqBody = {
   production_module_id: string;
   name: string;
   path: string;
-  theme: "light" | "dark";
   is_published?: string;
 };
 
 class UploadSvgController {
   async upload(req: Request<{}, {}, ReqBody>, res: Response) {
     try {
-      const {
-        path,
-        specie_id,
-        name,
-        production_module_id,
-        theme,
-        is_published,
-      } = req.body;
+      const { path, specie_id, name, production_module_id, is_published } =
+        req.body;
 
-      let file_light;
-      if (
-        req.files &&
-        typeof req.files === "object" &&
-        "file_light" in req.files &&
-        Array.isArray(
-          (req.files as { [fieldname: string]: Express.Multer.File[] })[
-            "file_light"
-          ]
-        )
-      ) {
-        file_light = (
-          req.files as { [fieldname: string]: Express.Multer.File[] }
-        )["file_light"][0];
-      }
-
-      let file_dark;
-      if (
-        req.files &&
-        typeof req.files === "object" &&
-        "file_dark" in req.files &&
-        Array.isArray(
-          (req.files as { [fieldname: string]: Express.Multer.File[] })[
-            "file_dark"
-          ]
-        )
-      ) {
-        file_dark = (
-          req.files as { [fieldname: string]: Express.Multer.File[] }
-        )["file_dark"][0];
-      }
+      const { file_dark, file_light } = getLightAndDarkFiles(req);
 
       if (!file_light && !file_dark) {
         console.log("No file uploaded");
