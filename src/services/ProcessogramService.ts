@@ -76,6 +76,9 @@ interface UpdateElementParams {
   fileNameLight: string;
   fileNameDark: string;
 
+  originalSizeLight: number | undefined;
+  originalSizeDark: number | undefined;
+
   svgLightString: string;
   svgDarkString: string;
 }
@@ -238,16 +241,24 @@ export class ProcessogramService {
         final_size_light?: number;
         svg_url_dark?: string;
         final_size_dark?: number;
+        original_name_light?: string;
+        original_name_dark?: string;
+        original_size_light?: number | undefined;
+        original_size_dark?: number | undefined;
       } = {};
 
       if (svgLightSource.location) {
         updateBody.svg_url_light = svgLightSource.location;
         updateBody.final_size_light = svgLightSource.fileSize;
+        updateBody.original_name_light = params.fileNameLight;
+        updateBody.original_size_light = params.originalSizeLight;
       }
 
       if (svgDarkSource.location) {
         updateBody.svg_url_dark = svgDarkSource.location;
         updateBody.final_size_dark = svgDarkSource.fileSize;
+        updateBody.original_name_dark = params.fileNameDark;
+        updateBody.original_size_dark = params.originalSizeDark;
       }
 
       const updatedElement = await ProcessogramModel.findByIdAndUpdate(

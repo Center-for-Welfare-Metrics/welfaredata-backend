@@ -1,14 +1,14 @@
 import express from "express";
 import { listProcessogramDataController } from "@/src/useCases/ProcessogramDataUseCase/ListProcessogramDataUseCase/ListProcessogramDataController";
-
-const router = express.Router();
-
+import { listProcessogramQuestionController } from "@/src/useCases/ProcessogramDataUseCase/ListProcessogramQuestionUseCase/ListProcessogramQuestionController";
 import {
   getPublicProcessogramValidator,
   getPublicProcessogramController,
 } from "@/src/useCases/ProcessogramUseCase/GetPublicProcessogramUseCase/GetPublicProcessogramController";
 import { validate } from "@/src/utils/validate";
 import ListSpecieController from "@/src/useCases/SpecieUseCase/ListSpecieUseCase/ListSpecieController";
+
+const router = express.Router();
 
 router.get(
   "/",
@@ -22,6 +22,13 @@ router.get(
   getPublicProcessogramValidator(),
   validate,
   listProcessogramDataController.list
+);
+
+router.get(
+  "/questions",
+  getPublicProcessogramValidator(),
+  validate,
+  listProcessogramQuestionController.list
 );
 
 router.get("/species/pathname/:pathname", ListSpecieController.getByPathname);

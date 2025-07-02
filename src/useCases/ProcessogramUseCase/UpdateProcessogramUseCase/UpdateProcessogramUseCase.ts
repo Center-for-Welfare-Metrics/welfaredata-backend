@@ -115,6 +115,8 @@ export class UpdateProcessogramUseCase extends CreateProcessogramUseCase {
       fileNameDark: file_dark?.originalname ?? "",
       svgLightString: optimizedSvgContentLight,
       svgDarkString: optimizedSvgContentDark,
+      originalSizeDark: file_dark?.size,
+      originalSizeLight: file_light?.size,
     });
   }
 }
