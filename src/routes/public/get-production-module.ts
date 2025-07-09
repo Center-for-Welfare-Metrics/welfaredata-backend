@@ -3,9 +3,6 @@ import { Router } from "express";
 
 const router = Router();
 
-router.get(
-  "/production-modules/:id",
-  getPublicProductionModuleController.handle
-);
+router.get("/:pathname", getPublicProductionModuleController.handle);
 
 export default router;
