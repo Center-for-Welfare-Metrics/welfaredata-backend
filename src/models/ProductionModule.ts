@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { slugify } from "voca";
 
 export interface ProductionModuleType extends mongoose.Document {
   name: string;
@@ -31,6 +32,10 @@ const ProductionModuleSchema: Schema = new mongoose.Schema(
   }
 );
 
+ProductionModuleSchema.virtual("slug").get(function () {
+  return slugify(this.name);
+});
+
 ProductionModuleSchema.virtual("processogramsCount", {
   ref: "Processogram",
   localField: "_id",
@@ -46,6 +51,8 @@ ProductionModuleSchema.virtual("processograms", {
 
 // Create indexes for faster lookups
 ProductionModuleSchema.index({ specie_id: 1 });
+
+ProductionModuleSchema.index({ name: 1, specie_id: 1 }, { unique: true });
 
 export default mongoose.model<ProductionModuleType>(
   "ProductionModule",
