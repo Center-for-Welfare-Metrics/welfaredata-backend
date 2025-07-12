@@ -70,6 +70,11 @@ const ProcessogramSchema: Schema = new mongoose.Schema(
       required: false,
     },
 
+    errorContext: {
+      type: Object,
+      required: false,
+    },
+
     name: { type: String, required: true },
     levelName: { type: String, required: false },
     normalized_name: { type: String, required: false },

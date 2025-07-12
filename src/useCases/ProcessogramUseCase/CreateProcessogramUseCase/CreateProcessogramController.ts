@@ -33,7 +33,7 @@ export const execSvgUpload = async (
       _id: rootElementId,
     });
 
-    const clientBaseUrl = process.env.CLIENT_DOMAIN;
+    // const clientBaseUrl = process.env.CLIENT_DOMAIN;
 
     // const revalidateUrl = `${clientBaseUrl}/api/revalidate?specie=${path}&secret=${process.env.REVALIDATION_SECRET}`;
 
@@ -53,6 +53,7 @@ export const execSvgUpload = async (
       {
         status: "error",
         errorMessage: error instanceof Error ? error.message : String(error),
+        errorContext: error,
       },
       { new: true }
     );
