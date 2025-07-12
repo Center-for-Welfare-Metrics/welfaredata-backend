@@ -8,19 +8,32 @@ export const getPublicProcessogramValidator = () => [
     .withMessage("Specie is required")
     .isString()
     .withMessage("Specie must be a string"),
+  query("productionModule")
+    .notEmpty()
+    .withMessage("Production module is required")
+    .isString()
+    .withMessage("Production module must be a string"),
 ];
 
+type RequestParams = {
+  specie: string;
+  productionModule: string;
+};
+
 class GetProcessogramController {
-  async list(req: Request, res: Response) {
+  async list(req: Request<any, any, any, RequestParams>, res: Response) {
     try {
-      const { specie } = req.query;
+      const { specie, productionModule } = req.query;
 
       if (!specie || typeof specie !== "string") {
         return res.status(400).json({ error: "Specie parameter is required" });
       }
 
-      const getElementUseCase = new GetProcessogramUseCase();
-      const elements = await getElementUseCase.execute({ specie });
+      const getProcessogramsUseCase = new GetProcessogramUseCase();
+      const elements = await getProcessogramsUseCase.execute({
+        specie,
+        productionModule,
+      });
 
       return res.status(200).json(elements);
     } catch (error: any) {

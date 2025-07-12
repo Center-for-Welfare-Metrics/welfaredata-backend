@@ -55,19 +55,19 @@ export class UpdateProcessogramUseCase extends CreateProcessogramUseCase {
         { new: true }
       );
 
-      if (is_published !== existingProcessogram.is_published) {
-        const clientBaseUrl = process.env.CLIENT_DOMAIN;
+      // if (is_published !== existingProcessogram.is_published) {
+      //   const clientBaseUrl = process.env.CLIENT_DOMAIN;
 
-        const specie = await SpecieModel.findById(specie_id);
+      //   const specie = await SpecieModel.findById(specie_id);
 
-        if (specie) {
-          const pathname = specie.pathname;
+      //   if (specie) {
+      //     const pathname = specie.pathname;
 
-          const revalidateUrl = `${clientBaseUrl}/api/revalidate?specie=${pathname}&secret=${process.env.REVALIDATION_SECRET}`;
+      //     const revalidateUrl = `${clientBaseUrl}/api/revalidate?specie=${pathname}&secret=${process.env.REVALIDATION_SECRET}`;
 
-          await axios.get(revalidateUrl);
-        }
-      }
+      //     await axios.get(revalidateUrl);
+      //   }
+      // }
 
       return updatedProcessogram;
     } catch (error: any) {

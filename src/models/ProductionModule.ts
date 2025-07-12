@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { slugify } from "voca";
+import slugify from "slugify";
 
 export interface ProductionModuleType extends mongoose.Document {
   name: string;
@@ -19,6 +19,7 @@ export interface ProductionModuleType extends mongoose.Document {
 const ProductionModuleSchema: Schema = new mongoose.Schema(
   {
     name: { type: String, required: true },
+    slug: { type: String, required: true },
     description: { type: String, required: false },
     specie_id: {
       type: mongoose.Schema.Types.ObjectId,
@@ -32,8 +33,19 @@ const ProductionModuleSchema: Schema = new mongoose.Schema(
   }
 );
 
-ProductionModuleSchema.virtual("slug").get(function () {
-  return slugify(this.name);
+ProductionModuleSchema.pre("validate", function (next) {
+  if (this.isModified("name") || this.isNew) {
+    this.slug = slugify(this.name).toLowerCase();
+  }
+  next();
+});
+
+ProductionModuleSchema.pre("findOneAndUpdate", function (next) {
+  const update = this.getUpdate() as any;
+  if (update && update.name) {
+    update.slug = slugify(update.name).toLowerCase();
+  }
+  next();
 });
 
 ProductionModuleSchema.virtual("processogramsCount", {
@@ -52,7 +64,7 @@ ProductionModuleSchema.virtual("processograms", {
 // Create indexes for faster lookups
 ProductionModuleSchema.index({ specie_id: 1 });
 
-ProductionModuleSchema.index({ name: 1, specie_id: 1 }, { unique: true });
+ProductionModuleSchema.index({ slug: 1, specie_id: 1 }, { unique: true });
 
 export default mongoose.model<ProductionModuleType>(
   "ProductionModule",
