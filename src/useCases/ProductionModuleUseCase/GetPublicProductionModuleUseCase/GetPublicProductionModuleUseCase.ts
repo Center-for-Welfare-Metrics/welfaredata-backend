@@ -67,8 +67,12 @@ export class GetPublicProductionModuleUseCase {
       throw new Error("Production module not found");
     }
 
-    const productionModulesWithUrls = productionModules.map(
+    const productionModulesWithUrls = productionModules.flatMap(
       (productionModule) => {
+        const processogramsCount = productionModule.processogramsCount ?? 0;
+
+        if (processogramsCount === 0) return [];
+
         const urls = productionModule.processograms?.flatMap(
           (processogram: any) => {
             const raster_images = processogram.raster_images;
@@ -83,11 +87,13 @@ export class GetPublicProductionModuleUseCase {
           }
         );
 
-        return {
-          ...productionModule,
-          processograms: undefined,
-          processograms_urls: urls,
-        };
+        return [
+          {
+            ...productionModule,
+            processograms: undefined,
+            processograms_urls: urls,
+          },
+        ];
       }
     );
 

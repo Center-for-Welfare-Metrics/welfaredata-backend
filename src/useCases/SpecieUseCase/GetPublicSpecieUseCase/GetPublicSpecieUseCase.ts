@@ -28,7 +28,11 @@ export class GetPublicSpecieUseCase {
       return null;
     }
 
-    const speciesWithUrls = species.map((specie) => {
+    const speciesWithUrls = species.flatMap((specie) => {
+      const processogramsCount = specie.processogramsCount ?? 0;
+
+      if (processogramsCount === 0) return [];
+
       const urls = specie.processograms?.flatMap((processogram: any) => {
         const raster_images = processogram.raster_images;
 
@@ -41,11 +45,13 @@ export class GetPublicSpecieUseCase {
         return [url];
       });
 
-      return {
-        ...specie,
-        processograms: undefined,
-        processograms_urls: urls,
-      };
+      return [
+        {
+          ...specie,
+          processograms: undefined,
+          processograms_urls: urls,
+        },
+      ];
     });
 
     return speciesWithUrls;
