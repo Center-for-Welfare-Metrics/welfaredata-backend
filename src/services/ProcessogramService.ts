@@ -431,4 +431,37 @@ export class ProcessogramService {
       );
     }
   }
+
+
+  /**
+   * Updates the description of a processogram element
+   * @param id - The ID of the processogram element to update
+   * @param description - The new description to set
+   * @returns The updated processogram document
+   */
+  async updateProcessogramDescription(
+    id: string,
+    description: string
+  ): Promise<mongoose.Document | null> {
+    try {
+      const updatedElement = await ProcessogramModel.findByIdAndUpdate(
+        id,
+        { description },
+        { new: true }
+      );
+
+      if (!updatedElement) {
+        throw new Error(`Could not find processogram with ID: ${id}`);
+      }
+
+      return updatedElement;
+    } catch (error) {
+      console.error("Error updating processogram description:", error);
+      throw new Error(
+        `Failed to update processogram description: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
 }

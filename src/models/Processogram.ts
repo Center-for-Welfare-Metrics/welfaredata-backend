@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import slugify from "slugify";
 
 export interface IProcessogram extends mongoose.Document {
   identifier: string; // The ID extracted from SVGElement
@@ -38,6 +39,8 @@ export interface IProcessogram extends mongoose.Document {
 const ProcessogramSchema: Schema = new mongoose.Schema(
   {
     identifier: { type: String, required: false },
+
+    slug: { type: String, required: true },
 
     specie_id: {
       type: mongoose.Schema.Types.ObjectId,
@@ -95,7 +98,27 @@ const ProcessogramSchema: Schema = new mongoose.Schema(
   }
 );
 
+ProcessogramSchema.pre("validate", function (next) {
+  if (this.isModified("name") || this.isNew) {
+    this.slug = slugify(this.name).toLowerCase();
+  }
+  next();
+});
+
+ProcessogramSchema.pre("findOneAndUpdate", function (next) {
+  const update = this.getUpdate() as any;
+  if (update && update.name) {
+    update.slug = slugify(update.name).toLowerCase();
+  }
+  next();
+});
+
 ProcessogramSchema.index({ specie_id: 1, element_type: 1, root_id: 1 });
+
+ProcessogramSchema.index(
+  { production_module_id: 1, slug: 1 },
+  { unique: true }
+);
 ProcessogramSchema.index({ production_module_id: 1 });
 
 export const ProcessogramModel = mongoose.model<IProcessogram>(

@@ -41,6 +41,14 @@ export class GetPublicProductionModuleUseCase {
           localField: "_id",
           foreignField: "production_module_id",
           as: "processograms",
+          pipeline: [
+            {
+              $match: {
+                status: "ready",
+                is_published: true,
+              },
+            },
+          ],
         },
       },
       {

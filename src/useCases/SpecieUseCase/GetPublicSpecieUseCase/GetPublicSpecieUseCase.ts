@@ -11,11 +11,15 @@ type LeanSpecie = LeanDocument<
 export class GetPublicSpecieUseCase {
   async execute(): Promise<LeanSpecie[] | null> {
     const species = await Specie.find()
-      .populate("processogramsCount")
       .populate("productionModulesCount")
+      .populate({
+        path: "processogramsCount",
+        match: { status: "ready", is_published: true },
+      })
       .populate({
         path: "processograms",
         select: "identifier raster_images",
+        match: { status: "ready", is_published: true },
       })
       .lean();
 
