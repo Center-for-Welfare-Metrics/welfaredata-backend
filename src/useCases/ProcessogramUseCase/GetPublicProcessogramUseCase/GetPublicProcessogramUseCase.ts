@@ -1,6 +1,8 @@
 import Specie from "@/src/models/Specie";
 import { IProcessogram, ProcessogramModel } from "@/src/models/Processogram";
 import ProductionModule from "@/src/models/ProductionModule";
+import { ProcessogramDataModel } from "@/src/models/ProcessogramData";
+import { getElementNameFromId } from "../CreateProcessogramUseCase/utils/extractInfoFromId";
 
 interface Params {
   specie: string;
@@ -32,17 +34,61 @@ export class GetProcessogramUseCase {
 
     const productionModuleId = productionModule._id;
 
-    const rootElements = await ProcessogramModel.find({
-      specie_id: specieId,
-      production_module_id: productionModuleId,
-      status: "ready",
-      is_published: true,
-    });
+    const rootElements = await ProcessogramModel.aggregate([
+      {
+        $match: {
+          specie_id: specieId,
+          production_module_id: productionModuleId,
+          status: "ready",
+          is_published: true,
+        },
+      },
+      {
+        $lookup: {
+          from: ProcessogramDataModel.collection.name,
+          localField: "_id",
+          foreignField: "processogram_id",
+          as: "processogramData",
+        },
+      },
+      {
+        $addFields: {
+          data: {
+            $arrayElemAt: ["$processogramData.data", 0],
+          },
+        },
+      },
+      {
+        $project: {
+          processogramData: 0,
+        },
+      },
+    ]);
 
     if (!rootElements || rootElements.length === 0) {
       return [];
     }
 
-    return rootElements;
+    const processogramsWithDataDescription = rootElements.flatMap((element) => {
+      const identifier = element.identifier;
+      if (!identifier) return [];
+
+      const realId = getElementNameFromId(identifier);
+
+      const dataEntry = element.data[realId];
+
+      const { data, ...elementWithoutData } = element;
+
+      if (!dataEntry) return [elementWithoutData];
+
+      return [
+        {
+          ...elementWithoutData,
+          dataDescription: dataEntry.description,
+        },
+      ];
+    });
+
+    return processogramsWithDataDescription;
   }
 }
