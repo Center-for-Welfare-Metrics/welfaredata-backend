@@ -201,8 +201,10 @@ export class ProcessogramService {
         {
           svg_url_light: svgLightSource.location,
           final_size_light: svgLightSource.fileSize,
+          svg_bucket_key_light: svgLightSource.Key,
           svg_url_dark: svgDarkSource.location,
           final_size_dark: svgDarkSource.fileSize,
+          svg_bucket_key_dark: svgDarkSource.Key,
           raster_images_dark: rasterImagesDarkObject,
           raster_images_light: rasterImagesLightObject,
           status: this.DEFAULT_STATUS.PROCESSING,
@@ -410,11 +412,13 @@ export class ProcessogramService {
   ): Promise<{
     location: string;
     fileSize: number;
+    Key: string;
   }> {
     if (!fileName || !svgString) {
       return {
         location: "",
         fileSize: 0,
+        Key: "",
       };
     }
 
@@ -432,7 +436,11 @@ export class ProcessogramService {
 
       const fileSize = svgBuffer.byteLength;
 
-      return { location: svgUploadResult.Location, fileSize };
+      return {
+        location: svgUploadResult.Location,
+        fileSize,
+        Key: svgUploadResult.Key,
+      };
     } catch (error) {
       console.error("Error uploading SVG file:", error);
       throw new Error(
