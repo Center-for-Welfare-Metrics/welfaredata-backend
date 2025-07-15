@@ -1,3 +1,4 @@
+import { deleteProcessogramById } from "@/src/implementations/mongoose/processograms/deleteProcessogramsAndImages";
 import { ProcessogramModel, IProcessogram } from "@/src/models/Processogram";
 import { ProcessogramDataModel } from "@/src/models/ProcessogramData";
 import { ProcessogramQuestionModel } from "@/src/models/ProcessogramQuestion";
@@ -32,7 +33,7 @@ export class DeleteProcessogramUseCase {
         });
 
       // Delete the processogram itself
-      await ProcessogramModel.findByIdAndDelete(id);
+      await deleteProcessogramById(id);
 
       return {
         success: true,

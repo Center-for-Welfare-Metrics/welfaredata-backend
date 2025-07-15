@@ -13,20 +13,40 @@ export interface IProcessogram extends mongoose.Document {
   description: string; // Will be populated later
 
   is_published: boolean; // Whether the processogram is published
-  raster_images: {
-    // Object where key is the ID of svgelement and value is S3 URL
-    [key: string]: string;
-  };
 
-  original_name_light: string;
   svg_url_light: string;
+  svg_bucket_key_light: string; // S3 bucket key for the light SVG
+  original_name_light: string;
   original_size_light: number; // Original size of the SVG in light
   final_size_light: number; // Final size of the SVG in light after processing
+  raster_images_light: {
+    // Object where key is the ID of svgelement and value is S3 URL
+    [key: string]: {
+      src: string;
+      bucket_key: string;
+      width: number;
+      height: number;
+      x: number;
+      y: number;
+    };
+  };
 
-  original_name_dark: string;
   svg_url_dark: string;
+  svg_bucket_key_dark: string; // S3 bucket key for the dark SVG
+  original_name_dark: string;
   original_size_dark: number; // Original size of the SVG in dark
   final_size_dark: number; // Final size of the SVG in dark after processing
+  raster_images_dark: {
+    // Object where key is the ID of svgelement and value is S3 URL
+    [key: string]: {
+      src: string;
+      bucket_key: string;
+      width: number;
+      height: number;
+      x: number;
+      y: number;
+    };
+  };
 
   status: "processing" | "ready" | "error" | "generating"; // Status of the SVG processing
   errorMessage?: string; // Error message if status is error
@@ -58,10 +78,6 @@ const ProcessogramSchema: Schema = new mongoose.Schema(
       default: false,
       required: false,
     },
-    raster_images: {
-      type: Object,
-      default: {},
-    },
 
     status: {
       type: String,
@@ -83,15 +99,25 @@ const ProcessogramSchema: Schema = new mongoose.Schema(
     normalized_name: { type: String, required: false },
     description: { type: String, required: false },
 
-    original_name_light: { type: String, required: false },
     svg_url_light: { type: String, required: false },
+    svg_bucket_key_light: { type: String, required: false },
+    original_name_light: { type: String, required: false },
     original_size_light: { type: Number, required: false },
     final_size_light: { type: Number, required: false },
+    raster_images_dark: {
+      type: Object,
+      default: {},
+    },
 
-    original_name_dark: { type: String, required: false },
     svg_url_dark: { type: String, required: false },
+    svg_bucket_key_dark: { type: String, required: false },
+    original_name_dark: { type: String, required: false },
     original_size_dark: { type: Number, required: false },
     final_size_dark: { type: Number, required: false },
+    raster_images_light: {
+      type: Object,
+      default: {},
+    },
   },
   {
     timestamps: true,

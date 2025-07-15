@@ -6,7 +6,11 @@ import {
 } from "@/src/services/ProcessogramService";
 import { ProcessogramDataService } from "@/src/services/ProcessogramDataService";
 import { removeBxAttributesPlugin } from "@/src/svgo/plugins/removeBxAttributesPlugin";
-import { rasterizeSvg, RasterizedElement } from "./utils/rasterizeSvg";
+import {
+  rasterizeSvg,
+  RasterizedElement,
+  SvgDataFromRasterize,
+} from "./utils/rasterizeSvg";
 import { generateProcessogramElementDescription } from "./utils/generateProcessogramElementDescription";
 import { getElementIdentifier } from "./utils/extractInfoFromId";
 import {
@@ -68,10 +72,11 @@ interface UploadResult {
 
 type CreateRootElementParams = {
   elementId: string;
-  elements: RasterizedElement[];
   svgDarkContent: string;
+  darkElements: RasterizedElement[];
   darkFilename: string;
   svgLightContent: string;
+  lightElements: RasterizedElement[];
   lightFilename: string;
   svgData: any;
 };
@@ -86,6 +91,66 @@ export class CreateProcessogramUseCase {
   constructor() {
     this.svgElementService = new ProcessogramService();
     this.dataService = new ProcessogramDataService();
+  }
+
+  /**
+   * Main execution function for processing and uploading an SVG file
+   * @param file_light - The SVG file to process
+   * @param file_dark - The dark mode SVG file to process
+   * @param params - Parameters for processing the file
+   * @returns Result of the upload operation
+   */
+  async execute(
+    file_light: File | null | undefined,
+    file_dark: File | null | undefined,
+    params: UploadParams
+  ): Promise<UploadResult> {
+    if (file_light) {
+      this.validateFile(file_light);
+    }
+
+    if (file_dark) {
+      this.validateFile(file_dark);
+    }
+
+    const {
+      svgLightContent,
+      svgDarkContent,
+      darkElements,
+      lightElements,
+      svgData,
+    } = await this.preProcessSvgFileAndGetElementsData({
+      file_light: file_light,
+      file_dark: file_dark,
+    });
+
+    const rootElement = await this.createRootElement({
+      elementId: params._id,
+      darkElements,
+      lightElements,
+      svgDarkContent,
+      darkFilename: file_dark?.originalname ?? "",
+      svgLightContent,
+      lightFilename: file_light?.originalname ?? "",
+      svgData: svgData,
+    });
+
+    this.updateSvgElementStatusToGenerating(rootElement._id);
+
+    const elements = darkElements.length === 0 ? lightElements : darkElements;
+
+    await this.processAndStoreSvgData(
+      elements,
+      svgData,
+      rootElement._id,
+      params.specie_id
+    );
+
+    return {
+      message: "SVG file uploaded successfully",
+      rootElementId: rootElement._id,
+      elementsProcessed: elements.length,
+    };
   }
 
   /**
@@ -112,7 +177,8 @@ export class CreateProcessogramUseCase {
   }): Promise<{
     svgLightContent: string;
     svgDarkContent: string;
-    elements: RasterizedElement[];
+    darkElements: RasterizedElement[];
+    lightElements: RasterizedElement[];
     svgData: any;
   }> {
     const { file_light, file_dark } = params;
@@ -131,73 +197,30 @@ export class CreateProcessogramUseCase {
       ? this.optimizeSvg(svgContentDark, file_dark.originalname)
       : optimizedSvgContentLight;
 
-    const { elements, svgData } = await this.extractSvgElements(
-      optimizedSvgContentLight || optimizedSvgContentDark
-    );
+    const { elements: darkElements, svgData: darkSvgData } =
+      await this.extractSvgElements(
+        optimizedSvgContentLight || optimizedSvgContentDark
+      );
 
-    if (elements.length === 0) {
+    const { elements: lightElements, svgData: lightSvgData } =
+      await this.extractSvgElements(
+        optimizedSvgContentDark || optimizedSvgContentLight
+      );
+
+    if (darkElements.length === 0 || lightElements.length === 0) {
       throw new Error(
         "SVG file uploaded successfully, but no elements were found to process"
       );
     }
 
+    const svgData = darkSvgData || lightSvgData;
+
     return {
       svgLightContent: optimizedSvgContentLight,
       svgDarkContent: optimizedSvgContentDark,
-      elements: elements,
+      darkElements: darkElements,
+      lightElements: lightElements,
       svgData: svgData,
-    };
-  }
-
-  /**
-   * Main execution function for processing and uploading an SVG file
-   * @param file_light - The SVG file to process
-   * @param file_dark - The dark mode SVG file to process
-   * @param params - Parameters for processing the file
-   * @returns Result of the upload operation
-   */
-  async execute(
-    file_light: File | null | undefined,
-    file_dark: File | null | undefined,
-    params: UploadParams
-  ): Promise<UploadResult> {
-    if (file_light) {
-      this.validateFile(file_light);
-    }
-
-    if (file_dark) {
-      this.validateFile(file_dark);
-    }
-
-    const { svgLightContent, svgDarkContent, elements, svgData } =
-      await this.preProcessSvgFileAndGetElementsData({
-        file_light: file_light,
-        file_dark: file_dark,
-      });
-
-    const rootElement = await this.createRootElement({
-      elementId: params._id,
-      elements: elements,
-      svgDarkContent,
-      darkFilename: file_dark?.originalname ?? "",
-      svgLightContent,
-      lightFilename: file_light?.originalname ?? "",
-      svgData: svgData,
-    });
-
-    this.updateSvgElementStatusToGenerating(rootElement._id);
-
-    await this.processAndStoreSvgData(
-      elements,
-      svgData,
-      rootElement._id,
-      params.specie_id
-    );
-
-    return {
-      message: "SVG file uploaded successfully",
-      rootElementId: rootElement._id,
-      elementsProcessed: elements.length,
     };
   }
 
@@ -260,7 +283,7 @@ export class CreateProcessogramUseCase {
    */
   private async extractSvgElements(svgContent: string): Promise<{
     elements: RasterizedElement[];
-    svgData: any;
+    svgData: SvgDataFromRasterize | null;
   }> {
     const { elements, svgData } = await rasterizeSvg(svgContent, '[id*="--"]');
 
@@ -308,18 +331,21 @@ export class CreateProcessogramUseCase {
 
   private async createRootElement({
     elementId,
-    elements,
     svgData,
     svgDarkContent,
+    darkElements,
     darkFilename,
     svgLightContent,
+    lightElements,
     lightFilename,
   }: CreateRootElementParams): Promise<any> {
-    const rasterDataUrls = this.createRasterDataMap(elements);
+    const rasterDataUrlsDark = this.createRasterDataMap(darkElements);
+    const rasterDataUrlsLight = this.createRasterDataMap(lightElements);
 
     const rootElement = await this.svgElementService.createRootElement({
       _id: elementId,
-      rasterImages: rasterDataUrls,
+      rasterImagesDark: rasterDataUrlsDark,
+      rasterImagesLight: rasterDataUrlsLight,
       svgLightString: svgLightContent,
       fileNameLight: lightFilename,
       svgDarkString: svgDarkContent,

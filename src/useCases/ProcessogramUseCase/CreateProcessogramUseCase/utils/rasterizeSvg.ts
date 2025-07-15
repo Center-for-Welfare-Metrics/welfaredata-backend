@@ -32,7 +32,7 @@ export type RasterizedElement = {
   hierarchy: RasterizedElementHierarchy[];
 };
 
-type SvgData = {
+export type SvgDataFromRasterize = {
   svgName: string;
   svgLevelName: string;
   svgId: string;
@@ -40,7 +40,7 @@ type SvgData = {
 
 type RasterizedData = {
   elements: RasterizedElement[];
-  svgData: SvgData | null;
+  svgData: SvgDataFromRasterize | null;
 };
 
 /**

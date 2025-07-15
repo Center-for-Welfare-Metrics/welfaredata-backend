@@ -3,6 +3,7 @@ import { ProcessogramModel } from "@/models/Processogram";
 import { ProcessogramDataModel } from "@/models/ProcessogramData";
 import { ProcessogramQuestionModel } from "@/models/ProcessogramQuestion";
 import mongoose from "mongoose";
+import { deleteMultipleProcessograms } from "@/src/implementations/mongoose/processograms/deleteProcessogramsAndImages";
 
 interface DeleteProductionModuleParams {
   id: string;
@@ -36,15 +37,13 @@ export class DeleteProductionModuleUseCase {
           processogram_id: { $in: processogramIds },
         });
 
-      const deletedProcessograms = await ProcessogramModel.deleteMany({
-        production_module_id: new mongoose.Types.ObjectId(id),
-      });
+      const { results } = await deleteMultipleProcessograms(processogramIds);
 
       await ProductionModuleModel.findByIdAndDelete(id);
 
       return {
         success: true,
-        message: `Production module and all related data deleted successfully. Removed: ${deletedProcessogramData.deletedCount} processogram data entries, ${deletedProcessogramQuestions.deletedCount} processogram questions, and ${deletedProcessograms.deletedCount} processograms.`,
+        message: `Production module and all related data deleted successfully. Removed: ${deletedProcessogramData.deletedCount} processogram data entries, ${deletedProcessogramQuestions.deletedCount} processogram questions, and ${results.length} processograms.`,
       };
     } catch (error: any) {
       console.error("Error deleting production module:", error);

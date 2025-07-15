@@ -40,6 +40,8 @@ export interface RasterizedData {
 interface RasterizedElement {
   /** Source URL where the element is stored */
   src: string;
+  /** S3 bucket key for the element */
+  bucket_key: string;
   /** Width of the element in pixels */
   width: number;
   /** Height of the element in pixels */
@@ -62,7 +64,8 @@ interface CreateRootElementParams {
   fileNameLight: string;
   fileNameDark: string;
   /** Map of element IDs to their rasterized data */
-  rasterImages: Map<string, RasterizedData>;
+  rasterImagesDark: Map<string, RasterizedData>;
+  rasterImagesLight: Map<string, RasterizedData>;
   /** SVG content as a string */
   svgLightString: string;
   svgDarkString: string;
@@ -172,9 +175,14 @@ export class ProcessogramService {
     params: CreateRootElementParams
   ): Promise<mongoose.Document> {
     try {
-      const rasterUrls = await this.processAndUploadRasterImages(
-        params.rasterImages
+      const rasterUrlsDark = await this.processAndUploadRasterImages(
+        params.rasterImagesDark
       );
+
+      const rasterUrlsLight = await this.processAndUploadRasterImages(
+        params.rasterImagesLight
+      );
+
       const svgDarkSource = await this.uploadSvgFile(
         params.fileNameDark,
         params.svgDarkString
@@ -185,7 +193,8 @@ export class ProcessogramService {
         params.svgLightString
       );
 
-      const rasterImagesObject = Object.fromEntries(rasterUrls);
+      const rasterImagesDarkObject = Object.fromEntries(rasterUrlsDark);
+      const rasterImagesLightObject = Object.fromEntries(rasterUrlsLight);
 
       const savedElement = await ProcessogramModel.findByIdAndUpdate(
         params._id,
@@ -194,7 +203,8 @@ export class ProcessogramService {
           final_size_light: svgLightSource.fileSize,
           svg_url_dark: svgDarkSource.location,
           final_size_dark: svgDarkSource.fileSize,
-          raster_images: rasterImagesObject,
+          raster_images_dark: rasterImagesDarkObject,
+          raster_images_light: rasterImagesLightObject,
           status: this.DEFAULT_STATUS.PROCESSING,
           identifier: params.id,
           levelName: params.levelName,
@@ -375,6 +385,7 @@ export class ProcessogramService {
         height: data.height,
         x: data.x,
         y: data.y,
+        bucket_key: uploadResult.Key,
       };
     } catch (error) {
       console.error(`Error uploading raster image ${key}:`, error);
@@ -431,7 +442,6 @@ export class ProcessogramService {
       );
     }
   }
-
 
   /**
    * Updates the description of a processogram element
