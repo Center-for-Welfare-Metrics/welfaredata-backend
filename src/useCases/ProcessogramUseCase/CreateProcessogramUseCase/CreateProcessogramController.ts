@@ -8,7 +8,6 @@ import { getLightAndDarkFiles } from "../utils";
 
 type WorkerReqBody = {
   specie_id: string;
-  path: string;
   rootElementId: string;
 };
 
@@ -16,7 +15,7 @@ export const execSvgUpload = async (
   req: Request<{}, {}, WorkerReqBody>,
   res: Response
 ) => {
-  const { specie_id, rootElementId, path } = req.body;
+  const { specie_id, rootElementId } = req.body;
 
   const { file_light, file_dark } = getLightAndDarkFiles(req);
 

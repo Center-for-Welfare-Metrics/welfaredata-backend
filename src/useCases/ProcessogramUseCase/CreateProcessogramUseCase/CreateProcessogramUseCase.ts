@@ -203,7 +203,7 @@ export class CreateProcessogramUseCase {
     const { elements: lightElements, svgData: lightSvgData } =
       await this.extractSvgElements(optimizedSvgContentLight);
 
-    if (darkElements.length === 0 || lightElements.length === 0) {
+    if (darkElements.length === 0 && lightElements.length === 0) {
       throw new Error(
         "SVG file uploaded successfully, but no elements were found to process"
       );
@@ -281,6 +281,13 @@ export class CreateProcessogramUseCase {
     elements: RasterizedElement[];
     svgData: SvgDataFromRasterize | null;
   }> {
+    if (!svgContent) {
+      return {
+        elements: [],
+        svgData: null,
+      };
+    }
+
     const { elements, svgData } = await rasterizeSvg(svgContent, '[id*="--"]');
 
     if (!svgData) {
