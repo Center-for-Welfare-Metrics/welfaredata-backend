@@ -1,6 +1,11 @@
 import { ProcessogramModel } from "@/src/models/Processogram";
 import { upload } from "@/src/storage/storage";
 import mongoose from "mongoose";
+import { CreateProcessogramUseCase } from "../useCases/ProcessogramUseCase/CreateProcessogramUseCase/CreateProcessogramUseCase";
+import {
+  deleteFromS3,
+  deleteProcessogramRasterImages,
+} from "../implementations/mongoose/processograms/deleteProcessogramsAndImages";
 
 /**
  * Data structure for SVG element information
@@ -73,17 +78,18 @@ interface CreateRootElementParams {
   levelName: string;
 }
 
+interface File {
+  buffer: Buffer;
+  originalname: string;
+  mimetype: string;
+  size: number;
+}
+
 interface UpdateElementParams {
   _id: string;
 
-  fileNameLight: string;
-  fileNameDark: string;
-
-  originalSizeLight: number | undefined;
-  originalSizeDark: number | undefined;
-
-  svgLightString: string;
-  svgDarkString: string;
+  file_light: File | null | undefined;
+  file_dark: File | null | undefined;
 }
 
 /**
@@ -237,40 +243,97 @@ export class ProcessogramService {
    */
 
   async updateElementSvgMetadata(params: UpdateElementParams): Promise<void> {
+    const { file_dark, file_light } = params;
+
     try {
+      const createProcessogramUseCase = new CreateProcessogramUseCase();
+
+      const { svgLightContent, svgDarkContent, darkElements, lightElements } =
+        await createProcessogramUseCase.preProcessSvgFileAndGetElementsData({
+          file_light: file_light,
+          file_dark: file_dark,
+        });
+
+      const fileDarkName = file_dark?.originalname ?? "";
+      const fileLightName = file_light?.originalname ?? "";
+
+      const fileDarkSize = file_dark?.size;
+      const fileLightSize = file_light?.size;
+
       const svgDarkSource = await this.uploadSvgFile(
-        params.fileNameDark,
-        params.svgDarkString
+        fileDarkName,
+        svgDarkContent
       );
 
       const svgLightSource = await this.uploadSvgFile(
-        params.fileNameLight,
-        params.svgLightString
+        fileLightName,
+        svgLightContent
       );
+
+      const processogram = await ProcessogramModel.findById(params._id);
 
       const updateBody: {
         svg_url_light?: string;
+        svg_bucket_key_light?: string;
         final_size_light?: number;
+        raster_images_light?: Record<string, RasterizedElement>;
         svg_url_dark?: string;
+        svg_bucket_key_dark?: string;
         final_size_dark?: number;
+        raster_images_dark?: Record<string, RasterizedElement>;
         original_name_light?: string;
         original_name_dark?: string;
         original_size_light?: number | undefined;
         original_size_dark?: number | undefined;
       } = {};
 
-      if (svgLightSource.location) {
-        updateBody.svg_url_light = svgLightSource.location;
-        updateBody.final_size_light = svgLightSource.fileSize;
-        updateBody.original_name_light = params.fileNameLight;
-        updateBody.original_size_light = params.originalSizeLight;
-      }
-
       if (svgDarkSource.location) {
+        const rasterDataUrlsDark =
+          createProcessogramUseCase.createRasterDataMap(darkElements);
+
+        const rasterUrlsDark = await this.processAndUploadRasterImages(
+          rasterDataUrlsDark
+        );
+
+        const rasterImagesDarkObject = Object.fromEntries(rasterUrlsDark);
+
         updateBody.svg_url_dark = svgDarkSource.location;
         updateBody.final_size_dark = svgDarkSource.fileSize;
-        updateBody.original_name_dark = params.fileNameDark;
-        updateBody.original_size_dark = params.originalSizeDark;
+        updateBody.svg_bucket_key_dark = svgDarkSource.Key;
+        updateBody.original_name_dark = fileDarkName;
+        updateBody.original_size_dark = fileDarkSize;
+        updateBody.raster_images_dark = rasterImagesDarkObject;
+
+        const currentDarkRasterImages = processogram?.raster_images_dark || {};
+        await deleteProcessogramRasterImages(currentDarkRasterImages);
+        if (processogram?.svg_bucket_key_dark) {
+          await deleteFromS3(processogram.svg_bucket_key_dark);
+        }
+      }
+
+      if (svgLightSource.location) {
+        const rasterDataUrlsLight =
+          createProcessogramUseCase.createRasterDataMap(lightElements);
+
+        const rasterUrlsLight = await this.processAndUploadRasterImages(
+          rasterDataUrlsLight
+        );
+
+        const rasterImagesLightObject = Object.fromEntries(rasterUrlsLight);
+
+        updateBody.svg_url_light = svgLightSource.location;
+        updateBody.final_size_light = svgLightSource.fileSize;
+        updateBody.svg_bucket_key_light = svgLightSource.Key;
+        updateBody.original_name_light = fileLightName;
+        updateBody.original_size_light = fileLightSize;
+        updateBody.raster_images_light = rasterImagesLightObject;
+
+        const currentLightRasterImages =
+          processogram?.raster_images_light || {};
+        await deleteProcessogramRasterImages(currentLightRasterImages);
+        if (processogram?.svg_bucket_key_light) {
+          await deleteFromS3(processogram.svg_bucket_key_light);
+        }
       }
 
       const updatedElement = await ProcessogramModel.findByIdAndUpdate(

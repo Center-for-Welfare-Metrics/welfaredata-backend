@@ -2,24 +2,18 @@ import AWS from "aws-sdk";
 import { ProcessogramModel, IProcessogram } from "../../../models/Processogram";
 
 // Configure AWS S3
-const s3 = new AWS.S3({
-  region: process.env.AWS_REGION,
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-});
-
-const BUCKET_NAME = process.env.S3_BUCKET_NAME || "";
+const s3 = new AWS.S3();
 
 /**
  * Helper function to delete an object from S3
  */
-async function deleteFromS3(bucketKey: string): Promise<void> {
+export async function deleteFromS3(bucketKey: string): Promise<void> {
   if (!bucketKey) return;
 
   try {
     await s3
       .deleteObject({
-        Bucket: BUCKET_NAME,
+        Bucket: process.env.AWS_BUCKET_NAME ?? "danger-zone",
         Key: bucketKey,
       })
       .promise();
@@ -27,6 +21,20 @@ async function deleteFromS3(bucketKey: string): Promise<void> {
   } catch (error) {
     console.error(`Failed to delete S3 object ${bucketKey}:`, error);
   }
+}
+
+export async function deleteProcessogramRasterImages(
+  rasterImages: Record<string, { bucket_key: string }>
+) {
+  const deletePromises: Promise<void>[] = [];
+
+  Object.values(rasterImages).forEach((image) => {
+    if (image.bucket_key) {
+      deletePromises.push(deleteFromS3(image.bucket_key));
+    }
+  });
+
+  await Promise.all(deletePromises);
 }
 
 /**

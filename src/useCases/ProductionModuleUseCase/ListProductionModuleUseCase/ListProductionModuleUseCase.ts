@@ -6,7 +6,8 @@ import mongoose, { LeanDocument } from "mongoose";
 type LeanProductionModule = LeanDocument<
   ProductionModuleType & {
     _id: string;
-    processograms_urls: string[] | undefined;
+    processograms_urls_dark: string[] | undefined;
+    processograms_urls_light: string[] | undefined;
   }
 >;
 
@@ -21,19 +22,33 @@ export class ListProductionModuleUseCase {
         .populate("processogramsCount")
         .populate({
           path: "processograms",
-          select: "identifier raster_images",
+          select: "identifier raster_images_dark raster_images_light",
         })
         .lean();
 
       const productionModulesWithUrls = productionModules.map(
         (productionModule) => {
-          const urls = productionModule.processograms?.flatMap(
+          const urlsDark = productionModule.processograms?.flatMap(
             (processogram: any) => {
-              const raster_images = processogram.raster_images;
+              const raster_images_dark = processogram.raster_images_dark;
 
-              if (!raster_images) return [];
+              if (!raster_images_dark) return [];
 
-              const url = raster_images[processogram.identifier].src;
+              const url = raster_images_dark[processogram.identifier]?.src;
+
+              if (!url) return [];
+
+              return [url];
+            }
+          );
+
+          const urlsLight = productionModule.processograms?.flatMap(
+            (processogram: any) => {
+              const raster_images_light = processogram.raster_images_light;
+
+              if (!raster_images_light) return [];
+
+              const url = raster_images_light[processogram.identifier]?.src;
 
               if (!url) return [];
 
@@ -43,7 +58,8 @@ export class ListProductionModuleUseCase {
 
           return {
             ...productionModule,
-            processograms_urls: urls,
+            processograms_urls_dark: urlsDark,
+            processograms_urls_light: urlsLight,
           };
         }
       );

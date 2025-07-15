@@ -4,7 +4,8 @@ import { LeanDocument } from "mongoose";
 type LeanSpecie = LeanDocument<
   SpecieType & {
     _id: string;
-    processograms_urls: string[] | undefined;
+    processograms_urls_dark: string[] | undefined;
+    processograms_urls_light: string[] | undefined;
   }
 >;
 
@@ -18,7 +19,7 @@ export class GetPublicSpecieUseCase {
       })
       .populate({
         path: "processograms",
-        select: "identifier raster_images",
+        select: "identifier raster_images_dark raster_images_light",
         match: { status: "ready", is_published: true },
       })
       .lean();
@@ -33,12 +34,24 @@ export class GetPublicSpecieUseCase {
 
       if (processogramsCount === 0) return [];
 
-      const urls = specie.processograms?.flatMap((processogram: any) => {
-        const raster_images = processogram.raster_images;
+      const urlsDark = specie.processograms?.flatMap((processogram: any) => {
+        const raster_images_dark = processogram.raster_images_dark;
 
-        if (!raster_images) return [];
+        if (!raster_images_dark) return [];
 
-        const url = raster_images[processogram.identifier].src;
+        const url = raster_images_dark[processogram.identifier]?.src;
+
+        if (!url) return [];
+
+        return [url];
+      });
+
+      const urlsLight = specie.processograms?.flatMap((processogram: any) => {
+        const raster_images_light = processogram.raster_images_light;
+
+        if (!raster_images_light) return [];
+
+        const url = raster_images_light[processogram.identifier]?.src;
 
         if (!url) return [];
 
@@ -49,7 +62,8 @@ export class GetPublicSpecieUseCase {
         {
           ...specie,
           processograms: undefined,
-          processograms_urls: urls,
+          processograms_urls_dark: urlsDark,
+          processograms_urls_light: urlsLight,
         },
       ];
     });

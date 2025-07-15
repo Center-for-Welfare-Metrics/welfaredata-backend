@@ -1,6 +1,5 @@
 import { ProcessogramModel, IProcessogram } from "@/src/models/Processogram";
-import SpecieModel from "@/src/models/Specie";
-import axios from "axios";
+
 import mongoose from "mongoose";
 import { CreateProcessogramUseCase } from "../CreateProcessogramUseCase/CreateProcessogramUseCase";
 interface File {
@@ -97,26 +96,10 @@ export class UpdateProcessogramUseCase extends CreateProcessogramUseCase {
       this.validateFile(file_dark);
     }
 
-    const svgContentLight = file_light
-      ? file_light.buffer.toString("utf-8")
-      : "";
-    const optimizedSvgContentLight = file_light
-      ? this.optimizeSvg(svgContentLight, file_light.originalname)
-      : "";
-
-    const svgContentDark = file_dark ? file_dark.buffer.toString("utf-8") : "";
-    const optimizedSvgContentDark = file_dark
-      ? this.optimizeSvg(svgContentDark, file_dark.originalname)
-      : optimizedSvgContentLight;
-
     await this.svgElementService.updateElementSvgMetadata({
       _id: processogramId,
-      fileNameLight: file_light?.originalname ?? "",
-      fileNameDark: file_dark?.originalname ?? "",
-      svgLightString: optimizedSvgContentLight,
-      svgDarkString: optimizedSvgContentDark,
-      originalSizeDark: file_dark?.size,
-      originalSizeLight: file_light?.size,
+      file_light,
+      file_dark,
     });
   }
 }

@@ -6,7 +6,8 @@ import { LeanDocument } from "mongoose";
 type LeanProductionModule = LeanDocument<
   ProductionModuleType & {
     _id: string;
-    processograms_urls: string[] | undefined;
+    processograms_urls_dark: string[] | undefined;
+    processograms_urls_light: string[] | undefined;
   }
 >;
 
@@ -73,13 +74,27 @@ export class GetPublicProductionModuleUseCase {
 
         if (processogramsCount === 0) return [];
 
-        const urls = productionModule.processograms?.flatMap(
+        const urlsDark = productionModule.processograms?.flatMap(
           (processogram: any) => {
-            const raster_images = processogram.raster_images;
+            const raster_images_dark = processogram.raster_images_dark;
 
-            if (!raster_images) return [];
+            if (!raster_images_dark) return [];
 
-            const url = raster_images[processogram.identifier].src;
+            const url = raster_images_dark[processogram.identifier]?.src;
+
+            if (!url) return [];
+
+            return [url];
+          }
+        );
+
+        const urlsLight = productionModule.processograms?.flatMap(
+          (processogram: any) => {
+            const raster_images_light = processogram.raster_images_light;
+
+            if (!raster_images_light) return [];
+
+            const url = raster_images_light[processogram.identifier]?.src;
 
             if (!url) return [];
 
@@ -91,7 +106,8 @@ export class GetPublicProductionModuleUseCase {
           {
             ...productionModule,
             processograms: undefined,
-            processograms_urls: urls,
+            processograms_urls_dark: urlsDark,
+            processograms_urls_light: urlsLight,
           },
         ];
       }

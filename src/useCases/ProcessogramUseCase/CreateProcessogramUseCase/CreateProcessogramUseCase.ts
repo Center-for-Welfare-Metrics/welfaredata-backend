@@ -198,14 +198,10 @@ export class CreateProcessogramUseCase {
       : optimizedSvgContentLight;
 
     const { elements: darkElements, svgData: darkSvgData } =
-      await this.extractSvgElements(
-        optimizedSvgContentLight || optimizedSvgContentDark
-      );
+      await this.extractSvgElements(optimizedSvgContentDark);
 
     const { elements: lightElements, svgData: lightSvgData } =
-      await this.extractSvgElements(
-        optimizedSvgContentDark || optimizedSvgContentLight
-      );
+      await this.extractSvgElements(optimizedSvgContentLight);
 
     if (darkElements.length === 0 || lightElements.length === 0) {
       throw new Error(
@@ -299,7 +295,7 @@ export class CreateProcessogramUseCase {
    * @param elements - The extracted SVG elements
    * @returns Map of element IDs to rasterized data
    */
-  private createRasterDataMap(
+  createRasterDataMap(
     elements: RasterizedElement[]
   ): Map<string, RasterizedData> {
     const rasterDataUrls = new Map<string, RasterizedData>();
