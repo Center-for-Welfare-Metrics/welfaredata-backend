@@ -2,10 +2,7 @@ import mongoose, { Schema } from "mongoose";
 
 interface ImageEntry {
   id: string;
-  filename: string;
   url: string;
-  file_type: string;
-  file_size: number;
   uploaded_at: Date;
 }
 
