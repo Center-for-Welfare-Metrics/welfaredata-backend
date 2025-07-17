@@ -1,17 +1,24 @@
 import mongoose, { Schema } from "mongoose";
 
-interface ImageEntry {
-  id: string;
-  url: string;
-  uploaded_at: Date;
-}
+type ImageEntry =
+  | {
+      url: string;
+      source: "user-uploaded";
+      uploaded_at: Date;
+      s3_bucket_key: string;
+    }
+  | {
+      url: string;
+      source: "url-only";
+      uploaded_at: Date;
+    };
 
 export interface IProcessogramImages extends mongoose.Document {
-  production_system_name: string;
-  processogram_id: mongoose.Types.ObjectId;
   specie_id: mongoose.Types.ObjectId;
+  processogram_id: mongoose.Types.ObjectId;
+  autoSearch: boolean;
   images: {
-    [key: string]: ImageEntry;
+    [key: string]: ImageEntry[];
   };
   createdAt: Date;
   updatedAt: Date;
@@ -19,11 +26,14 @@ export interface IProcessogramImages extends mongoose.Document {
 
 const ProcessogramImagesSchema: Schema = new mongoose.Schema(
   {
-    production_system_name: { type: String, required: true },
     specie_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Specie",
       required: true,
+    },
+    autoSearch: {
+      type: Boolean,
+      default: true,
     },
     processogram_id: {
       type: mongoose.Schema.Types.ObjectId,

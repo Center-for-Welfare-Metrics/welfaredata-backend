@@ -7,6 +7,7 @@ import species from "./species";
 import processograms from "./processogram";
 import processogramDatas from "./processogram-datas";
 import productionModules from "./production-modules";
+import processogramImages from "./processogram-images";
 
 router.all("/*", AuthProtected);
 
@@ -17,5 +18,7 @@ router.use("/species", species);
 router.use("/processogram-datas", processogramDatas);
 
 router.use("/production-modules", productionModules);
+
+router.use("/processogram-images", processogramImages);
 
 export default router;
