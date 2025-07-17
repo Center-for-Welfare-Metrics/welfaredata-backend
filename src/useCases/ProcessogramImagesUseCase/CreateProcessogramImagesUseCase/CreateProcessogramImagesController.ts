@@ -4,13 +4,11 @@ import { CreateProcessogramImagesUseCase } from "./CreateProcessogramImagesUseCa
 export class CreateProcessogramImagesController {
   async create(req: Request, res: Response): Promise<void> {
     try {
-      const { production_system_name, specie_id, processogram_id, images } =
-        req.body;
+      const { specie_id, processogram_id, images } = req.body;
 
       const createProcessogramImagesUseCase =
         new CreateProcessogramImagesUseCase();
       const processogramImages = await createProcessogramImagesUseCase.execute({
-        production_system_name,
         specie_id,
         processogram_id,
         images,
