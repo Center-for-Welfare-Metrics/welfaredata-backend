@@ -1,3 +1,4 @@
+import { deleteFromS3 } from "@/src/implementations/mongoose/processograms/deleteProcessogramsAndImages";
 import {
   ProcessogramImagesModel,
   IProcessogramImages,
@@ -8,6 +9,7 @@ interface CreateProcessogramImagesParams {
   key: string;
   url: string;
   title: string;
+  s3_bucket_key?: string;
 }
 
 interface DeleteProcessogramImageParams {
@@ -25,7 +27,7 @@ export class CreateProcessogramImagesUseCase {
   async execute(
     params: CreateProcessogramImagesParams
   ): Promise<IProcessogramImages | null> {
-    const { id, key, url, title } = params;
+    const { id, key, url, title, s3_bucket_key } = params;
 
     try {
       const existingProcessogramImages = await ProcessogramImagesModel.findOne({
@@ -44,10 +46,11 @@ export class CreateProcessogramImagesUseCase {
       updatedImages[key] = [
         ...imagesKey,
         {
-          source: "url-only",
+          source: s3_bucket_key ? "user-uploaded" : "url-only",
           url,
           uploaded_at: new Date(),
           title: title,
+          s3_bucket_key: s3_bucket_key || "",
         },
       ];
 
@@ -86,6 +89,8 @@ export class CreateProcessogramImagesUseCase {
       }
 
       // Filter out the image with the matching URL
+      const finded = updatedImages[key].find((image) => image.url === url);
+
       const filteredImages = updatedImages[key].filter(
         (image) => image.url !== url
       );
@@ -107,6 +112,10 @@ export class CreateProcessogramImagesUseCase {
           { images: updatedImages },
           { new: true }
         );
+
+      if (finded?.source === "user-uploaded") {
+        await deleteFromS3(finded.s3_bucket_key);
+      }
 
       return updatedProcessogramImages;
     } catch (error: any) {

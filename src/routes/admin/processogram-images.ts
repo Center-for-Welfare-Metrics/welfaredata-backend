@@ -2,14 +2,15 @@ import express from "express";
 import { AuthProtected } from "@/middlewares/logged";
 import { listProcessogramImagesController } from "@/src/useCases/ProcessogramImagesUseCase/ListProcessogramImagesUseCase/ListProcessogramImagesController";
 import { updateProcessogramImagesController } from "@/src/useCases/ProcessogramImagesUseCase/UpdateProcessogramImagesUseCase/UpdateProcessogramImagesController";
-import { createProcessogramImagesController } from "@/src/useCases/ProcessogramImagesUseCase/CreateProcessogramImagesUseCase/CreateProcessogramImagesController";
 import {
   updateProcessogramImagesValidator,
   removeImageValidator,
   updateBulkImagesValidator,
 } from "@/src/useCases/ProcessogramImagesUseCase/UpdateProcessogramImagesUseCase/Validator";
-import { createProcessogramImagesValidator } from "@/src/useCases/ProcessogramImagesUseCase/CreateProcessogramImagesUseCase/Validator";
 import { validate } from "@/src/utils/validate";
+import multer from "multer";
+
+const upload = multer();
 
 const router = express.Router();
 
@@ -27,17 +28,10 @@ router.get(
   listProcessogramImagesController.getByProcessogramId
 );
 
-// Create new processogram images
-router.post(
-  "/",
-  createProcessogramImagesValidator(),
-  validate,
-  createProcessogramImagesController.create
-);
-
 // Update single image by ID and key
 router.patch(
   "/:id",
+  upload.single("file"),
   updateProcessogramImagesValidator(),
   validate,
   updateProcessogramImagesController.update

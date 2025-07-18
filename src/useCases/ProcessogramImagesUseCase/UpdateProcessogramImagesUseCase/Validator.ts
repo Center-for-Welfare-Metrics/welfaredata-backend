@@ -7,11 +7,8 @@ export const updateProcessogramImagesValidator = () => [
     .isString()
     .withMessage("Image key must be a string"),
 
-  body("url")
-    .notEmpty()
-    .withMessage("Image URL is required")
-    .isURL()
-    .withMessage("Image URL must be a valid URL"),
+  // No need to validate "file" in body, multer handles file uploads
+  body("url").optional().isURL().withMessage("Image URL must be a valid URL"),
 ];
 
 export const removeImageValidator = () => [

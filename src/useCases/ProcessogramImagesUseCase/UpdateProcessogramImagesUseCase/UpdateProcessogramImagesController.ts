@@ -1,19 +1,37 @@
 import { Request, Response } from "express";
 import { CreateProcessogramImagesUseCase } from "./UpdateProcessogramImagesUseCase";
+import { upload } from "@/src/storage/storage";
 
 export class UpdateProcessogramImagesController {
   async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
       const { key, url, title } = req.body;
+      const file = req.file;
+
+      let s3_bucket_key: string | undefined;
+      let s3_url: string | undefined;
+
+      if (file) {
+        const uploadResult = await upload(
+          file.originalname,
+          file.buffer,
+          file.mimetype,
+          "processogram-images"
+        );
+        s3_bucket_key = uploadResult.Key;
+        s3_url = uploadResult.Location;
+      }
 
       const updateProcessogramImagesUseCase =
         new CreateProcessogramImagesUseCase();
+
       const processogramImages = await updateProcessogramImagesUseCase.execute({
         id,
-        key,
-        url,
+        key: key,
+        url: s3_url || url,
         title,
+        s3_bucket_key,
       });
 
       res.status(200).json({
