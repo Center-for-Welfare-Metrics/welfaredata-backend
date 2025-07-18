@@ -3,12 +3,14 @@ import mongoose, { Schema } from "mongoose";
 type ImageEntry =
   | {
       url: string;
+      title: string;
       source: "user-uploaded";
       uploaded_at: Date;
       s3_bucket_key: string;
     }
   | {
       url: string;
+      title: string;
       source: "url-only";
       uploaded_at: Date;
     };

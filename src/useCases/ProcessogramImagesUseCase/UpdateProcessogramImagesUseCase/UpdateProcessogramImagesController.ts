@@ -5,7 +5,7 @@ export class UpdateProcessogramImagesController {
   async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const { key, url } = req.body;
+      const { key, url, title } = req.body;
 
       const updateProcessogramImagesUseCase =
         new CreateProcessogramImagesUseCase();
@@ -13,6 +13,7 @@ export class UpdateProcessogramImagesController {
         id,
         key,
         url,
+        title,
       });
 
       res.status(200).json({

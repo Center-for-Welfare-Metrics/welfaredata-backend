@@ -7,6 +7,7 @@ interface CreateProcessogramImagesParams {
   id: string;
   key: string;
   url: string;
+  title: string;
 }
 
 interface DeleteProcessogramImageParams {
@@ -24,7 +25,7 @@ export class CreateProcessogramImagesUseCase {
   async execute(
     params: CreateProcessogramImagesParams
   ): Promise<IProcessogramImages | null> {
-    const { id, key, url } = params;
+    const { id, key, url, title } = params;
 
     try {
       const existingProcessogramImages = await ProcessogramImagesModel.findOne({
@@ -46,6 +47,7 @@ export class CreateProcessogramImagesUseCase {
           source: "url-only",
           url,
           uploaded_at: new Date(),
+          title: title,
         },
       ];
 
