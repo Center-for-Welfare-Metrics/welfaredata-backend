@@ -23,8 +23,6 @@ export const uploadSvgValidator = () => [
     .withMessage("is_published must be a boolean"),
   check()
     .custom((_, { req }) => {
-      console.log(req);
-
       if (!req.files?.["file_light"]?.[0] && !req.files?.["file_dark"]?.[0]) {
         throw new Error("File is required");
       }

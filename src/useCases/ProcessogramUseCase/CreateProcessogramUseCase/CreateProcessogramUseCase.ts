@@ -244,6 +244,8 @@ export class CreateProcessogramUseCase {
    * @returns Optimized SVG content
    */
   optimizeSvg(svgContent: string, filename: string): string {
+    console.log("Optimizing SVG content for:", filename);
+
     const result = optimize(svgContent, {
       path: filename,
       floatPrecision: 2,
@@ -267,6 +269,8 @@ export class CreateProcessogramUseCase {
         fixMissingSvgIdPlugin,
       ],
     });
+
+    console.log("SVG optimization complete for:", filename);
 
     return result.data;
   }
