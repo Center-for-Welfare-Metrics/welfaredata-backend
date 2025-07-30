@@ -10,6 +10,7 @@ export interface IUser extends mongoose.Document {
   createdBy?: string;
   lastUpdatedBy?: string;
   role?: String;
+  super?: boolean;
   validatePassword(password: string): Promise<boolean>;
   secureJsonfy(): any;
 }
@@ -27,6 +28,7 @@ const UserSchema: Schema = new mongoose.Schema(
       required: false,
       ref: "User",
     },
+    super: { type: Boolean, default: false },
     role: { type: mongoose.Types.ObjectId, required: false, ref: "Role" },
   },
   {

@@ -8,6 +8,7 @@ import processograms from "./processogram";
 import processogramDatas from "./processogram-datas";
 import productionModules from "./production-modules";
 import processogramImages from "./processogram-images";
+import registrationCode from "./registration-code";
 
 router.all("/*", AuthProtected);
 
@@ -20,5 +21,7 @@ router.use("/processogram-datas", processogramDatas);
 router.use("/production-modules", productionModules);
 
 router.use("/processogram-images", processogramImages);
+
+router.use("/registration-code", registrationCode);
 
 export default router;
