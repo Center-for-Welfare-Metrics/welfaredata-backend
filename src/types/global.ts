@@ -27,6 +27,14 @@ declare global {
     ) => number;
     getRotationTransform: (element: SVGElement) => RotationTransform;
     getTransformedBBox: (element: SVGGraphicsElement) => BBox;
+    getTransformData: (element: SVGGraphicsElement) => {
+      rotation: RotationTransform;
+      translation: { tx: number; ty: number };
+    };
+    getRelativeSizeFromBBox: (bbox: BBox) => Size;
+    getRelativeSizeFromElement: (element: SVGGraphicsElement) => Size;
+    getRelativeSizeFromElements: (elements: SVGGraphicsElement[]) => Size;
+    getRelativeSizeFromElementsById: (ids: string[]) => Size;
     getRelativeSize: (first: Size, second: Size) => number;
     getElementNameFromId: (id: string) => string;
     getElementLevelFromId: (id: string) => string;

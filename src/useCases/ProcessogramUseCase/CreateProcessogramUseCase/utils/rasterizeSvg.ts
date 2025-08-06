@@ -87,35 +87,83 @@ export async function rasterizeSvg(
       return { angle, cx, cy };
     };
 
+    window.getTransformData = function getTransformData(element: SVGElement) {
+      const transformAttr = element.getAttribute("transform");
+      if (!transformAttr)
+        return {
+          rotation: { angle: 0, cx: 0, cy: 0 },
+          translation: { tx: 0, ty: 0 },
+        };
+
+      // Match rotate(angle cx cy) format
+      const rotateMatch = transformAttr.match(
+        /rotate\((-?\d+(?:\.\d+)?)(?:\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?))?\)/
+      );
+
+      // Match translate(tx ty) format
+      const translateMatch = transformAttr.match(
+        /translate\((-?\d+(?:\.\d+)?)(?:\s+(-?\d+(?:\.\d+)?))?\)/
+      );
+
+      const rotation = rotateMatch
+        ? {
+            angle: parseFloat(rotateMatch[1]),
+            cx: rotateMatch[2] ? parseFloat(rotateMatch[2]) : 0,
+            cy: rotateMatch[3] ? parseFloat(rotateMatch[3]) : 0,
+          }
+        : { angle: 0, cx: 0, cy: 0 };
+
+      const translation = translateMatch
+        ? {
+            tx: parseFloat(translateMatch[1]),
+            ty: translateMatch[2] ? parseFloat(translateMatch[2]) : 0,
+          }
+        : { tx: 0, ty: 0 };
+
+      return { rotation, translation };
+    };
+
     window.getTransformedBBox = function getTransformedBBox(
       element: SVGGraphicsElement
     ) {
       const bbox = element.getBBox();
-      const { angle, cx, cy } = window.getRotationTransform(element);
+      const { rotation, translation } = window.getTransformData(element);
 
-      if (angle === 0) return bbox; // No rotation, return normal bbox
+      // Apply translation first
+      let transformedBBox = {
+        x: bbox.x + translation.tx,
+        y: bbox.y + translation.ty,
+        width: bbox.width,
+        height: bbox.height,
+      };
 
-      const radians = (angle * Math.PI) / 180; // Convert degrees to radians
+      // If no rotation, return the translated bbox
+      if (rotation.angle === 0) return transformedBBox;
 
-      // Four original corners of the bbox
+      const radians = (rotation.angle * Math.PI) / 180;
+
+      // Four corners of the translated bbox
       const corners = [
-        { x: bbox.x, y: bbox.y }, // Top-left
-        { x: bbox.x + bbox.width, y: bbox.y }, // Top-right
-        { x: bbox.x, y: bbox.y + bbox.height }, // Bottom-left
-        { x: bbox.x + bbox.width, y: bbox.y + bbox.height }, // Bottom-right
+        { x: transformedBBox.x, y: transformedBBox.y }, // Top-left
+        { x: transformedBBox.x + transformedBBox.width, y: transformedBBox.y }, // Top-right
+        { x: transformedBBox.x, y: transformedBBox.y + transformedBBox.height }, // Bottom-left
+        {
+          x: transformedBBox.x + transformedBBox.width,
+          y: transformedBBox.y + transformedBBox.height,
+        }, // Bottom-right
       ];
 
       // Rotate each corner around (cx, cy)
       const rotatedCorners = corners.map(({ x, y }) => {
-        const dx = x - cx;
-        const dy = y - cy;
+        const dx = x - rotation.cx;
+        const dy = y - rotation.cy;
         return {
-          x: cx + dx * Math.cos(radians) - dy * Math.sin(radians),
-          y: cy + dx * Math.sin(radians) + dy * Math.cos(radians),
+          x: rotation.cx + dx * Math.cos(radians) - dy * Math.sin(radians),
+          y: rotation.cy + dx * Math.sin(radians) + dy * Math.cos(radians),
         };
       });
 
-      // Compute new bbox from rotated corners
+      // Compute final bbox from rotated corners
       const xValues = rotatedCorners.map((p) => p.x);
       const yValues = rotatedCorners.map((p) => p.y);
 
