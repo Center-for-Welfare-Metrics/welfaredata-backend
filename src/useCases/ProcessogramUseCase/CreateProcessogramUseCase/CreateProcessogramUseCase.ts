@@ -18,6 +18,7 @@ import {
   generateProcessogramElementQuestions,
 } from "./utils/generateProcessogramElementQuestions";
 import { fixMissingSvgIdPlugin } from "@/src/svgo/plugins/fixMissingSvgIdPlugin";
+import { addViewBoxPlugin } from "@/src/svgo/plugins/addViewBoxPlugin";
 
 interface File {
   buffer: Buffer;
@@ -187,21 +188,21 @@ export class CreateProcessogramUseCase {
       ? file_light.buffer.toString("utf-8")
       : "";
 
-    const optimizedSvgContentLight = file_light
+    const firstStepoptimizedSvgContentLight = file_light
       ? this.optimizeSvg(svgContentLight, file_light.originalname)
       : "";
 
     const svgContentDark = file_dark ? file_dark.buffer.toString("utf-8") : "";
 
-    const optimizedSvgContentDark = file_dark
+    const firstStepoptimizedSvgContentDark = file_dark
       ? this.optimizeSvg(svgContentDark, file_dark.originalname)
-      : optimizedSvgContentLight;
+      : firstStepoptimizedSvgContentLight;
 
     const { elements: darkElements, svgData: darkSvgData } =
-      await this.extractSvgElements(optimizedSvgContentDark);
+      await this.extractSvgElements(firstStepoptimizedSvgContentDark);
 
     const { elements: lightElements, svgData: lightSvgData } =
-      await this.extractSvgElements(optimizedSvgContentLight);
+      await this.extractSvgElements(firstStepoptimizedSvgContentLight);
 
     if (darkElements.length === 0 && lightElements.length === 0) {
       throw new Error(
@@ -212,8 +213,8 @@ export class CreateProcessogramUseCase {
     const svgData = darkSvgData || lightSvgData;
 
     return {
-      svgLightContent: optimizedSvgContentLight,
-      svgDarkContent: optimizedSvgContentDark,
+      svgLightContent: firstStepoptimizedSvgContentLight,
+      svgDarkContent: firstStepoptimizedSvgContentDark,
       darkElements: darkElements,
       lightElements: lightElements,
       svgData: svgData,
@@ -267,6 +268,7 @@ export class CreateProcessogramUseCase {
         removeUnusedIdsPlugin,
         removeBxAttributesPlugin,
         fixMissingSvgIdPlugin,
+        addViewBoxPlugin,
       ],
     });
 
