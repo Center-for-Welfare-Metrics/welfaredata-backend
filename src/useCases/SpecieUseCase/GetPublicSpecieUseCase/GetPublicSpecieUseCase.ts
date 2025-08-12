@@ -1,17 +1,19 @@
 import Specie, { SpecieType } from "@/src/models/Specie";
+import { getItemWithProcessogramUrls } from "@/src/utils/mongoose-utils";
 import { LeanDocument } from "mongoose";
 
-type LeanSpecie = LeanDocument<
-  SpecieType & {
+type LeanSpecie = SpecieType & {
+  processograms: {
     _id: string;
-    processograms_urls_dark: string[] | undefined;
-    processograms_urls_light: string[] | undefined;
-  }
->;
+    identifier: string;
+    raster_images_dark?: { [key: string]: { src: string } };
+    raster_images_light?: { [key: string]: { src: string } };
+  }[];
+};
 
 export class GetPublicSpecieUseCase {
-  async execute(): Promise<LeanSpecie[] | null> {
-    const species = await Specie.find()
+  async execute() {
+    const species = await Specie.find<LeanSpecie>()
       .populate("productionModulesCount")
       .populate({
         path: "processogramsCount",
@@ -19,7 +21,7 @@ export class GetPublicSpecieUseCase {
       })
       .populate({
         path: "processograms",
-        select: "identifier raster_images_dark raster_images_light",
+        select: "_id identifier raster_images_dark raster_images_light",
         match: { status: "ready", is_published: true },
       })
       .lean();
@@ -29,44 +31,13 @@ export class GetPublicSpecieUseCase {
       return null;
     }
 
-    const speciesWithUrls = species.flatMap((specie) => {
-      const processogramsCount = specie.processogramsCount ?? 0;
+    const speciesWithProcessograms = species.filter(
+      (specie) => specie.processograms && specie.processograms.length > 0
+    );
 
-      if (processogramsCount === 0) return [];
-
-      const urlsDark = specie.processograms?.flatMap((processogram: any) => {
-        const raster_images_dark = processogram.raster_images_dark;
-
-        if (!raster_images_dark) return [];
-
-        const url = raster_images_dark[processogram.identifier]?.src;
-
-        if (!url) return [];
-
-        return [url];
-      });
-
-      const urlsLight = specie.processograms?.flatMap((processogram: any) => {
-        const raster_images_light = processogram.raster_images_light;
-
-        if (!raster_images_light) return [];
-
-        const url = raster_images_light[processogram.identifier]?.src;
-
-        if (!url) return [];
-
-        return [url];
-      });
-
-      return [
-        {
-          ...specie,
-          processograms: undefined,
-          processograms_urls_dark: urlsDark,
-          processograms_urls_light: urlsLight,
-        },
-      ];
-    });
+    const speciesWithUrls = getItemWithProcessogramUrls(
+      speciesWithProcessograms
+    );
 
     return speciesWithUrls;
   }

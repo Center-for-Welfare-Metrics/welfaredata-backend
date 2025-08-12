@@ -1,19 +1,19 @@
 import SpecieModel, { SpecieType } from "@/models/Specie";
-import { LeanDocument } from "mongoose";
+import { getItemWithProcessogramUrls } from "@/src/utils/mongoose-utils";
 
-type LeanSpecie = LeanDocument<
-  SpecieType & {
+type LeanSpecie = SpecieType & {
+  processograms: {
     _id: string;
-    processograms_urls_dark: string[] | undefined;
-    processograms_urls_light: string[] | undefined;
-  }
->;
-
+    identifier: string;
+    raster_images_dark?: { [key: string]: { src: string } };
+    raster_images_light?: { [key: string]: { src: string } };
+  }[];
+};
 export class ListSpecieUseCase {
-  async execute(): Promise<LeanSpecie[]> {
+  async execute() {
     try {
       // Get species with pagination
-      const species = await SpecieModel.find()
+      const species = await SpecieModel.find<LeanSpecie>()
         .sort({ createdAt: -1 })
         .populate("processogramsCount")
         .populate("productionModulesCount")
@@ -23,37 +23,7 @@ export class ListSpecieUseCase {
         })
         .lean();
 
-      const speciesWithUrls = species.map((specie) => {
-        const urlsDark = specie.processograms?.flatMap((processogram: any) => {
-          const raster_images_dark = processogram.raster_images_dark;
-
-          if (!raster_images_dark) return [];
-
-          const url = raster_images_dark[processogram.identifier]?.src;
-
-          if (!url) return [];
-
-          return [url];
-        });
-
-        const urlsLight = specie.processograms?.flatMap((processogram: any) => {
-          const raster_images_light = processogram.raster_images_light;
-
-          if (!raster_images_light) return [];
-
-          const url = raster_images_light[processogram.identifier]?.src;
-
-          if (!url) return [];
-
-          return [url];
-        });
-
-        return {
-          ...specie,
-          processograms_urls_dark: urlsDark,
-          processograms_urls_light: urlsLight,
-        };
-      });
+      const speciesWithUrls = getItemWithProcessogramUrls(species);
 
       return speciesWithUrls;
     } catch (error: any) {

@@ -1,6 +1,7 @@
 import ProductionModule, {
   ProductionModuleType,
 } from "@/src/models/ProductionModule";
+import { getItemWithProcessogramUrls } from "@/src/utils/mongoose-utils";
 import { LeanDocument } from "mongoose";
 
 type LeanProductionModule = LeanDocument<
@@ -16,7 +17,7 @@ interface Params {
 }
 
 export class GetPublicProductionModuleUseCase {
-  async execute(params: Params): Promise<LeanProductionModule[] | null> {
+  async execute(params: Params) {
     const { pathname } = params;
 
     const productionModules = await ProductionModule.aggregate([
@@ -68,49 +69,12 @@ export class GetPublicProductionModuleUseCase {
       throw new Error("Production module not found");
     }
 
-    const productionModulesWithUrls = productionModules.flatMap(
-      (productionModule) => {
-        const processogramsCount = productionModule.processogramsCount ?? 0;
+    const productionModulesWithProcessograms = productionModules.filter(
+      (pm) => pm.processograms && pm.processograms.length > 0
+    );
 
-        if (processogramsCount === 0) return [];
-
-        const urlsDark = productionModule.processograms?.flatMap(
-          (processogram: any) => {
-            const raster_images_dark = processogram.raster_images_dark;
-
-            if (!raster_images_dark) return [];
-
-            const url = raster_images_dark[processogram.identifier]?.src;
-
-            if (!url) return [];
-
-            return [url];
-          }
-        );
-
-        const urlsLight = productionModule.processograms?.flatMap(
-          (processogram: any) => {
-            const raster_images_light = processogram.raster_images_light;
-
-            if (!raster_images_light) return [];
-
-            const url = raster_images_light[processogram.identifier]?.src;
-
-            if (!url) return [];
-
-            return [url];
-          }
-        );
-
-        return [
-          {
-            ...productionModule,
-            processograms: undefined,
-            processograms_urls_dark: urlsDark,
-            processograms_urls_light: urlsLight,
-          },
-        ];
-      }
+    const productionModulesWithUrls = getItemWithProcessogramUrls(
+      productionModulesWithProcessograms
     );
 
     return productionModulesWithUrls;
