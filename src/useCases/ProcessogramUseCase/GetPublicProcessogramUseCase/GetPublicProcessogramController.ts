@@ -3,14 +3,9 @@ import { GetProcessogramUseCase } from "./GetPublicProcessogramUseCase";
 import { query } from "express-validator";
 
 export const getPublicProcessogramValidator = () => [
-  query("specie")
-    .notEmpty()
-    .withMessage("Specie is required")
-    .isString()
-    .withMessage("Specie must be a string"),
+  query("specie").optional().isString().withMessage("Specie must be a string"),
   query("productionModule")
-    .notEmpty()
-    .withMessage("Production module is required")
+    .optional()
     .isString()
     .withMessage("Production module must be a string"),
 ];
@@ -24,10 +19,6 @@ class GetProcessogramController {
   async list(req: Request<any, any, any, RequestParams>, res: Response) {
     try {
       const { specie, productionModule } = req.query;
-
-      if (!specie || typeof specie !== "string") {
-        return res.status(400).json({ error: "Specie parameter is required" });
-      }
 
       const getProcessogramsUseCase = new GetProcessogramUseCase();
       const elements = await getProcessogramsUseCase.execute({
