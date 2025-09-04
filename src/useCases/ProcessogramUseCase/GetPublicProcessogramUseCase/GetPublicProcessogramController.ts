@@ -13,17 +13,23 @@ export const getPublicProcessogramValidator = () => [
 type RequestParams = {
   specie: string;
   productionModule: string;
+  populate?: string;
 };
 
 class GetProcessogramController {
   async list(req: Request<any, any, any, RequestParams>, res: Response) {
     try {
-      const { specie, productionModule } = req.query;
+      const { specie, productionModule, populate } = req.query;
+
+      console.log("populate", populate);
+
+      console.log(populate === "true");
 
       const getProcessogramsUseCase = new GetProcessogramUseCase();
       const elements = await getProcessogramsUseCase.execute({
         specie,
         productionModule,
+        populate: populate === "true",
       });
 
       return res.status(200).json(elements);

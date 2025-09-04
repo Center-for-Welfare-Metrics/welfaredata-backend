@@ -33,6 +33,7 @@ const processogramsToProcessogramsWithDataDescription = (
 
 interface Params {
   specie: string | undefined;
+  populate: boolean;
   productionModule: string | undefined;
 }
 
@@ -44,7 +45,7 @@ export class GetProcessogramUseCase {
       const processograms = await ProcessogramModel.find({
         status: "ready",
         is_published: true,
-      });
+      }).populate(params.populate ? ["specie_id", "production_module_id"] : []);
       return processograms;
     }
 
