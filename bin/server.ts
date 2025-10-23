@@ -18,6 +18,10 @@ middlewaresAppConfig(app);
 
 app.use(express.static(__dirname, { dotfiles: "allow" }));
 
+app.get("/test", (req, res) => {
+  res.send("Server is running");
+});
+
 routes(app);
 
 const server = new http.Server(app);
