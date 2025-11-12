@@ -48,3 +48,18 @@ export const download = (disk: string, file_name: string) => {
       });
   });
 };
+
+export async function deleteFromS3(bucketKey: string): Promise<void> {
+  if (!bucketKey) return;
+
+  try {
+    await s3
+      .deleteObject({
+        Bucket: process.env.AWS_BUCKET_NAME ?? "danger-zone",
+        Key: bucketKey,
+      })
+      .promise();
+  } catch (error) {
+    console.error(`Failed to delete S3 object ${bucketKey}:`, error);
+  }
+}

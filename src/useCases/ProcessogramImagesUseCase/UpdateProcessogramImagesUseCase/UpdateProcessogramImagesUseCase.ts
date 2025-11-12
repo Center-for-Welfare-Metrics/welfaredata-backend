@@ -1,8 +1,8 @@
-import { deleteFromS3 } from "@/src/implementations/mongoose/processograms/deleteProcessogramsAndImages";
 import {
   ProcessogramImagesModel,
   IProcessogramImages,
 } from "@/src/models/ProcessogramImages";
+import { deleteFromStorage } from "@/src/storage/google-storage";
 
 interface CreateProcessogramImagesParams {
   id: string;
@@ -114,7 +114,7 @@ export class CreateProcessogramImagesUseCase {
         );
 
       if (finded?.source === "user-uploaded") {
-        await deleteFromS3(finded.s3_bucket_key);
+        await deleteFromStorage(finded.s3_bucket_key);
       }
 
       return updatedProcessogramImages;

@@ -1,27 +1,5 @@
-import AWS from "aws-sdk";
 import { ProcessogramModel, IProcessogram } from "../../../models/Processogram";
-
-// Configure AWS S3
-const s3 = new AWS.S3();
-
-/**
- * Helper function to delete an object from S3
- */
-export async function deleteFromS3(bucketKey: string): Promise<void> {
-  if (!bucketKey) return;
-
-  try {
-    await s3
-      .deleteObject({
-        Bucket: process.env.AWS_BUCKET_NAME ?? "danger-zone",
-        Key: bucketKey,
-      })
-      .promise();
-    console.log(`Deleted S3 object: ${bucketKey}`);
-  } catch (error) {
-    console.error(`Failed to delete S3 object ${bucketKey}:`, error);
-  }
-}
+import { deleteFromStorage } from "@/src/storage/google-storage";
 
 export async function deleteProcessogramRasterImages(
   rasterImages: Record<string, { bucket_key: string }>
@@ -30,7 +8,7 @@ export async function deleteProcessogramRasterImages(
 
   Object.values(rasterImages).forEach((image) => {
     if (image.bucket_key) {
-      deletePromises.push(deleteFromS3(image.bucket_key));
+      deletePromises.push(deleteFromStorage(image.bucket_key));
     }
   });
 
@@ -47,17 +25,17 @@ async function deleteProcessogramImages(
 
   // Delete SVG files
   if (processogram.svg_bucket_key_light) {
-    deletePromises.push(deleteFromS3(processogram.svg_bucket_key_light));
+    deletePromises.push(deleteFromStorage(processogram.svg_bucket_key_light));
   }
   if (processogram.svg_bucket_key_dark) {
-    deletePromises.push(deleteFromS3(processogram.svg_bucket_key_dark));
+    deletePromises.push(deleteFromStorage(processogram.svg_bucket_key_dark));
   }
 
   // Delete raster images light
   if (processogram.raster_images_light) {
     Object.values(processogram.raster_images_light).forEach((image) => {
       if (image.bucket_key) {
-        deletePromises.push(deleteFromS3(image.bucket_key));
+        deletePromises.push(deleteFromStorage(image.bucket_key));
       }
     });
   }
@@ -66,7 +44,7 @@ async function deleteProcessogramImages(
   if (processogram.raster_images_dark) {
     Object.values(processogram.raster_images_dark).forEach((image) => {
       if (image.bucket_key) {
-        deletePromises.push(deleteFromS3(image.bucket_key));
+        deletePromises.push(deleteFromStorage(image.bucket_key));
       }
     });
   }

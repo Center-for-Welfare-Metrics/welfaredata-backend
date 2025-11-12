@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { CreateProcessogramImagesUseCase } from "./UpdateProcessogramImagesUseCase";
-import { upload } from "@/src/storage/storage";
+import { upload } from "@/src/storage/google-storage";
 
 export class UpdateProcessogramImagesController {
   async update(req: Request, res: Response): Promise<void> {

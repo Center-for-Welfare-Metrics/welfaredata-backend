@@ -1,11 +1,8 @@
 import { ProcessogramModel } from "@/src/models/Processogram";
-import { upload } from "@/src/storage/storage";
+import { deleteFromStorage, upload } from "@/src/storage/google-storage";
 import mongoose from "mongoose";
 import { CreateProcessogramUseCase } from "../useCases/ProcessogramUseCase/CreateProcessogramUseCase/CreateProcessogramUseCase";
-import {
-  deleteFromS3,
-  deleteProcessogramRasterImages,
-} from "../implementations/mongoose/processograms/deleteProcessogramsAndImages";
+import { deleteProcessogramRasterImages } from "../implementations/mongoose/processograms/deleteProcessogramsAndImages";
 
 /**
  * Data structure for SVG element information
@@ -307,7 +304,7 @@ export class ProcessogramService {
         const currentDarkRasterImages = processogram?.raster_images_dark || {};
         await deleteProcessogramRasterImages(currentDarkRasterImages);
         if (processogram?.svg_bucket_key_dark) {
-          await deleteFromS3(processogram.svg_bucket_key_dark);
+          await deleteFromStorage(processogram.svg_bucket_key_dark);
         }
       }
 
@@ -332,7 +329,7 @@ export class ProcessogramService {
           processogram?.raster_images_light || {};
         await deleteProcessogramRasterImages(currentLightRasterImages);
         if (processogram?.svg_bucket_key_light) {
-          await deleteFromS3(processogram.svg_bucket_key_light);
+          await deleteFromStorage(processogram.svg_bucket_key_light);
         }
       }
 
