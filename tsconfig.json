@@ -8,6 +8,7 @@
     "strict": true,
     "baseUrl": ".",
     "allowJs": true,
+    "skipLibCheck": true,
     "paths": {
       "@/src/*": ["src/*"],
       "@/helpers/*": ["helpers/*"],
