@@ -1,4 +1,4 @@
-# WM Platform Backend
+# Welfare Data Backend
 
 A Node.js/TypeScript backend application for managing processograms (workflow diagrams) with AI-powered features, image processing, and comprehensive CRUD operations.
 
