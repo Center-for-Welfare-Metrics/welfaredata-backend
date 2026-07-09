@@ -44,6 +44,7 @@
     "@types/multer": "^1.4.7",
     "@types/node": "^18.7.15",
     "@types/svgo": "^2.6.4",
+    "@types/uuid": "^10.0.0",
     "@types/validatorjs": "^3.15.0",
     "@types/voca": "^1.4.2",
     "ts-node": "^10.9.1",
